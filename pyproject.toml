@@ -20,57 +20,34 @@ classifiers = [
 ]
 requires-python = ">=3.8"
 license = { text = "MIT" }
+
 dependencies = [
     "accelerate>=0.29.1",
-    "black==24.1.0",
-    "isort==5.13.2",
-    "datasets==2.16.1",
-    "evaluate>=0.4.0",
-    "httpx==0.23.3",
-    "jsonlines",
-    "numexpr",
-    "numpy==1.26.4",
-    "peft>=0.2.0",
-    "pybind11>=2.6.2",
-    "pytablewriter",
-    "sacrebleu>=1.5.0",
-    "scikit-learn>=0.24.1",
-    "sqlitedict==2.1.0",
-    "torch>=2.1.0", # to enable sdpa mode for running 34B model on one 80GB GPU
-    "torchvision>=0.16.0",
-    "timm",
-    "einops",
-    "ftfy",
-    "openai",
-    "opencv-python-headless",
-    "av",
-    "hf_transfer",
-    "nltk",
-    "sentencepiece==0.2.0",
-    "yt-dlp",
-    "pycocoevalcap",
-    "tqdm-multiprocess",
-    "transformers>=4.39.2",
-    "transformers-stream-generator",
-    "zstandard",
-    "pillow",
-    "pyyaml",
-    "sympy",
-    "mpmath",
-    "Jinja2",
-    "openpyxl",
-    "loguru",
-    "hf_transfer",
-    "tenacity==8.3.0",
-    "wandb>=0.16.0",
-    "tiktoken",
-    "pre-commit",
-    "pydantic",
-    "packaging",
-    "decord",
-    "zss",
-    "protobuf==3.20",
-    "sentence_transformers",
+    "datasets>=3,<4",
+    "evaluate>=0,<1",
+    "httpx>=0,<1",
+    "numpy>=2,<3",
+    "peft>=0,<1",
+    "pytablewriter>=1,<2",
+    "sacrebleu>=2,<3",
+    "scikit-learn>=1,<2",
+    "sqlitedict>=2,<3",
+    "torch>=2.1,<3",
+    "torchvision>=0,<1",
+    "einops>=0,<1",
+    "openai>=1,<2",
+    "av>=14,<15",
+    "hf_transfer>=0,<1",
+    "nltk>=3,<4",
+    "sentencepiece>=0,<1",
+    "pycocoevalcap>=1,<2",
+    "tqdm-multiprocess>=0,<1",
+    "transformers>=4,<5",
+    "transformers-stream-generator>=0,<1",
+    "loguru>=0,<1",
+    "wandb>=0,<1",
+    "decord>=0,<1",
+    "sentence_transformers>=3,<4",
 ]
 
 [project.optional-dependencies]
@@ -93,7 +70,7 @@ gemini = [
     "google-generativeai",
 ]
 reka = [
-    "httpx==0.23.3",
+    "httpx",
     "reka-api",
 ]
 qwen = [
@@ -118,6 +95,7 @@ all = [
     "qwen",
     "mmsearch"
 ]
+dev = ["black", "isort", "pre-commit"]
 
 [tool.setuptools.packages.find]
 include = ["lmms_eval*"]
