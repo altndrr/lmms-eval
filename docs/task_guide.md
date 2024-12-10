@@ -266,7 +266,7 @@ Also, the `lmms_eval_specific_kwargs` field is used to define model-specific pro
 
 **Generation-based Tasks (GPT-Eval)**
 
-You can check the following tasks to see how we incoporate GPT4 as judge model into our evaluation pipeline.
+You can check the following tasks to see how we incorporate GPT4 as judge model into our evaluation pipeline.
 
 - LLaVA-In-The-Wild (https://github.com/EvolvingLMMs-Lab/lmms-eval/blob/main/lmms_eval/tasks/llava-in-the-wild/llava-in-the-wild.yaml)
 
