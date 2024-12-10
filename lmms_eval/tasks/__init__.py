@@ -479,7 +479,6 @@ class TaskManager:
                     else:
                         self.logger.debug(f"File {f} in {root} could not be loaded as a task or group")
 
-        print(tasks_and_groups["mix_evals_image2text"])
         return tasks_and_groups
 
 
