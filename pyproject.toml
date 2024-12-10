@@ -24,53 +24,47 @@ license = { text = "MIT" }
 dependencies = [
     "accelerate>=0.29.1",
     "datasets>=3,<4",
+    "einops>=0,<1",
     "evaluate>=0,<1",
-    "httpx>=0,<1",
+    "loguru>=0,<1",
+    "nltk>=3,<4",
     "numpy>=2,<3",
+    "openai>=1,<2",
     "peft>=0,<1",
+    "pycocoevalcap>=1,<2",
     "pytablewriter>=1,<2",
+    "qwen_vl_utils>=0,<1",
     "sacrebleu>=2,<3",
     "scikit-learn>=1,<2",
+    "sentence_transformers>=3,<4",
+    "sentencepiece>=0,<1",
     "sqlitedict>=2,<3",
+    "tenacity>=9,<10",
     "torch>=2.1,<3",
     "torchvision>=0,<1",
-    "einops>=0,<1",
-    "openai>=1,<2",
-    "hf_transfer>=0,<1",
-    "nltk>=3,<4",
-    "sentencepiece>=0,<1",
-    "pycocoevalcap>=1,<2",
-    "tqdm-multiprocess>=0,<1",
     "transformers>=4,<5",
-    "transformers-stream-generator>=0,<1",
-    "loguru>=0,<1",
-    "tenacity>=9,<10",
     "wandb>=0,<1",
-    "sentence_transformers>=3,<4",
 ]
 
 [project.optional-dependencies]
-metrics = [
-    "pywsd",
-    "spacy",
-    "anls",
-    "rouge",
-    "capture_metric",
-    "Levenshtein",
-]
-qwen = ["qwen_vl_utils"]
+convbench = ["anls"]
+detailcaps = ["capture_metric"]
+llava_interleaved_bench = ["rouge"]
+mathvista = ["Levenshtein"]
 mmsearch = [
-    "playwright",
-    "requests",
-    "matplotlib",
+    "beautifulsoup4",
     "duckduckgo_search",
+    "FlagEmbedding",
     "langchain",
     "langchain-community",
-    "beautifulsoup4",
-    "FlagEmbedding",
+    "matplotlib",
+    "playwright",
     "rouge",
 ]
-all = ["metrics", "qwen", "mmsearch"]
+multidocvqa = ["Levenshtein"]
+vcrwiki = ["spacy"]
+
+all = ["convbench", "detailcaps", "llava_interleaved_bench", "mathvista", "mmsearch", "multidocvqa", "vcrwiki"]
 dev = ["black", "isort", "pre-commit"]
 
 [tool.setuptools.packages.find]
