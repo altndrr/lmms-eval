@@ -18,9 +18,6 @@ def wavcaps_doc_to_text(doc, lmms_eval_specific_kwargs):
     post_prompt = lmms_eval_specific_kwargs["post_prompt"]
     return f"{pre_prompt}{question}{post_prompt}"
 
-
-# functions for the clotho_asqa_v2 task, need to be tested later
-
 with open(Path(__file__).parent / "wavcaps.yaml", "r") as f:
     raw_data = f.readlines()
     safe_data = []
