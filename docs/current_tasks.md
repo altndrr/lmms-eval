@@ -197,8 +197,3 @@
   - Q-Bench2-HF (qbench2_dev)
   - Q-Bench-HF (qbench_dev)
   - A-Bench-HF (abench_dev)
-
-## 3. Text Tasks
-
-- [MMLU](https://github.com/hendrycks/test) (mmlu)
-- [MMLU_pro](https://github.com/TIGER-AI-Lab/MMLU-Pro) (mmlu_pro)
