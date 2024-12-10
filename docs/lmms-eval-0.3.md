@@ -114,7 +114,6 @@ Our upgrade also includes many new features, including faster model and task loa
 | **Alpaca Audio** | 2024 | alpaca_audio | test | AIF | GPT-4 Eval | 100 | 1. Synthetic voice |
 | **Clotho-AQA** | 2022 | clotho_aqa | test \| val | AIF | Accuracy | test_v2 (2.06k), test \| val (1.44k \| 1.05k) | 1. Audio Question Answering<br> 2. Single word answer<br> 3. Text based question |
 | **Common_voice** | 2023 | common_voice_15 | test | ASR | WER(↓) (align with Qwen-audio) | en (16.4k) \| fr (16.1k) \| zh (10.6k) | 1. Real people voice<br> 2. Captioning |
-| **GigaSpeech** | 2021 | gigaspeech | test \| dev | ASR | WER(↓)| dev (6.75k) \| test (25.6k) | 1. Transciption<br> 2. Audio book<br> 3. YouTube<br> 4. Podcasts |
 | **LibriSpeech** | 2015 | librispeech | dev-clean \| dev-other \| test-clean \| test-other | ASR | WER(↓)| dev-clean (~2.48k) \|<br>dev-other (~2.66k) \|<br>test-clean(~2.55k) \|<br> test-other (~2.70k) | 1. Transcription (audio book) |
 | **OpenHermes** | 2024 | openhermes | test | AIF | GPT-Eval | 100 | 1. Synthetic voice |
 | **MuchoMusic** | 2024 | muchomusic | test | AIF | Accuracy | 1.19k | 1. Music understanding |
@@ -143,7 +142,6 @@ AIF refers to Audio Instruction Following, and ASR refers to Audio Speech Recogn
 | **Common_voice** | zh |WER(↓)| 15.78 | 6.7 |
 |  | en |  | 36.01 | 27.9 |
 |  | fr |  | 39.88 | 34.8 |
-| **GigaSpeech** | dev |WER(↓)| 19.45 | 14 |
 |  | test |  | 22.6 | 15.01 |
 | **LibriSpeech** | dev-clean |WER(↓)| 4.24 | 1.66 |
 |  | dev-others |  | 6.54 | 3.66 |
@@ -221,7 +219,6 @@ As shown in the above results, the batch inference (BS=4) can significantly save
     2. [Alpaca Audio](https://tango2-web.github.io/)
     3. [Clotho-AQA](https://github.com/partha2409/AquaNet)
     4. [Common_voice_15](https://github.com/common-voice/common-voice)
-    5. [GigaSpeech](https://github.com/SpeechColab/GigaSpeech)
     6. [LibriSpeech](https://www.openslr.org/12)
     7. [OpenHermes](https://huggingface.co/datasets/AudioLLMs/openhermes_instruction_test)
     8. [MuchoMusic](https://github.com/mulab-mir/muchomusic)
