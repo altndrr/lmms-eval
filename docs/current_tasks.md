@@ -198,13 +198,7 @@
   - Q-Bench-HF (qbench_dev)
   - A-Bench-HF (abench_dev)
 
-## 3. Videos tasks:
-
-- [MMT-Bench](https://mmt-bench.github.io/) (mmt)
-  - MMT Validation (mmt_val)
-  - MMT Test (mmt_test)
-
-## 4. Text Tasks
+## 3. Text Tasks
 
 - [GSM8K](https://github.com/openai/grade-school-math) (gsm8k)
 - [HellaSwag](https://rowanzellers.com/hellaswag/) (hellaswag)
