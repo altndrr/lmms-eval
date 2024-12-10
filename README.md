@@ -90,12 +90,6 @@ We also provide the raw data exported from Weights & Biases for the detailed res
 </details>
 <br>
 
-If you want to test [VILA](https://github.com/NVlabs/VILA), you should install the following dependencies:
-
-```bash
-pip install s2wrapper@git+https://github.com/bfshi/scaling_on_scales
-```
-
 Our Development will be continuing on the main branch, and we encourage you to give us feedback on what features are desired and how to improve the library further, or ask questions, either in issues or PRs on GitHub.
 
 ## Multiple Usages
