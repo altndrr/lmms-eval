@@ -106,57 +106,9 @@ Our upgrade also includes many new features, including faster model and task loa
 
 ### **Meta Information for Audio Datasets**
 
-#### Table 1: Meta informantion for audio datasets
-
-| **Dataset** | **Year** | **Task Name in lmms-eval** | **Split** | **Task Format** | **Evaluation Metric** | **Number of QAs** | **Feature** |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| **AIR-Bench** | 2024 | air_bench_chat \| air_bench_foundation | chat, foundation | AIF | GPT-4 Eval (chat) \| Accuracy (foundation) | 2k (chat) \| 19k (foundation) | 1. Comprhensive tasks and audio types |
-| **Alpaca Audio** | 2024 | alpaca_audio | test | AIF | GPT-4 Eval | 100 | 1. Synthetic voice |
-| **Clotho-AQA** | 2022 | clotho_aqa | test \| val | AIF | Accuracy | test_v2 (2.06k), test \| val (1.44k \| 1.05k) | 1. Audio Question Answering<br> 2. Single word answer<br> 3. Text based question |
-| **Common_voice** | 2023 | common_voice_15 | test | ASR | WER(↓) (align with Qwen-audio) | en (16.4k) \| fr (16.1k) \| zh (10.6k) | 1. Real people voice<br> 2. Captioning |
-| **GigaSpeech** | 2021 | gigaspeech | test \| dev | ASR | WER(↓)| dev (6.75k) \| test (25.6k) | 1. Transciption<br> 2. Audio book<br> 3. YouTube<br> 4. Podcasts |
-| **LibriSpeech** | 2015 | librispeech | dev-clean \| dev-other \| test-clean \| test-other | ASR | WER(↓)| dev-clean (~2.48k) \|<br>dev-other (~2.66k) \|<br>test-clean(~2.55k) \|<br> test-other (~2.70k) | 1. Transcription (audio book) |
-| **OpenHermes** | 2024 | openhermes | test | AIF | GPT-Eval | 100 | 1. Synthetic voice |
-| **MuchoMusic** | 2024 | muchomusic | test | AIF | Accuracy | 1.19k | 1. Music understanding |
-| **People_speech** | 2021 | people_speech_val | val | ASR | WER(↓)| 18.6k | 1. Real people voice<br> 2. Captioning |
-| **Tedium v3** | 2018 | tedlium_dev_test | val | ASR | WER(↓)| 591 | 1. TED talk<br>  2. Real people ASR<br>  3. Captioning |
-| **VocalSound** | 2022 | vocalsound_test | test \| val | AIF | Accuracy | test (3.59k) \| val (1.86k) | 1. Vocal sound recognition<br> 2. Non-speech |
-| **WavCaps** | 2024 | wavcaps | test | ASR | GPT-4 Eval | 1.73k | 1. Audio Captioning<br> 2. ChatGPT-augmented captions |
-
 AIF refers to Audio Instruction Following, and ASR refers to Audio Speech Recognition. 
 
 ### Alignment Check for Audio Datasets
-
-#### Table 2: Alignment check for audio datasets
-
-|  |  | **Metric** | **Qwen2-Audio-Instruct (lmms-eval)** | **Qwen2-Audio (lmms-eval)** |
-| --- | --- | --- | --- | --- |
-| **AIR-Bench-Chat** | Speech | GPT-Eval  | 7.16 |  |
-|  | Sound |  | 6.14 |  |
-|  | Music |  | 6.66 |  |
-|  | Mixed |  | 5.75 |  |
-| **AIR-Bench-Foundation** | Speech | Acc | 62.89 |  |
-|  | Sound |  | 55.42 |  |
-|  | Music |  | 56.77 |  |
-| **Alpaca** | test | GPT-Eval | 51.8 |  |
-| **Clotho_aqa** | test | GPT-Eval | 0.7587 |  |
-| **Common_voice** | zh |WER(↓)| 15.78 | 6.7 |
-|  | en |  | 36.01 | 27.9 |
-|  | fr |  | 39.88 | 34.8 |
-| **GigaSpeech** | dev |WER(↓)| 19.45 | 14 |
-|  | test |  | 22.6 | 15.01 |
-| **LibriSpeech** | dev-clean |WER(↓)| 4.24 | 1.66 |
-|  | dev-others |  | 6.54 | 3.66 |
-|  | test-clean |  | 3.59 | 1.74 |
-|  | test-others |  | 7.46 | 3.87 |
-| **MuchoMusic** | test | Acc | 68.32 | 45.07 |
-| **OpenHermes** | test | GPT-Eval | 46.8 |  |
-| **People_speech** | val |WER(↓)| 25.86 | 17.1 |
-| **Tedium** | val |WER(↓)| 10.92 | 8.29 |
-| **VocalSound** | test | Acc | 0.936 | 0.81 |
-|  | val |  | 0.9288 | 0.8 |
-| **WavCaps** | test | GPT-Eval | 1.73 |  |
-
 
 The result might be inconsistent with the reported result as we do not have the original prompt and we have to maintain the fair environment for all the models. For the base model, we do not test on the Chat Benchmarks.
 
@@ -171,19 +123,6 @@ During our implementation, we observe several interesting phenomena that may be 
 As we trying to align the results, our investigation revealed that the choice of chat template significantly impacts model performance, even for instruction-tuned models. This finding emerged while analyzing the Qwen2 Audio model. The original Qwen2 Audio repository uses a minimal prompt format:  `"<|audio_bos|><|AUDIO|><|audio_eos|>"` .
 
 This basic format is then combined with various question prompts for different evaluation scenarios. However, this prompt format is not in an instruction format and when applying a chat template, the performance of the model may changes significantly.
-
-#### Table 3: Impact of Chat Template on Qwen-7B-Instruct's Performance
-
-| **Impact of Chat Template** | **Split** | **Metric** | **Chat Template (Off)** | **Chat Template (On)** |
-| --- | --- | --- | --- | --- |
-| **LibriSpeech** | dev-clean | WER(↓) | 2.65 | 4.24 |
-|  | dev-others |  | 5.36 | 6.54 |
-|  | test-clean |  | 2.91 | 3.59 |
-|  | test-others |  | 5.14 | 7.46 |
-| **People_speech** | val | WER(↓) | 21.92 | 25.86 |
-| **Tedium** | dev_test | WER(↓) | 9.56 | 10.92 |
-
-More specifically, we founds out that as shown in the above table, the influence of the chat template is very huge. We believe that these demonstrate the actual robustness of the model and signifies that current audio model may eventually not being stable enough when coping different text input. Also, it again leads us into another thinking: “Is current metrics good at evaluating a model’s performance?
 
 ### Rethinking the evaluation metrics
 
@@ -206,29 +145,12 @@ We perform an exploratory batch inference experiment on Qwen2-Audio with the fol
 
 |  | **Split** | **Metric** | **Qwen2-Audio (BS=4)** | **Qwen2-Audio (BS=1)** |
 | --- | --- | --- | --- | --- |
-| **LibriSpeech** | dev-clean | WER(↓) | 1.66 | 1.66 |
-|  | dev-others |  | 4.4 | 3.66 |
-|  | test-clean |  | 1.75 | 1.74 |
-|  | test-others |  | 4.06 | 3.87 |
 | **Total Time** |  |  | 10 mins 50 seconds | 5 min 23 seconds |
 
 As shown in the above results, the batch inference (BS=4) can significantly saves the inference time, it could lead to evaluation inconsistencies compared to single-sample processing (BS=1). This is a known issue in the `transformers` library that currently lacks a solution.
 
 ### More Details and Feature Updates with `v0.3.0`
 
-1. **Supported Audio Tasks**
-    1. [AirBench](https://github.com/OFA-Sys/AIR-Bench)
-    2. [Alpaca Audio](https://tango2-web.github.io/)
-    3. [Clotho-AQA](https://github.com/partha2409/AquaNet)
-    4. [Common_voice_15](https://github.com/common-voice/common-voice)
-    5. [GigaSpeech](https://github.com/SpeechColab/GigaSpeech)
-    6. [LibriSpeech](https://www.openslr.org/12)
-    7. [OpenHermes](https://huggingface.co/datasets/AudioLLMs/openhermes_instruction_test)
-    8. [MuchoMusic](https://github.com/mulab-mir/muchomusic)
-    9. [Peoples_speech](https://mlcommons.org/datasets/peoples-speech/)
-    10. [Tedium v3](https://www.openslr.org/51/)
-    11. [VocalSound](https://github.com/YuanGongND/vocalsound)
-    12. [WavCaps](https://github.com/XinhaoMei/WavCaps)
 2. **Support Audio Models**
     
     1. [Qwen2-Audio](https://github.com/QwenLM/Qwen2-Audio)

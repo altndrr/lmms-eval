@@ -52,13 +52,6 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-audio = [
-    "more-itertools",
-    "editdistance",
-    "zhconv",
-    "librosa",
-    "soundfile"
-]
 metrics = [
     "pywsd",
     "spacy",
