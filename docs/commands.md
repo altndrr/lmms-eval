@@ -162,50 +162,6 @@ results = evaluate(
 )
 ```
 
-## Usage with SRT API
-
-> install sglang
-
-```bash
-git clone https://github.com/sgl-project/sglang.git
-cd sglang;
-pip install -e "python[srt]"
-python3 -m pip install flashinfer -i https://flashinfer.ai/whl/cu121/torch2.3/
-```
-
-> run sglang backend service with the following command
-
-```bash
-
-CKPT_PATH=$1
-TASK=$2
-MODALITY=$3
-TP_SIZE=$4
-echo $TASK
-TASK_SUFFIX="${TASK//,/_}"
-echo $TASK_SUFFIX
-
-python3 -m lmms_eval \
-    --model srt_api \
-    --model_args modality=$MODALITY,model_version=$CKPT_PATH,tp=$TP_SIZE,host=127.0.0.1,port=30000,timeout=600 \
-    --tasks $TASK \
-    --batch_size 1 \
-    --log_samples \
-    --log_samples_suffix $TASK_SUFFIX \
-    --output_path ./logs/
-
-```
-
-You may need to install some dependencies for the above command to work (if you encounter some errors).
-
-```bash
-pip install httpx==0.23.3
-pip install protobuf==3.20
-pip install flashinfer -i https://flashinfer.ai/whl/cu121/torch2.3/
-```
-
-
-
 ## Regression Test
 
 Now after each PR, we need to run the regression test to make sure the performance of the model is not degraded.
