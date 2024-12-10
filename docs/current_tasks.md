@@ -203,18 +203,6 @@
 
 - [SeedBench](https://github.com/AILab-CVC/SEED-Bench) (seedbench)
 - [SeedBench 2](https://github.com/AILab-CVC/SEED-Bench) (seedbench_2)
-- [CVRR-ES](https://github.com/mbzuai-oryx/CVRR-Evaluation-Suite) (cvrr)
-  - cvrr_continuity_and_object_instance_count
-  - cvrr_fine_grained_action_understanding
-  - cvrr_interpretation_of_social_context
-  - cvrr_interpretation_of_visual_context
-  - cvrr_multiple_actions_in_a_single_video
-  - cvrr_non_existent_actions_with_existent_scene_depictions
-  - cvrr_non_existent_actions_with_non_existent_scene_depictions
-  - cvrr_partial_actions
-  - cvrr_time_order_understanding
-  - cvrr_understanding_emotional_context
-  - cvrr_unusual_and_physically_anomalous_activities
 - [EgoSchema](https://github.com/egoschema/EgoSchema) (egoschema)
   - egoschema_mcppl
   - egoschema_subset_mcppl
