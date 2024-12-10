@@ -206,9 +206,7 @@
 - [MMT-Bench](https://mmt-bench.github.io/) (mmt)
   - MMT Validation (mmt_val)
   - MMT Test (mmt_test)
-- [Vinoground](https://vinoground.github.io) (vinoground)
 - [VITATECS](https://github.com/lscpku/VITATECS) (vitatecs)
-
   - VITATECS Direction (vitatecs_direction)
   - VITATECS Intensity (vitatecs_intensity)
   - VITATECS Sequence (vitatecs_sequence)
