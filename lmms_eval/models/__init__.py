@@ -27,7 +27,6 @@ AVAILABLE_MODELS = {
     "phi3v": "Phi3v",
     "qwen_vl": "Qwen_VL",
     "qwen2_vl": "Qwen2_VL",
-    "qwen_vl_api": "Qwen_VL_API",
     "tinyllava": "TinyLlava",
     "xcomposer2_4KHD": "XComposer2_4KHD",
     "xcomposer2d5": "XComposer2D5",
