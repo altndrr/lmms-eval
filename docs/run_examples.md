@@ -326,29 +326,6 @@ accelerate launch --num_processes 8 --main_process_port 12345 -m lmms_eval \
 
 ```
 
-### LLaVA-OneVision-MovieChat
-
-```bash
-cd /path/to/lmms-eval
-python3 -m pip install -e .;
-
-git clone https://github.com/rese1f/MovieChat.git
-mv /path/to/MovieChat/MovieChat_OneVision/llava /path/to/lmms-eval/lmms_eval/models
-
-TASK=$1
-echo $TASK
-TASK_SUFFIX="${TASK//,/_}"
-echo $TASK_SUFFIX
-
-accelerate launch --num_processes 8 --main_process_port 12345 -m lmms_eval \
-    --model llava_onevision_moviechat \
-    --tasks $TASK \
-    --batch_size 1 \
-    --log_samples \
-    --log_samples_suffix $TASK_SUFFIX \
-    --output_path ./logs/ 
-```
-
 ### AuroraCap
 
 ```bash
