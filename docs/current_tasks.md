@@ -206,7 +206,6 @@
 - [MMT-Bench](https://mmt-bench.github.io/) (mmt)
   - MMT Validation (mmt_val)
   - MMT Test (mmt_test)
-- [YouCook2](http://youcook2.eecs.umich.edu/) (youcook2_val)
 - [VDC](https://github.com/rese1f/aurora) (vdc)
   - VDC Detailed Caption (detailed_test)
   - VDC Camera Caption (camera_test)
