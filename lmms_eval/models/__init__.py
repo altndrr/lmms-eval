@@ -11,13 +11,9 @@ logger.remove()
 logger.add(sys.stdout, level="WARNING")
 
 AVAILABLE_MODELS = {
-    "batch_gpt4": "BatchGPT4",
-    "claude": "Claude",
     "cogvlm2": "CogVLM2",
     "from_log": "FromLog",
     "fuyu": "Fuyu",
-    "gemini_api": "GeminiAPI",
-    "gpt4v": "GPT4V",
     "idefics2": "Idefics2",
     "instructblip": "InstructBLIP",
     "internvl": "InternVLChat",
