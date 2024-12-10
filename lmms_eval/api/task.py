@@ -868,7 +868,6 @@ class ConfigurableTask(Task):
         download_config.num_proc = dataset_kwargs.get("num_proc", 8) if dataset_kwargs is not None else 8
         download_config.local_files_only = dataset_kwargs.get("local_files_only", False) if dataset_kwargs is not None else False
         if dataset_kwargs is not None:
-
             if "force_download" in dataset_kwargs:
                 dataset_kwargs.pop("force_download")
 
