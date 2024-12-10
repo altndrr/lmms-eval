@@ -337,8 +337,6 @@ class EvaluationTracker:
         # - Each tested model and its aggregated results
         # - Each task and sample results, if existing
         # i.e. {
-        #     "org__model_name__gsm8k": "2021-09-01T12:00:00",
-        #     "org__model_name__ifeval": "2021-09-01T12:00:00",
         #     "org__model_name__results": "2021-09-01T12:00:00"
         # }
         latest_task_results_datetime = defaultdict(lambda: datetime.min.isoformat())
