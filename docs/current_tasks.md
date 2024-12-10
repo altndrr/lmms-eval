@@ -200,7 +200,6 @@
 
 ## 3. Text Tasks
 
-- [GSM8K](https://github.com/openai/grade-school-math) (gsm8k)
 - [HellaSwag](https://rowanzellers.com/hellaswag/) (hellaswag)
 - [IFEval](https://github.com/google-research/google-research/tree/master/instruction_following_eval) (ifeval)
 - [MMLU](https://github.com/hendrycks/test) (mmlu)
