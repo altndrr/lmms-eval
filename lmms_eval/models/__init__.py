@@ -42,7 +42,6 @@ AVAILABLE_MODELS = {
     "reka": "Reka",
     "srt_api": "SRT_API",
     "tinyllava": "TinyLlava",
-    "videoChatGPT": "VideoChatGPT",
     "vila": "VILA",
     "xcomposer2_4KHD": "XComposer2_4KHD",
     "internvideo2": "InternVideo2",
