@@ -270,27 +270,6 @@ You can check the following tasks to see how we incoporate GPT4 as judge model i
 
 - LLaVA-In-The-Wild (https://github.com/EvolvingLMMs-Lab/lmms-eval/blob/main/lmms_eval/tasks/llava-in-the-wild/llava-in-the-wild.yaml)
 
-**PPL-based tasks:**
-- Seedbench (`lmms_eval/tasks/seedbench/seedbench_ppl.yaml`)
-
-```yaml
-dataset_path: lmms-lab/SEED-Bench
-dataset_kwargs:
-  token: True
-task: "seedbench_ppl"
-test_split: test
-output_type: multiple_choice
-doc_to_visual: !function utils.seed_doc_to_visual
-doc_to_text: !function utils.seed_doc_to_text_mc
-doc_to_choice : !function utils.seed_doc_to_choice
-doc_to_target: !function utils.seed_doc_to_mc_target
-# Note that the metric name can be either a registed metric function (such as the case for GQA) or a key name returned by process_results
-metric_list:
-  - metric: acc
-metadata:
-  - version: 0.0
-```
-
 **Multi-round-generation-based tasks:**
 
 - MMSearch(`lmms_eval/tasks/mmsearch/mmsearch_end2end.yaml`)

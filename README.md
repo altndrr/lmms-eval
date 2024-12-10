@@ -90,12 +90,6 @@ We also provide the raw data exported from Weights & Biases for the detailed res
 </details>
 <br>
 
-If you want to test [VILA](https://github.com/NVlabs/VILA), you should install the following dependencies:
-
-```bash
-pip install s2wrapper@git+https://github.com/bfshi/scaling_on_scales
-```
-
 Our Development will be continuing on the main branch, and we encourage you to give us feedback on what features are desired and how to improve the library further, or ask questions, either in issues or PRs on GitHub.
 
 ## Multiple Usages
@@ -166,18 +160,6 @@ python3 -m accelerate.commands.launch \
 
 ```bash
 python3 -m accelerate.commands.launch --num_processes=8 -m lmms_eval --config ./miscs/example_eval.yaml
-```
-
-**Evaluation of video model (llava-next-video-32B)**
-```bash
-accelerate launch --num_processes 8 --main_process_port 12345 -m lmms_eval \
-    --model llavavid \
-    --model_args pretrained=lmms-lab/LLaVA-NeXT-Video-32B-Qwen,conv_template=qwen_1_5,video_decode_backend=decord,max_frames_num=32，mm_spatial_pool_mode=average,mm_newline_position=grid,mm_resampler_location=after \
-    --tasks videomme \
-    --batch_size 1 \
-    --log_samples \
-    --log_samples_suffix llava_vid_32B \
-    --output_path ./logs/
 ```
 
 **Evaluation with naive model sharding for bigger model (llava-next-72b)**

@@ -36,7 +36,6 @@ dependencies = [
     "torchvision>=0,<1",
     "einops>=0,<1",
     "openai>=1,<2",
-    "av>=14,<15",
     "hf_transfer>=0,<1",
     "nltk>=3,<4",
     "sentencepiece>=0,<1",
@@ -47,7 +46,6 @@ dependencies = [
     "loguru>=0,<1",
     "tenacity>=9,<10",
     "wandb>=0,<1",
-    "decord>=0,<1",
     "sentence_transformers>=3,<4",
 ]
 
@@ -60,17 +58,12 @@ metrics = [
     "capture_metric",
     "Levenshtein",
 ]
-gemini = [
-    "google-generativeai",
-]
+gemini = ["google-generativeai"]
 reka = [
     "httpx",
     "reka-api",
 ]
-qwen = [
-    "decord",
-    "qwen_vl_utils",
-]
+qwen = ["qwen_vl_utils"]
 mmsearch = [
     "playwright",
     "requests",

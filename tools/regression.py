@@ -17,7 +17,7 @@ vision_models = [
 
 single_image_tasks = ["ocrbench", "mmmu_val", "ai2d"]
 multi_image_tasks = ["muirbench"]
-video_tasks = ["videomme"]
+video_tasks = []
 # choice_tasks = []
 # perplexity_tasks = []
 # generation_tasks = []
@@ -100,8 +100,6 @@ def extract_value(args, results, model, task, err=False):
         return results["mmmu_acc,none"]
     elif task == "ocrbench":
         return results["ocrbench_accuracy,none"]
-    elif task == "videomme":
-        return results["videomme_perception_score,none"]
     elif task == "muirbench":
         return results["muirbench_score_overall,flexible-extract"]
     return 0

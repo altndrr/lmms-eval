@@ -2,7 +2,6 @@ import base64
 from io import BytesIO
 from typing import List, Optional, Tuple, Union
 
-import decord
 import numpy as np
 import torch
 from accelerate import Accelerator, DistributedType
@@ -15,7 +14,6 @@ from lmms_eval import utils
 from lmms_eval.api.instance import Instance
 from lmms_eval.api.model import lmms
 from lmms_eval.api.registry import register_model
-from lmms_eval.models.model_utils.load_video import load_video_decord
 
 try:
     from qwen_vl_utils import process_vision_info
@@ -202,13 +200,7 @@ class Qwen2_VL(lmms):
 
                 if len(visuals) > 0:
                     visual = visuals[i] if i < len(visuals) else None
-                    if isinstance(visual, str) and visual.endswith((".mp4", ".avi", ".mov")):  # Video file
-                        vr = decord.VideoReader(visual)
-                        first_frame = vr[0].asnumpy()
-                        height, width = first_frame.shape[:2]
-                        # max_pixels = height * width
-                        message.append({"role": "user", "content": [{"type": "video", "video": visual, "max_pixels": self.max_pixels}, {"type": "text", "text": context}]})
-                    elif isinstance(visual, Image.Image):  # Single image
+                    if isinstance(visual, Image.Image):  # Single image
                         base64_image = visual.convert("RGB")
                         buffer = BytesIO()
                         base64_image.save(buffer, format="JPEG")

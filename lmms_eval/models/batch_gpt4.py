@@ -22,12 +22,6 @@ from lmms_eval.api.instance import Instance
 from lmms_eval.api.model import lmms
 from lmms_eval.api.registry import register_model
 
-# Conditional imports
-try:
-    from decord import VideoReader, cpu
-except ImportError:
-    eval_logger.warning("Decord is not installed. Video input will not be supported.")
-
 # Constants and global configurations
 API_TYPE = os.getenv("API_TYPE", "openai")
 NUM_SECONDS_TO_SLEEP = 5
@@ -58,7 +52,6 @@ class BatchGPT4(lmms):
         model_version: str = "gpt-4o",
         api_key: str = API_KEY,
         api_url: str = API_URL,
-        modality: str = "image",
         max_frames_num: int = 10,
         timeout: int = 120,
         **kwargs,
@@ -68,7 +61,6 @@ class BatchGPT4(lmms):
         # and split the text and image
         # Here we just use the same token as llava for convenient
         self.model_version = model_version
-        self.modality = modality
         self.max_frames_num = max_frames_num
         self.image_token = "<image>"
         self.timeout = timeout
@@ -89,25 +81,6 @@ class BatchGPT4(lmms):
         base64_str = base64.b64encode(byte_data).decode("utf-8")
         return base64_str
 
-    # Function to encode the video
-    def encode_video(self, video_path, for_get_frames_num):
-        vr = VideoReader(video_path, ctx=cpu(0))
-        total_frame_num = len(vr)
-        uniform_sampled_frames = np.linspace(0, total_frame_num - 1, for_get_frames_num, dtype=int)
-        frame_idx = uniform_sampled_frames.tolist()
-        frames = vr.get_batch(frame_idx).asnumpy()
-
-        base64_frames = []
-        for frame in frames:
-            img = Image.fromarray(frame)
-            output_buffer = BytesIO()
-            img.save(output_buffer, format="PNG")
-            byte_data = output_buffer.getvalue()
-            base64_str = base64.b64encode(byte_data).decode("utf-8")
-            base64_frames.append(base64_str)
-
-        return base64_frames
-
     def flatten(self, input):
         new_list = []
         for i in input:
@@ -124,12 +97,8 @@ class BatchGPT4(lmms):
             visuals = self.flatten(visuals)
             imgs = []
             for visual in visuals:
-                if self.modality == "image":
-                    img = self.encode_image(visual)
-                    imgs.append(img)
-                elif self.modality == "video":
-                    frames = self.encode_video(visual, self.max_frames_num)
-                    imgs.extend(frames)
+                img = self.encode_image(visual)
+                imgs.append(img)
 
             messages = []
             if self.image_token not in contexts:

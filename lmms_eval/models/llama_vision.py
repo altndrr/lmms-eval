@@ -6,7 +6,6 @@ import PIL
 import torch
 from accelerate import Accelerator, DistributedType
 from accelerate.state import AcceleratorState
-from decord import VideoReader, cpu
 from torchvision.transforms.functional import to_pil_image
 from tqdm import tqdm
 from transformers import AutoConfig, AutoProcessor, MllamaForConditionalGeneration
@@ -152,17 +151,6 @@ class LlamaVision(lmms):
                 new_list.append(j)
         return new_list
 
-    def load_video(self, video_path, max_frames_num):
-        if type(video_path) == str:
-            vr = VideoReader(video_path, ctx=cpu(0))
-        else:
-            vr = VideoReader(video_path[0], ctx=cpu(0))
-        total_frame_num = len(vr)
-        uniform_sampled_frames = np.linspace(0, total_frame_num - 1, max_frames_num, dtype=int)
-        frame_idx = uniform_sampled_frames.tolist()
-        spare_frames = vr.get_batch(frame_idx).asnumpy()
-        return spare_frames  # (frames, height, width, channels)
-
     def generate_until(self, requests: List[Instance]) -> List[str]:
         res = []
 
@@ -176,12 +164,7 @@ class LlamaVision(lmms):
             images = []
 
             for visual in visuals:
-                if isinstance(visual, str):
-                    frames = self.load_video(visual, self.max_frames_num)
-                    frames = torch.from_numpy(frames).permute(0, 3, 1, 2)
-                    images.extend([to_pil_image(frame) for frame in frames])
-                elif isinstance(visual, PIL.Image.Image):
-                    images.append(visual)
+                images.append(visual)
 
             for _ in range(len(images)):
                 messages[-1]["content"].append({"type": "image"})
