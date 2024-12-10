@@ -11,7 +11,6 @@ logger.remove()
 logger.add(sys.stdout, level="WARNING")
 
 AVAILABLE_MODELS = {
-    "claude": "Claude",
     "cogvlm2": "CogVLM2",
     "from_log": "FromLog",
     "fuyu": "Fuyu",
