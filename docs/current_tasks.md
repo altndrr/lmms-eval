@@ -203,10 +203,6 @@
 
 - [SeedBench](https://github.com/AILab-CVC/SEED-Bench) (seedbench)
 - [SeedBench 2](https://github.com/AILab-CVC/SEED-Bench) (seedbench_2)
-- [EgoSchema](https://github.com/egoschema/EgoSchema) (egoschema)
-  - egoschema_mcppl
-  - egoschema_subset_mcppl
-  - egoschema_subset
 - [LongVideoBench](https://github.com/longvideobench/LongVideoBench)
 - [MovieChat](https://github.com/rese1f/MovieChat) (moviechat)
   - Global Mode for entire video (moviechat_global)
