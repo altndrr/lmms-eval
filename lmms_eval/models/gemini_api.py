@@ -26,11 +26,6 @@ except Exception as e:
     eval_logger.error(f"Error importing generativeai: {str(e)}")
     genai = None
 
-try:
-    import soundfile as sf
-except Exception as e:
-    eval_logger.warning(f"Error importing soundfile, audio generation will not work: {str(e)}")
-
 
 @register_model("gemini_api")
 class GeminiAPI(lmms):
@@ -115,17 +110,9 @@ class GeminiAPI(lmms):
         self.video_pool.append(uploaded_obj)
         return uploaded_obj
 
-    def encode_audio(self, audio):
-        audio_io = io.BytesIO()
-        sf.write(audio_io, audio["array"], audio["sampling_rate"], format="WAV")
-        return genai.upload_file(audio_io, mime_type="audio/wav")
-
     def convert_modality(self, images):
         for idx, img in enumerate(images):
-            if isinstance(img, dict) and "sampling_rate" in img:  # audio
-                audio = self.encode_audio(img)
-                images[idx] = audio
-            elif isinstance(img, str):  # video
+            if isinstance(img, str):  # video
                 try:
                     images[idx] = self.encode_video(img)
                 except Exception as e:
