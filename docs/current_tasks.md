@@ -203,7 +203,6 @@
 
 - [SeedBench](https://github.com/AILab-CVC/SEED-Bench) (seedbench)
 - [SeedBench 2](https://github.com/AILab-CVC/SEED-Bench) (seedbench_2)
-- [LongVideoBench](https://github.com/longvideobench/LongVideoBench)
 - [MovieChat](https://github.com/rese1f/MovieChat) (moviechat)
   - Global Mode for entire video (moviechat_global)
   - Breakpoint Mode for specific moments (moviechat_breakpoint)
