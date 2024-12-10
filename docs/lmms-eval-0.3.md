@@ -110,7 +110,6 @@ Our upgrade also includes many new features, including faster model and task loa
 
 | **Dataset** | **Year** | **Task Name in lmms-eval** | **Split** | **Task Format** | **Evaluation Metric** | **Number of QAs** | **Feature** |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| **AIR-Bench** | 2024 | air_bench_chat \| air_bench_foundation | chat, foundation | AIF | GPT-4 Eval (chat) \| Accuracy (foundation) | 2k (chat) \| 19k (foundation) | 1. Comprhensive tasks and audio types |
 | **Alpaca Audio** | 2024 | alpaca_audio | test | AIF | GPT-4 Eval | 100 | 1. Synthetic voice |
 | **Clotho-AQA** | 2022 | clotho_aqa | test \| val | AIF | Accuracy | test_v2 (2.06k), test \| val (1.44k \| 1.05k) | 1. Audio Question Answering<br> 2. Single word answer<br> 3. Text based question |
 | **Common_voice** | 2023 | common_voice_15 | test | ASR | WER(↓) (align with Qwen-audio) | en (16.4k) \| fr (16.1k) \| zh (10.6k) | 1. Real people voice<br> 2. Captioning |
@@ -130,13 +129,6 @@ AIF refers to Audio Instruction Following, and ASR refers to Audio Speech Recogn
 
 |  |  | **Metric** | **Qwen2-Audio-Instruct (lmms-eval)** | **Qwen2-Audio (lmms-eval)** |
 | --- | --- | --- | --- | --- |
-| **AIR-Bench-Chat** | Speech | GPT-Eval  | 7.16 |  |
-|  | Sound |  | 6.14 |  |
-|  | Music |  | 6.66 |  |
-|  | Mixed |  | 5.75 |  |
-| **AIR-Bench-Foundation** | Speech | Acc | 62.89 |  |
-|  | Sound |  | 55.42 |  |
-|  | Music |  | 56.77 |  |
 | **Alpaca** | test | GPT-Eval | 51.8 |  |
 | **Clotho_aqa** | test | GPT-Eval | 0.7587 |  |
 | **Common_voice** | zh |WER(↓)| 15.78 | 6.7 |
@@ -215,7 +207,6 @@ As shown in the above results, the batch inference (BS=4) can significantly save
 ### More Details and Feature Updates with `v0.3.0`
 
 1. **Supported Audio Tasks**
-    1. [AirBench](https://github.com/OFA-Sys/AIR-Bench)
     2. [Alpaca Audio](https://tango2-web.github.io/)
     3. [Clotho-AQA](https://github.com/partha2409/AquaNet)
     4. [Common_voice_15](https://github.com/common-voice/common-voice)
