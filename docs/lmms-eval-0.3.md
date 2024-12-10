@@ -106,22 +106,9 @@ Our upgrade also includes many new features, including faster model and task loa
 
 ### **Meta Information for Audio Datasets**
 
-#### Table 1: Meta informantion for audio datasets
-
-| **Dataset** | **Year** | **Task Name in lmms-eval** | **Split** | **Task Format** | **Evaluation Metric** | **Number of QAs** | **Feature** |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| **WavCaps** | 2024 | wavcaps | test | ASR | GPT-4 Eval | 1.73k | 1. Audio Captioning<br> 2. ChatGPT-augmented captions |
-
 AIF refers to Audio Instruction Following, and ASR refers to Audio Speech Recognition. 
 
 ### Alignment Check for Audio Datasets
-
-#### Table 2: Alignment check for audio datasets
-
-|  |  | **Metric** | **Qwen2-Audio-Instruct (lmms-eval)** | **Qwen2-Audio (lmms-eval)** |
-| --- | --- | --- | --- | --- |
-| **WavCaps** | test | GPT-Eval | 1.73 |  |
-
 
 The result might be inconsistent with the reported result as we do not have the original prompt and we have to maintain the fair environment for all the models. For the base model, we do not test on the Chat Benchmarks.
 
@@ -164,8 +151,6 @@ As shown in the above results, the batch inference (BS=4) can significantly save
 
 ### More Details and Feature Updates with `v0.3.0`
 
-1. **Supported Audio Tasks**
-    12. [WavCaps](https://github.com/XinhaoMei/WavCaps)
 2. **Support Audio Models**
     
     1. [Qwen2-Audio](https://github.com/QwenLM/Qwen2-Audio)
