@@ -203,9 +203,6 @@
 
 - [SeedBench](https://github.com/AILab-CVC/SEED-Bench) (seedbench)
 - [SeedBench 2](https://github.com/AILab-CVC/SEED-Bench) (seedbench_2)
-- [MovieChat](https://github.com/rese1f/MovieChat) (moviechat)
-  - Global Mode for entire video (moviechat_global)
-  - Breakpoint Mode for specific moments (moviechat_breakpoint)
 - [MLVU](https://github.com/JUNJIE99/MLVU) (mlvu)
 - [MMT-Bench](https://mmt-bench.github.io/) (mmt)
   - MMT Validation (mmt_val)
