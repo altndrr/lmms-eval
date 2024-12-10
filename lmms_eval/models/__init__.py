@@ -43,7 +43,6 @@ AVAILABLE_MODELS = {
     "srt_api": "SRT_API",
     "tinyllava": "TinyLlava",
     "videoChatGPT": "VideoChatGPT",
-    "video_llava": "VideoLLaVA",
     "vila": "VILA",
     "xcomposer2_4KHD": "XComposer2_4KHD",
     "internvideo2": "InternVideo2",
