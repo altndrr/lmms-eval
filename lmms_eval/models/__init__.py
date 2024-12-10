@@ -39,7 +39,6 @@ AVAILABLE_MODELS = {
     "vila": "VILA",
     "xcomposer2_4KHD": "XComposer2_4KHD",
     "xcomposer2d5": "XComposer2D5",
-    "oryx": "Oryx",
     "llama_vision": "LlamaVision",
     "aria": "Aria",
 }
