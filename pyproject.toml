@@ -51,20 +51,10 @@ convbench = ["anls"]
 detailcaps = ["capture_metric"]
 llava_interleaved_bench = ["rouge"]
 mathvista = ["Levenshtein"]
-mmsearch = [
-    "beautifulsoup4",
-    "duckduckgo_search",
-    "FlagEmbedding",
-    "langchain",
-    "langchain-community",
-    "matplotlib",
-    "playwright",
-    "rouge",
-]
 multidocvqa = ["Levenshtein"]
 vcrwiki = ["spacy"]
 
-all = ["convbench", "detailcaps", "llava_interleaved_bench", "mathvista", "mmsearch", "multidocvqa", "vcrwiki"]
+all = ["convbench", "detailcaps", "llava_interleaved_bench", "mathvista", "multidocvqa", "vcrwiki"]
 dev = ["black", "isort", "pre-commit"]
 
 [tool.setuptools.packages.find]
