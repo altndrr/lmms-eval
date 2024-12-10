@@ -59,10 +59,6 @@ metrics = [
     "Levenshtein",
 ]
 gemini = ["google-generativeai"]
-reka = [
-    "httpx",
-    "reka-api",
-]
 qwen = ["qwen_vl_utils"]
 mmsearch = [
     "playwright",
@@ -77,7 +73,6 @@ mmsearch = [
 ]
 all = [
     "gemini",
-    "reka",
     "metrics",
     "qwen",
     "mmsearch"

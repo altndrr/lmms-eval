@@ -10,7 +10,6 @@ export OPENAI_API_KEY="<YOUR_API_KEY>"
 export HF_HOME="<Path to HF cache>" 
 export HF_TOKEN="<YOUR_API_KEY>"
 export HF_HUB_ENABLE_HF_TRANSFER="1"
-export REKA_API_KEY="<YOUR_API_KEY>"
 # Other possible environment variables include 
 # ANTHROPIC_API_KEY,DASHSCOPE_API_KEY etc.
 ```
