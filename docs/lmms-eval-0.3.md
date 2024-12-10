@@ -110,7 +110,6 @@ Our upgrade also includes many new features, including faster model and task loa
 
 | **Dataset** | **Year** | **Task Name in lmms-eval** | **Split** | **Task Format** | **Evaluation Metric** | **Number of QAs** | **Feature** |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| **Alpaca Audio** | 2024 | alpaca_audio | test | AIF | GPT-4 Eval | 100 | 1. Synthetic voice |
 | **Clotho-AQA** | 2022 | clotho_aqa | test \| val | AIF | Accuracy | test_v2 (2.06k), test \| val (1.44k \| 1.05k) | 1. Audio Question Answering<br> 2. Single word answer<br> 3. Text based question |
 | **Common_voice** | 2023 | common_voice_15 | test | ASR | WER(↓) (align with Qwen-audio) | en (16.4k) \| fr (16.1k) \| zh (10.6k) | 1. Real people voice<br> 2. Captioning |
 | **LibriSpeech** | 2015 | librispeech | dev-clean \| dev-other \| test-clean \| test-other | ASR | WER(↓)| dev-clean (~2.48k) \|<br>dev-other (~2.66k) \|<br>test-clean(~2.55k) \|<br> test-other (~2.70k) | 1. Transcription (audio book) |
@@ -129,7 +128,6 @@ AIF refers to Audio Instruction Following, and ASR refers to Audio Speech Recogn
 
 |  |  | **Metric** | **Qwen2-Audio-Instruct (lmms-eval)** | **Qwen2-Audio (lmms-eval)** |
 | --- | --- | --- | --- | --- |
-| **Alpaca** | test | GPT-Eval | 51.8 |  |
 | **Clotho_aqa** | test | GPT-Eval | 0.7587 |  |
 | **Common_voice** | zh |WER(↓)| 15.78 | 6.7 |
 |  | en |  | 36.01 | 27.9 |
@@ -207,7 +205,6 @@ As shown in the above results, the batch inference (BS=4) can significantly save
 ### More Details and Feature Updates with `v0.3.0`
 
 1. **Supported Audio Tasks**
-    2. [Alpaca Audio](https://tango2-web.github.io/)
     3. [Clotho-AQA](https://github.com/partha2409/AquaNet)
     4. [Common_voice_15](https://github.com/common-voice/common-voice)
     6. [LibriSpeech](https://www.openslr.org/12)
