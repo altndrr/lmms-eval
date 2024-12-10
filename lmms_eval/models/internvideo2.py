@@ -334,10 +334,7 @@ class InternVideo2(lmms):
             elif self.modality == "video":
                 assert len(visuals) == 1, f"Only one video is supported, but got {len(visuals)} videos. [META-INFO]{visuals}"
                 video_path = visuals[0]
-                if "mvbench" in task:
-                    answer_prompt = "Best Option:("
-                else:
-                    answer_prompt = None
+                answer_prompt = None
                 pixel_values = load_video(video_path, num_segments=self.num_segments, return_msg=False, resolution=224, hd_num=self.hd_num)
                 pixel_values = pixel_values.to(torch.bfloat16).cuda()
                 question = self.instruction + contexts

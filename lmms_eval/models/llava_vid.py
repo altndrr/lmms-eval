@@ -431,16 +431,6 @@ class LlavaVid(lmms):
                         video = visuals
                         frame_time = "1.00s"
                         video_time = 1
-                    elif "mvbench" in task:
-                        # video = visuals
-                        # Reference: https://github.com/jayleicn/TVQA/blob/dfb0e5fe4582efca574dfddfeafd1008db3b33ef/data/README.md?plain=1#L50C34-L50C60
-                        fps = 3
-                        video_time = len(visuals) / fps
-                        sampled_indices = np.linspace(0, len(visuals) - 1, self.max_frames_num, dtype=int)
-                        frame_idx = sampled_indices.tolist()
-                        frame_time = [i / fps for i in frame_idx]
-                        frame_time = ",".join([f"{i:.2f}s" for i in frame_time])
-                        video = [visuals[i] for i in frame_idx]
 
                 video = self._image_processor.preprocess(video, return_tensors="pt")["pixel_values"].cuda()
                 if self.torch_dtype == "bfloat16":

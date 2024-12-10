@@ -336,58 +336,43 @@ class Oryx(lmms):
             videos = []
             modalities = []
             try:
-                if task == "mvbench_episodic_reasoning":
-                    sampled_frm = min(len(visuals), self.max_frames_num)
-                    indices = np.linspace(0, len(visuals) - 1, sampled_frm, dtype=int)
-                    frames = [visuals[i] for i in indices]
-                    video = np.stack([np.array(x) for x in frames])
-                    modality = "video"
-                    frames = []
-                    for frame in video:
-                        self._image_processor.do_resize = False
-                        self._image_processor.do_center_crop = False
-                        frames.append(process_anyres_video_genli(Image.fromarray(frame).convert("RGB"), self._image_processor))
-                    video = torch.stack(frames, dim=0).bfloat16().to(self.device)
-                    videos.append(video)
-                    modalities.append(modality)
+                if type(visuals[0][0]) == str:
+                    for visual in visuals:
+                        if self.video_decode_backend == "decord":
+                            video, modality = self.load_video(visual, self.max_frames_num)
+                        elif self.video_decode_backend == "pyav":
+                            video, modality = read_video_pyav(visual, num_frm=self.max_frames_num)
+                        # video = self.load_video(visual, self.max_frames_num)
+                        frames = []
+                        for frame in video:
+                            self._image_processor.do_resize = False
+                            self._image_processor.do_center_crop = False
+                            frames.append(process_anyres_video_genli(Image.fromarray(frame).convert("RGB"), self._image_processor))
+                        video = torch.stack(frames, dim=0).bfloat16().to(self.device)
+                        videos.append(video)
+                        modalities.append(modality)
+                    task_type = "video"
                 else:
-                    if type(visuals[0][0]) == str:
-                        for visual in visuals:
-                            if self.video_decode_backend == "decord":
-                                video, modality = self.load_video(visual, self.max_frames_num)
-                            elif self.video_decode_backend == "pyav":
-                                video, modality = read_video_pyav(visual, num_frm=self.max_frames_num)
-                            # video = self.load_video(visual, self.max_frames_num)
-                            frames = []
-                            for frame in video:
-                                self._image_processor.do_resize = False
-                                self._image_processor.do_center_crop = False
-                                frames.append(process_anyres_video_genli(Image.fromarray(frame).convert("RGB"), self._image_processor))
-                            video = torch.stack(frames, dim=0).bfloat16().to(self.device)
-                            videos.append(video)
-                            modalities.append(modality)
-                        task_type = "video"
+                    self._image_processor.do_resize = False
+                    self._image_processor.do_center_crop = False
+                    image_tensor, image_highres_tensor = [], []
+                    for visual in visuals:
+                        image_tensor_, image_highres_tensor_ = process_anyres_highres_image_genli(visual, self._image_processor)
+                        image_tensor.append(image_tensor_)
+                        image_highres_tensor.append(image_highres_tensor_)
+                    if all(x.shape == image_tensor[0].shape for x in image_tensor):
+                        image_tensor = torch.stack(image_tensor, dim=0)
+                    if all(x.shape == image_highres_tensor[0].shape for x in image_highres_tensor):
+                        image_highres_tensor = torch.stack(image_highres_tensor, dim=0)
+                    if type(image_tensor) is list:
+                        image_tensor = [_image.to(dtype=torch.bfloat16, device=self.device) for _image in image_tensor]
                     else:
-                        self._image_processor.do_resize = False
-                        self._image_processor.do_center_crop = False
-                        image_tensor, image_highres_tensor = [], []
-                        for visual in visuals:
-                            image_tensor_, image_highres_tensor_ = process_anyres_highres_image_genli(visual, self._image_processor)
-                            image_tensor.append(image_tensor_)
-                            image_highres_tensor.append(image_highres_tensor_)
-                        if all(x.shape == image_tensor[0].shape for x in image_tensor):
-                            image_tensor = torch.stack(image_tensor, dim=0)
-                        if all(x.shape == image_highres_tensor[0].shape for x in image_highres_tensor):
-                            image_highres_tensor = torch.stack(image_highres_tensor, dim=0)
-                        if type(image_tensor) is list:
-                            image_tensor = [_image.to(dtype=torch.bfloat16, device=self.device) for _image in image_tensor]
-                        else:
-                            image_tensor = image_tensor.to(dtype=torch.bfloat16, device=self.device)
-                        if type(image_highres_tensor) is list:
-                            image_highres_tensor = [_image.to(dtype=torch.bfloat16, device=self.device) for _image in image_highres_tensor]
-                        else:
-                            image_highres_tensor = image_highres_tensor.to(dtype=torch.bfloat16, device=self.device)
-                        task_type = "image"
+                        image_tensor = image_tensor.to(dtype=torch.bfloat16, device=self.device)
+                    if type(image_highres_tensor) is list:
+                        image_highres_tensor = [_image.to(dtype=torch.bfloat16, device=self.device) for _image in image_highres_tensor]
+                    else:
+                        image_highres_tensor = image_highres_tensor.to(dtype=torch.bfloat16, device=self.device)
+                    task_type = "image"
 
             except Exception as e:
                 eval_logger.info(f"{e}")

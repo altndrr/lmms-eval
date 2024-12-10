@@ -478,10 +478,7 @@ class VideoChat2(lmms):
             elif self.modality == "video":
                 assert len(visuals) == 1, f"Only one video is supported, but got {len(visuals)} videos. [META-INFO]{visuals}"
                 video_path = visuals[0]
-                if "mvbench" in task:
-                    answer_prompt = "Best Option:("
-                else:
-                    answer_prompt = None
+                answer_prompt = None
                 new_pos_emb = self.get_sinusoid_encoding_table(n_position=(224 // 16) ** 2 * self.num_segments, cur_frame=self.num_segments)
                 self.model.vision_encoder.encoder.pos_embed = new_pos_emb
                 pixel_values = load_video(video_path, num_segments=self.num_segments, return_msg=False, resolution=224, hd_num=self.hd_num)
