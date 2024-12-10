@@ -113,7 +113,6 @@ Our upgrade also includes many new features, including faster model and task loa
 | **LibriSpeech** | 2015 | librispeech | dev-clean \| dev-other \| test-clean \| test-other | ASR | WER(↓)| dev-clean (~2.48k) \|<br>dev-other (~2.66k) \|<br>test-clean(~2.55k) \|<br> test-other (~2.70k) | 1. Transcription (audio book) |
 | **OpenHermes** | 2024 | openhermes | test | AIF | GPT-Eval | 100 | 1. Synthetic voice |
 | **MuchoMusic** | 2024 | muchomusic | test | AIF | Accuracy | 1.19k | 1. Music understanding |
-| **Tedium v3** | 2018 | tedlium_dev_test | val | ASR | WER(↓)| 591 | 1. TED talk<br>  2. Real people ASR<br>  3. Captioning |
 | **VocalSound** | 2022 | vocalsound_test | test \| val | AIF | Accuracy | test (3.59k) \| val (1.86k) | 1. Vocal sound recognition<br> 2. Non-speech |
 | **WavCaps** | 2024 | wavcaps | test | ASR | GPT-4 Eval | 1.73k | 1. Audio Captioning<br> 2. ChatGPT-augmented captions |
 
@@ -131,7 +130,6 @@ AIF refers to Audio Instruction Following, and ASR refers to Audio Speech Recogn
 |  | test-others |  | 7.46 | 3.87 |
 | **MuchoMusic** | test | Acc | 68.32 | 45.07 |
 | **OpenHermes** | test | GPT-Eval | 46.8 |  |
-| **Tedium** | val |WER(↓)| 10.92 | 8.29 |
 | **VocalSound** | test | Acc | 0.936 | 0.81 |
 |  | val |  | 0.9288 | 0.8 |
 | **WavCaps** | test | GPT-Eval | 1.73 |  |
@@ -159,7 +157,6 @@ This basic format is then combined with various question prompts for different e
 |  | dev-others |  | 5.36 | 6.54 |
 |  | test-clean |  | 2.91 | 3.59 |
 |  | test-others |  | 5.14 | 7.46 |
-| **Tedium** | dev_test | WER(↓) | 9.56 | 10.92 |
 
 More specifically, we founds out that as shown in the above table, the influence of the chat template is very huge. We believe that these demonstrate the actual robustness of the model and signifies that current audio model may eventually not being stable enough when coping different text input. Also, it again leads us into another thinking: “Is current metrics good at evaluating a model’s performance?
 
@@ -198,7 +195,6 @@ As shown in the above results, the batch inference (BS=4) can significantly save
     6. [LibriSpeech](https://www.openslr.org/12)
     7. [OpenHermes](https://huggingface.co/datasets/AudioLLMs/openhermes_instruction_test)
     8. [MuchoMusic](https://github.com/mulab-mir/muchomusic)
-    10. [Tedium v3](https://www.openslr.org/51/)
     11. [VocalSound](https://github.com/YuanGongND/vocalsound)
     12. [WavCaps](https://github.com/XinhaoMei/WavCaps)
 2. **Support Audio Models**
