@@ -301,39 +301,6 @@ accelerate launch --num_processes 8 --main_process_port 12345 -m lmms_eval \
 
 # Video Model
 
-### LLaVA-VID
-
-```bash
-cd /path/to/lmms-eval
-python3 -m pip install -e .;
-
-cd /path/to/LLaVA-NeXT;
-python3 -m pip install -e ".[train]";
-
-python3 -m pip install flash-attn --no-build-isolation;
-
-python3 -m pip install av;
-
-
-TASK=$1
-CKPT_PATH=$2
-CONV_TEMPLATE=$3
-echo $TASK
-TASK_SUFFIX="${TASK//,/_}"
-echo $TASK_SUFFIX
-
-accelerate launch --num_processes 8 --main_process_port 12345 -m lmms_eval \
-    --model llavavid \
-    --model_args pretrained=$CKPT_PATH,conv_template=$CONV_TEMPLATE,video_decode_backend=decord,max_frames_num=32 \
-    --tasks $TASK \
-    --batch_size 1 \
-    --log_samples \
-    --log_samples_suffix $TASK_SUFFIX \
-    --output_path ./logs/
-
-```
-
-
 ### LLaMA-VID
 
 ```bash

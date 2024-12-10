@@ -29,7 +29,6 @@ AVAILABLE_MODELS = {
     "llava_onevision": "Llava_OneVision",
     "llava_onevision_moviechat": "Llava_OneVision_MovieChat",
     "llava_sglang": "LlavaSglang",
-    "llava_vid": "LlavaVid",
     "slime": "Slime",
     "longva": "LongVA",
     "mantis": "Mantis",

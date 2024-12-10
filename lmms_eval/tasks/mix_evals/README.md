@@ -40,17 +40,6 @@ lmms-eval   --model=<MODEL> \
 
 Models are listed at [here](https://github.com/EvolvingLMMs-Lab/lmms-eval/blob/0589d0fba2efbcb526321f23ab0587599fd3c4c9/lmms_eval/models/__init__.py#L13).
 
-For example, to evaluate `llava_vid` on `mix_evals_video2text` (including `mix_evals_video2text_freeform` and `mix_evals_video2text_mc`):
-
-```bash
-lmms-eval   --model=llava_vid \
-            --model_args=pretrained=lmms-lab/LLaVA-NeXT-Video-7B \
-            --tasks=mix_evals_video2text \
-            --batch_size=1 \
-            --log_samples \
-            --output_path=./logs/
-```
-
 For more details, please refer to the [readme](https://github.com/EvolvingLMMs-Lab/lmms-eval/tree/main) and [documentation](https://github.com/EvolvingLMMs-Lab/lmms-eval/tree/main/docs).
 
 ## Final Results Calculation
