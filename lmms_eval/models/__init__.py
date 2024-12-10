@@ -14,7 +14,6 @@ AVAILABLE_MODELS = {
     "cogvlm2": "CogVLM2",
     "from_log": "FromLog",
     "fuyu": "Fuyu",
-    "gemini_api": "GeminiAPI",
     "idefics2": "Idefics2",
     "instructblip": "InstructBLIP",
     "internvl": "InternVLChat",

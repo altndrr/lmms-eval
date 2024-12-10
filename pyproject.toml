@@ -58,7 +58,6 @@ metrics = [
     "capture_metric",
     "Levenshtein",
 ]
-gemini = ["google-generativeai"]
 qwen = ["qwen_vl_utils"]
 mmsearch = [
     "playwright",
@@ -71,12 +70,7 @@ mmsearch = [
     "FlagEmbedding",
     "rouge",
 ]
-all = [
-    "gemini",
-    "metrics",
-    "qwen",
-    "mmsearch"
-]
+all = ["metrics", "qwen", "mmsearch"]
 dev = ["black", "isort", "pre-commit"]
 
 [tool.setuptools.packages.find]
