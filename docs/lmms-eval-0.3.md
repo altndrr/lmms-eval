@@ -110,7 +110,6 @@ Our upgrade also includes many new features, including faster model and task loa
 
 | **Dataset** | **Year** | **Task Name in lmms-eval** | **Split** | **Task Format** | **Evaluation Metric** | **Number of QAs** | **Feature** |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| **OpenHermes** | 2024 | openhermes | test | AIF | GPT-Eval | 100 | 1. Synthetic voice |
 | **MuchoMusic** | 2024 | muchomusic | test | AIF | Accuracy | 1.19k | 1. Music understanding |
 | **VocalSound** | 2022 | vocalsound_test | test \| val | AIF | Accuracy | test (3.59k) \| val (1.86k) | 1. Vocal sound recognition<br> 2. Non-speech |
 | **WavCaps** | 2024 | wavcaps | test | ASR | GPT-4 Eval | 1.73k | 1. Audio Captioning<br> 2. ChatGPT-augmented captions |
@@ -124,7 +123,6 @@ AIF refers to Audio Instruction Following, and ASR refers to Audio Speech Recogn
 |  |  | **Metric** | **Qwen2-Audio-Instruct (lmms-eval)** | **Qwen2-Audio (lmms-eval)** |
 | --- | --- | --- | --- | --- |
 | **MuchoMusic** | test | Acc | 68.32 | 45.07 |
-| **OpenHermes** | test | GPT-Eval | 46.8 |  |
 | **VocalSound** | test | Acc | 0.936 | 0.81 |
 |  | val |  | 0.9288 | 0.8 |
 | **WavCaps** | test | GPT-Eval | 1.73 |  |
@@ -172,7 +170,6 @@ As shown in the above results, the batch inference (BS=4) can significantly save
 ### More Details and Feature Updates with `v0.3.0`
 
 1. **Supported Audio Tasks**
-    7. [OpenHermes](https://huggingface.co/datasets/AudioLLMs/openhermes_instruction_test)
     8. [MuchoMusic](https://github.com/mulab-mir/muchomusic)
     11. [VocalSound](https://github.com/YuanGongND/vocalsound)
     12. [WavCaps](https://github.com/XinhaoMei/WavCaps)
