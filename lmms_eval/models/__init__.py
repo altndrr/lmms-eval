@@ -26,7 +26,6 @@ AVAILABLE_MODELS = {
     "llava_hf": "LlavaHf",
     "llava_onevision": "Llava_OneVision",
     "llava_sglang": "LlavaSglang",
-    "longva": "LongVA",
     "mantis": "Mantis",
     "minicpm_v": "MiniCPM_V",
     "minimonkey": "MiniMonkey",
