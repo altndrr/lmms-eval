@@ -72,7 +72,6 @@ synthdog = ["nltk"]
 textcaps = ["pycocoevalcap"]
 vcr_wiki = ["nltk", "spacy"]
 wild_vision_bench = ["scikit-learn"]
-vcrwiki = ["spacy"]
 
 [project.optional-dependencies]
 dev = ["black", "isort", "pre-commit"]
