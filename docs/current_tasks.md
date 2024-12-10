@@ -201,7 +201,6 @@
 
 ## 3. Videos tasks:
 
-- [ActivityNet-QA](https://github.com/MILVLG/activitynet-qa) (activitynetqa_generation)
 - [SeedBench](https://github.com/AILab-CVC/SEED-Bench) (seedbench)
 - [SeedBench 2](https://github.com/AILab-CVC/SEED-Bench) (seedbench_2)
 - [CVRR-ES](https://github.com/mbzuai-oryx/CVRR-Evaluation-Suite) (cvrr)
