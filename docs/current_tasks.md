@@ -200,7 +200,6 @@
 
 ## 3. Text Tasks
 
-- [HellaSwag](https://rowanzellers.com/hellaswag/) (hellaswag)
 - [IFEval](https://github.com/google-research/google-research/tree/master/instruction_following_eval) (ifeval)
 - [MMLU](https://github.com/hendrycks/test) (mmlu)
 - [MMLU_pro](https://github.com/TIGER-AI-Lab/MMLU-Pro) (mmlu_pro)
