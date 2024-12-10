@@ -200,8 +200,6 @@
 
 ## 3. Videos tasks:
 
-- [SeedBench](https://github.com/AILab-CVC/SEED-Bench) (seedbench)
-- [SeedBench 2](https://github.com/AILab-CVC/SEED-Bench) (seedbench_2)
 - [MMT-Bench](https://mmt-bench.github.io/) (mmt)
   - MMT Validation (mmt_val)
   - MMT Test (mmt_test)
