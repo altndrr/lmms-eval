@@ -110,7 +110,6 @@ Our upgrade also includes many new features, including faster model and task loa
 
 | **Dataset** | **Year** | **Task Name in lmms-eval** | **Split** | **Task Format** | **Evaluation Metric** | **Number of QAs** | **Feature** |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| **LibriSpeech** | 2015 | librispeech | dev-clean \| dev-other \| test-clean \| test-other | ASR | WER(↓)| dev-clean (~2.48k) \|<br>dev-other (~2.66k) \|<br>test-clean(~2.55k) \|<br> test-other (~2.70k) | 1. Transcription (audio book) |
 | **OpenHermes** | 2024 | openhermes | test | AIF | GPT-Eval | 100 | 1. Synthetic voice |
 | **MuchoMusic** | 2024 | muchomusic | test | AIF | Accuracy | 1.19k | 1. Music understanding |
 | **VocalSound** | 2022 | vocalsound_test | test \| val | AIF | Accuracy | test (3.59k) \| val (1.86k) | 1. Vocal sound recognition<br> 2. Non-speech |
@@ -124,10 +123,6 @@ AIF refers to Audio Instruction Following, and ASR refers to Audio Speech Recogn
 
 |  |  | **Metric** | **Qwen2-Audio-Instruct (lmms-eval)** | **Qwen2-Audio (lmms-eval)** |
 | --- | --- | --- | --- | --- |
-| **LibriSpeech** | dev-clean |WER(↓)| 4.24 | 1.66 |
-|  | dev-others |  | 6.54 | 3.66 |
-|  | test-clean |  | 3.59 | 1.74 |
-|  | test-others |  | 7.46 | 3.87 |
 | **MuchoMusic** | test | Acc | 68.32 | 45.07 |
 | **OpenHermes** | test | GPT-Eval | 46.8 |  |
 | **VocalSound** | test | Acc | 0.936 | 0.81 |
@@ -148,17 +143,6 @@ During our implementation, we observe several interesting phenomena that may be 
 As we trying to align the results, our investigation revealed that the choice of chat template significantly impacts model performance, even for instruction-tuned models. This finding emerged while analyzing the Qwen2 Audio model. The original Qwen2 Audio repository uses a minimal prompt format:  `"<|audio_bos|><|AUDIO|><|audio_eos|>"` .
 
 This basic format is then combined with various question prompts for different evaluation scenarios. However, this prompt format is not in an instruction format and when applying a chat template, the performance of the model may changes significantly.
-
-#### Table 3: Impact of Chat Template on Qwen-7B-Instruct's Performance
-
-| **Impact of Chat Template** | **Split** | **Metric** | **Chat Template (Off)** | **Chat Template (On)** |
-| --- | --- | --- | --- | --- |
-| **LibriSpeech** | dev-clean | WER(↓) | 2.65 | 4.24 |
-|  | dev-others |  | 5.36 | 6.54 |
-|  | test-clean |  | 2.91 | 3.59 |
-|  | test-others |  | 5.14 | 7.46 |
-
-More specifically, we founds out that as shown in the above table, the influence of the chat template is very huge. We believe that these demonstrate the actual robustness of the model and signifies that current audio model may eventually not being stable enough when coping different text input. Also, it again leads us into another thinking: “Is current metrics good at evaluating a model’s performance?
 
 ### Rethinking the evaluation metrics
 
@@ -181,10 +165,6 @@ We perform an exploratory batch inference experiment on Qwen2-Audio with the fol
 
 |  | **Split** | **Metric** | **Qwen2-Audio (BS=4)** | **Qwen2-Audio (BS=1)** |
 | --- | --- | --- | --- | --- |
-| **LibriSpeech** | dev-clean | WER(↓) | 1.66 | 1.66 |
-|  | dev-others |  | 4.4 | 3.66 |
-|  | test-clean |  | 1.75 | 1.74 |
-|  | test-others |  | 4.06 | 3.87 |
 | **Total Time** |  |  | 10 mins 50 seconds | 5 min 23 seconds |
 
 As shown in the above results, the batch inference (BS=4) can significantly saves the inference time, it could lead to evaluation inconsistencies compared to single-sample processing (BS=1). This is a known issue in the `transformers` library that currently lacks a solution.
@@ -192,7 +172,6 @@ As shown in the above results, the batch inference (BS=4) can significantly save
 ### More Details and Feature Updates with `v0.3.0`
 
 1. **Supported Audio Tasks**
-    6. [LibriSpeech](https://www.openslr.org/12)
     7. [OpenHermes](https://huggingface.co/datasets/AudioLLMs/openhermes_instruction_test)
     8. [MuchoMusic](https://github.com/mulab-mir/muchomusic)
     11. [VocalSound](https://github.com/YuanGongND/vocalsound)
