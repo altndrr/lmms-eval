@@ -110,7 +110,6 @@ Our upgrade also includes many new features, including faster model and task loa
 
 | **Dataset** | **Year** | **Task Name in lmms-eval** | **Split** | **Task Format** | **Evaluation Metric** | **Number of QAs** | **Feature** |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| **VocalSound** | 2022 | vocalsound_test | test \| val | AIF | Accuracy | test (3.59k) \| val (1.86k) | 1. Vocal sound recognition<br> 2. Non-speech |
 | **WavCaps** | 2024 | wavcaps | test | ASR | GPT-4 Eval | 1.73k | 1. Audio Captioning<br> 2. ChatGPT-augmented captions |
 
 AIF refers to Audio Instruction Following, and ASR refers to Audio Speech Recognition. 
@@ -121,8 +120,6 @@ AIF refers to Audio Instruction Following, and ASR refers to Audio Speech Recogn
 
 |  |  | **Metric** | **Qwen2-Audio-Instruct (lmms-eval)** | **Qwen2-Audio (lmms-eval)** |
 | --- | --- | --- | --- | --- |
-| **VocalSound** | test | Acc | 0.936 | 0.81 |
-|  | val |  | 0.9288 | 0.8 |
 | **WavCaps** | test | GPT-Eval | 1.73 |  |
 
 
@@ -168,7 +165,6 @@ As shown in the above results, the batch inference (BS=4) can significantly save
 ### More Details and Feature Updates with `v0.3.0`
 
 1. **Supported Audio Tasks**
-    11. [VocalSound](https://github.com/YuanGongND/vocalsound)
     12. [WavCaps](https://github.com/XinhaoMei/WavCaps)
 2. **Support Audio Models**
     
