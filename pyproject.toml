@@ -45,6 +45,7 @@ dependencies = [
     "transformers>=4,<5",
     "transformers-stream-generator>=0,<1",
     "loguru>=0,<1",
+    "tenacity>=9,<10",
     "wandb>=0,<1",
     "decord>=0,<1",
     "sentence_transformers>=3,<4",
