@@ -15,11 +15,6 @@ from lmms_eval.api.instance import Instance
 from lmms_eval.api.model import lmms
 from lmms_eval.api.registry import register_model
 
-try:
-    from decord import VideoReader, cpu
-except ImportError:
-    pass
-
 from PIL import Image
 
 API_TYPE = os.getenv("API_TYPE", "openai")
@@ -47,7 +42,6 @@ class GPT4V(lmms):
     def __init__(
         self,
         model_version: str = "gpt-4-vision-preview",
-        modality: str = "video",
         max_frames_num: int = 10,
         timeout: int = 120,
         continual_mode: bool = False,
@@ -59,7 +53,6 @@ class GPT4V(lmms):
         # and split the text and image
         # Here we just use the same token as llava for convenient
         self.model_version = model_version
-        self.modality = modality
         self.max_frames_num = max_frames_num
         self.image_token = "<image>"
         self.timeout = timeout
@@ -104,30 +97,6 @@ class GPT4V(lmms):
         base64_str = base64.b64encode(byte_data).decode("utf-8")
         return base64_str
 
-    # Function to encode the video
-    def encode_video(self, video_path, for_get_frames_num):
-        vr = VideoReader(video_path, ctx=cpu(0))
-        total_frame_num = len(vr)
-        uniform_sampled_frames = np.linspace(0, total_frame_num - 1, for_get_frames_num, dtype=int)
-
-        # Ensure the last frame is included
-        if total_frame_num - 1 not in uniform_sampled_frames:
-            uniform_sampled_frames = np.append(uniform_sampled_frames, total_frame_num - 1)
-
-        frame_idx = uniform_sampled_frames.tolist()
-        frames = vr.get_batch(frame_idx).asnumpy()
-
-        base64_frames = []
-        for frame in frames:
-            img = Image.fromarray(frame)
-            output_buffer = BytesIO()
-            img.save(output_buffer, format="PNG")
-            byte_data = output_buffer.getvalue()
-            base64_str = base64.b64encode(byte_data).decode("utf-8")
-            base64_frames.append(base64_str)
-
-        return base64_frames
-
     def flatten(self, input):
         new_list = []
         for i in input:
@@ -151,14 +120,10 @@ class GPT4V(lmms):
 
             visuals = [doc_to_visual(self.task_dict[task][split][doc_id])]
             visuals = self.flatten(visuals)
-            imgs = []  # multiple images or frames for video
+            imgs = []  # multiple images
             for visual in visuals:
-                if self.modality == "image":
-                    img = self.encode_image(visual)
-                    imgs.append(img)
-                elif self.modality == "video":
-                    frames = self.encode_video(visual, self.max_frames_num)
-                    imgs.extend(frames)
+                img = self.encode_image(visual)
+                imgs.append(img)
 
             payload = {"messages": []}
             if API_TYPE == "openai":

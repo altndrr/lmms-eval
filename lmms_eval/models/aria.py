@@ -7,7 +7,6 @@ import requests
 import torch
 from accelerate import Accelerator, DistributedType
 from accelerate.state import AcceleratorState
-from decord import VideoReader, cpu
 from PIL import Image
 from tqdm import tqdm
 from transformers import AutoModelForCausalLM, AutoProcessor
@@ -178,18 +177,6 @@ class Aria(lmms):
                 new_list.append(j)
         return new_list
 
-    def load_video(self, video_path, max_frames_num):
-        if type(video_path) == str:
-            vr = VideoReader(video_path, ctx=cpu(0))
-        else:
-            vr = VideoReader(video_path[0], ctx=cpu(0))
-        total_frame_num = len(vr)
-        uniform_sampled_frames = np.linspace(0, total_frame_num - 1, max_frames_num, dtype=int)
-        frame_idx = uniform_sampled_frames.tolist()
-        spare_frames = vr.get_batch(frame_idx).asnumpy()
-        spare_frames = [Image.fromarray(x) for x in spare_frames]
-        return spare_frames  # (frames, height, width, channels)
-
     def generate_until(self, requests: List[Instance]) -> List[str]:
         res = []
 
@@ -220,8 +207,6 @@ class Aria(lmms):
                 task_type = "text"
             elif isinstance(visuals[0], PIL.Image.Image):
                 task_type = "image"
-            elif isinstance(visuals[0], str):
-                task_type = "video"
             # we assume all gen kwargs in the batch are the same
             # this is safe to assume because the `grouper` object ensures it.
             gen_kwargs = all_gen_kwargs[0]
@@ -231,14 +216,6 @@ class Aria(lmms):
             text_context = text_context.replace("\n\n", "\n")
 
             context = []
-
-            if task_type == "video":
-                try:
-                    visuals = self.load_video(visuals, self.max_frames_num)
-                except Exception as e:
-                    res.append("")
-                    eval_logger.info(f"Error {e} when loading video : {visuals}")
-                    pbar.update(1)
 
             if DEFAULT_IMAGE_TOKEN not in context:
                 context += [{"text": None, "type": "image"}] * len(visuals)
@@ -265,10 +242,7 @@ class Aria(lmms):
             if self.accelerator.is_main_process and doc_id[0] % 100 == 0:
                 eval_logger.debug(f"Prompt for doc ID {doc_id[0]}:\n\n{text}\n")
 
-            if task_type == "video":
-                inputs = self._image_processor(images=visuals, text=text, return_tensors="pt", max_image_size=490)
-            else:
-                inputs = self._image_processor(images=visuals, text=text, return_tensors="pt", max_image_size=980)
+            inputs = self._image_processor(images=visuals, text=text, return_tensors="pt", max_image_size=980)
 
             inputs["pixel_values"] = inputs["pixel_values"].to(self.model.dtype)
             inputs = {k: v.to(self._device) for k, v in inputs.items()}

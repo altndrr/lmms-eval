@@ -291,14 +291,6 @@ class VILA(lmms):
                 images = [Image.new("RGB", (448, 448), (0, 0, 0))] * num_video_frames
                 video = process_images(images, self.model.image_processor, self.model.config).half().cuda()
                 videos.append(video)
-            else:
-                for visual in visuals:
-                    if self.video_decode_backend == "decord":
-                        images = self.load_video(visual, num_video_frames)
-                    elif self.video_decode_backend == "pyav":
-                        images = read_video_pyav(visual, num_frm=num_video_frames)
-                    video = process_images(images, self.model.image_processor, self.model.config).half().cuda()
-                    videos.append(video)
 
             qs = f"<video>\n {contexts}"
             if self.model.config.mm_use_im_start_end:

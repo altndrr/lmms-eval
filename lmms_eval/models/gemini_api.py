@@ -76,15 +76,6 @@ class GeminiAPI(lmms):
 
         self.device = self.accelerator.device
 
-        # self.modality = modality
-
-        self.video_pool = []
-
-    def free_video(self):
-        for video in self.video_pool:
-            video.delete()
-        self.video_pool = []
-
     def flatten(self, input):
         new_list = []
         for i in input:
@@ -103,21 +94,6 @@ class GeminiAPI(lmms):
         img_size = img_byte_array.tell()
 
         return img_size
-
-    def encode_video(self, video_path):
-        uploaded_obj = genai.upload_file(path=video_path)
-        time.sleep(5)
-        self.video_pool.append(uploaded_obj)
-        return uploaded_obj
-
-    def convert_modality(self, images):
-        for idx, img in enumerate(images):
-            if isinstance(img, str):  # video
-                try:
-                    images[idx] = self.encode_video(img)
-                except Exception as e:
-                    eval_logger.error(f"Error converting video: {str(e)}")
-        return images
 
     def generate_until(self, requests) -> List[str]:
         res = []
@@ -148,7 +124,6 @@ class GeminiAPI(lmms):
 
             visuals = [doc_to_visual(self.task_dict[task][split][doc_id])]
             visuals = self.flatten(visuals)
-            visuals = self.convert_modality(visuals)
 
             message = [contexts] + visuals
 
@@ -182,8 +157,6 @@ class GeminiAPI(lmms):
                         content = ""
             res.append(content)
             pbar.update(1)
-
-            self.free_video()
 
             if self.continual_mode is True:  # Cache the response
                 doc_uuid = get_uuid(task, split, doc_id)

@@ -12,7 +12,6 @@ from lmms_eval import utils
 from lmms_eval.api.instance import Instance
 from lmms_eval.api.model import lmms
 from lmms_eval.api.registry import register_model
-from lmms_eval.models.model_utils.load_video import load_video_decord
 
 warnings.filterwarnings("ignore")
 
@@ -209,27 +208,16 @@ class Idefics2(lmms):
                 gen_kwargs["temperature"] = 0
 
             prompts = []
-            videos = None
             for context, visual in zip(contexts, visuals):
                 content = []
-                if isinstance(visual[0], str):
-                    videos = load_video_decord(visual[0], max_frames_num=self.max_frames_num)
-                    for _ in range(videos.shape[0]):
-                        content.append({"type": "image"})
-                elif DEFAULT_IMAGE_TOKEN not in context:
+                if DEFAULT_IMAGE_TOKEN not in context:
                     for image in visual:
                         content.append({"type": "image"})
                 content.append({"type": "text", "text": context})
                 message = [{"role": "user", "content": content}]
                 prompt = self._processor.apply_chat_template(message, add_generation_prompt=True)
                 prompts.append(prompt)
-            if videos is not None:
-                images = []
-                for frame in videos:
-                    images.append(to_pil_image(frame))
-                inputs = self._processor(text=prompts, images=images, padding=True, return_tensors="pt")
-            else:
-                inputs = self._processor(text=prompts, images=visuals, padding=True, return_tensors="pt")
+            inputs = self._processor(text=prompts, images=visuals, padding=True, return_tensors="pt")
             inputs = {k: v.to(self.device) for k, v in inputs.items()}
             output_ids = self.model.generate(**inputs, **gen_kwargs)
             # only retain the generated text

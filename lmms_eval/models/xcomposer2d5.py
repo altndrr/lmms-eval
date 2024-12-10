@@ -6,7 +6,6 @@ import numpy as np
 import torch
 import torchvision.transforms as T
 from accelerate import Accelerator, DistributedType
-from decord import VideoReader, cpu
 from PIL import Image
 from torchvision.transforms.functional import InterpolationMode
 from tqdm import tqdm
@@ -30,7 +29,6 @@ class XComposer2D5(lmms):
     def __init__(
         self,
         pretrained: str = "internlm/internlm-xcomposer2d5-7b",
-        modality: str = "image",
         device: str = "cuda:0",
         device_map: str = "cuda:0",
         batch_size: str = "1",
@@ -97,8 +95,6 @@ class XComposer2D5(lmms):
             self._rank = 0
             self._world_size = 1
 
-        self.modality = modality
-
     @property
     def config(self):
         # return the associated transformers.AutoConfig for the given pretrained model.
@@ -148,16 +144,13 @@ class XComposer2D5(lmms):
             visuals = self.flatten(visuals)
             image = []
 
-            if self.modality == "image":
-                for idx, visual in enumerate(visuals):
-                    visual.save(os.path.join(self.tmp_folder, f"tmp_{idx}_{self.rank}_{self.world_size}.jpg"))
-                    image.append(os.path.join(self.tmp_folder, f"tmp_{idx}_{self.rank}_{self.world_size}.jpg"))
-                if image:
-                    image_tokens = [f"Image{i} <ImageHere>; " for i in range(len(visuals))]
-                    image_tokens = "".join(image_tokens)
-                    contexts = image_tokens + contexts
-            elif self.modality == "video":
-                image = visuals
+            for idx, visual in enumerate(visuals):
+                visual.save(os.path.join(self.tmp_folder, f"tmp_{idx}_{self.rank}_{self.world_size}.jpg"))
+                image.append(os.path.join(self.tmp_folder, f"tmp_{idx}_{self.rank}_{self.world_size}.jpg"))
+            if image:
+                image_tokens = [f"Image{i} <ImageHere>; " for i in range(len(visuals))]
+                image_tokens = "".join(image_tokens)
+                contexts = image_tokens + contexts
 
             if "max_new_tokens" not in gen_kwargs:
                 gen_kwargs["max_new_tokens"] = 1024

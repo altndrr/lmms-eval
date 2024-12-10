@@ -5,7 +5,6 @@ import numpy as np
 import torch
 import torchvision.transforms as T
 from accelerate import Accelerator, DistributedType
-from decord import VideoReader, cpu
 from PIL import Image
 from torchvision.transforms.functional import InterpolationMode
 from tqdm import tqdm
@@ -100,25 +99,6 @@ def get_index(bound, fps, max_frame, first_idx=0, num_segments=32):
     return frame_indices
 
 
-def load_video(video_path, bound=None, input_size=448, max_num=1, num_segments=32):
-    vr = VideoReader(video_path, ctx=cpu(0), num_threads=1)
-    max_frame = len(vr) - 1
-    fps = float(vr.get_avg_fps())
-
-    pixel_values_list, num_patches_list = [], []
-    transform = build_transform(input_size=input_size)
-    frame_indices = get_index(bound, fps, max_frame, first_idx=0, num_segments=num_segments)
-    for frame_index in frame_indices:
-        img = Image.fromarray(vr[frame_index].asnumpy()).convert("RGB")
-        img = dynamic_preprocess(img, image_size=input_size, use_thumbnail=True, max_num=max_num)
-        pixel_values = [transform(tile) for tile in img]
-        pixel_values = torch.stack(pixel_values)
-        num_patches_list.append(pixel_values.shape[0])
-        pixel_values_list.append(pixel_values)
-    pixel_values = torch.cat(pixel_values_list)
-    return pixel_values, num_patches_list
-
-
 from datetime import timedelta
 
 from accelerate.state import AcceleratorState
@@ -130,7 +110,6 @@ class InternVL2(lmms):
     def __init__(
         self,
         pretrained: str = "OpenGVLab/InternVL2-2B",
-        modality: str = "image",
         device: str = "cuda:0",
         device_map: str = "cuda:0",
         batch_size: str = "1",
@@ -190,8 +169,6 @@ class InternVL2(lmms):
             self.model.to(self._device)
             self._rank = 0
             self._world_size = 1
-
-        self.modality = modality
 
     @property
     def config(self):
@@ -254,26 +231,17 @@ class InternVL2(lmms):
 
             visuals = [doc_to_visual(self.task_dict[task][split][doc_id])]
             visuals = self.flatten(visuals)
-            if self.modality == "image":
-                if visuals:
-                    visuals = [load_image(visual).to(torch.bfloat16).cuda() for visual in visuals]
-                    pixel_values = torch.cat(visuals, dim=0)
-                    num_patches_list = [visual.size(0) for visual in visuals]
-                    image_tokens = ["<image>"] * len(visuals)
-                    image_tokens = " ".join(image_tokens)
-                    contexts = image_tokens + "\n" + contexts
-                else:
-                    pixel_values = None
-                    num_patch_list = None
-                response, history = self.model.chat(self.tokenizer, pixel_values, contexts, gen_kwargs, num_patches_list=num_patches_list, history=None, return_history=True)
-            elif self.modality == "video":
-                assert len(visuals) == 1, f"Only one video is supported, but got {len(visuals)} videos."
-                video_path = visuals[0]
-                pixel_values, num_patches_list = load_video(video_path, num_segments=8, max_num=1)
-                pixel_values = pixel_values.to(torch.bfloat16).cuda()
-                video_prefix = "".join([f"Frame{i+1}: <image>\n" for i in range(len(num_patches_list))])
-                question = video_prefix + contexts
-                response, history = self.model.chat(self.tokenizer, pixel_values, question, gen_kwargs, num_patches_list=num_patches_list, history=None, return_history=True)
+            if visuals:
+                visuals = [load_image(visual).to(torch.bfloat16).cuda() for visual in visuals]
+                pixel_values = torch.cat(visuals, dim=0)
+                num_patches_list = [visual.size(0) for visual in visuals]
+                image_tokens = ["<image>"] * len(visuals)
+                image_tokens = " ".join(image_tokens)
+                contexts = image_tokens + "\n" + contexts
+            else:
+                pixel_values = None
+                num_patch_list = None
+            response, history = self.model.chat(self.tokenizer, pixel_values, contexts, gen_kwargs, num_patches_list=num_patches_list, history=None, return_history=True)
             res.append(response)
             pbar.update(1)
         pbar.close()

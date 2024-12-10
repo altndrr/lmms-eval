@@ -23,7 +23,6 @@ eval_logger = logger
 try:
     import anthropic
     import numpy as np
-    from decord import VideoReader, cpu
 except Exception as e:
     eval_logger.warning(f"Error importing claude: {e}")
 
@@ -130,24 +129,6 @@ class Claude(lmms):
 
         return self.shrink_image_to_file_size(img, max_file_size)
 
-    def encode_video(self, video_path):
-        vr = VideoReader(video_path, ctx=cpu(0))
-        total_frame_num = len(vr)
-        uniform_sampled_frames = np.linspace(0, total_frame_num - 1, self.max_frames_num, dtype=int)
-        frame_idx = uniform_sampled_frames.tolist()
-        frames = vr.get_batch(frame_idx).asnumpy()
-
-        base64_frames = []
-        for frame in frames:
-            img = Image.fromarray(frame)
-            output_buffer = BytesIO()
-            img.save(output_buffer, format="JPEG")
-            byte_data = output_buffer.getvalue()
-            base64_str = base64.b64encode(byte_data).decode("utf-8")
-            base64_frames.append(f"{base64_str}")
-
-        return base64_frames
-
     def generate_until(self, requests) -> List[str]:
         client = anthropic.Anthropic()
 
@@ -184,14 +165,9 @@ class Claude(lmms):
             visuals = self.flatten(visuals)
             imgs = []
             for visual in visuals:
-                if isinstance(visual, str) and os.path.exists(visual):  # Assuming visual is a path to a video
-                    visual = self.encode_video(visual)
-                    for img in visual:
-                        imgs.append(img)
-                else:
-                    visual = self.shrink_image_to_file_size(visual)
-                    img = self.encode_image(visual)
-                    imgs.append(img)
+                visual = self.shrink_image_to_file_size(visual)
+                img = self.encode_image(visual)
+                imgs.append(img)
 
             messages = deepcopy(empty_messages)
 
