@@ -206,7 +206,6 @@
 - [MMT-Bench](https://mmt-bench.github.io/) (mmt)
   - MMT Validation (mmt_val)
   - MMT Test (mmt_test)
-- [Video-MME](https://video-mme.github.io/) (videomme)
 - [Vinoground](https://vinoground.github.io) (vinoground)
 - [VITATECS](https://github.com/lscpku/VITATECS) (vitatecs)
 

@@ -223,7 +223,6 @@ Already on 'dev/fix_output_path'
 |mmmu_val (dev/fix_output_path)|50.00 ± 50.00|
 |ai2d (dev/fix_output_path)|50.00 ± 50.00|
 |muirbench (dev/fix_output_path)|12.50 ± 12.50|
-|videomme (dev/fix_output_path)|2500.00 ± 2500.00|
 
 |branch|runtime|%|
 |--|--|--|
