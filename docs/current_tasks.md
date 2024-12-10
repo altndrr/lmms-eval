@@ -206,13 +206,6 @@
 - [MMT-Bench](https://mmt-bench.github.io/) (mmt)
   - MMT Validation (mmt_val)
   - MMT Test (mmt_test)
-- [VDC](https://github.com/rese1f/aurora) (vdc)
-  - VDC Detailed Caption (detailed_test)
-  - VDC Camera Caption (camera_test)
-  - VDC Short Caption (short_test)
-  - VDC Background Caption (background_test)
-  - VDC Main Object Caption (main_object_test)
-
 
 ## 4. Text Tasks
 
