@@ -143,7 +143,6 @@
     - VCR-Wiki Chinese hard 100 (vcr_wiki_zh_hard_100)
     - VCR-Wiki Chinese hard 500 (vcr_wiki_zh_hard_500)
     - VCR-Wiki Chinese hard (vcr_wiki_zh_hard)
-- [VibeEval](https://github.com/reka-ai/reka-vibe-eval) (vibe_eval)
 - [VizWizVQA](https://vizwiz.org/tasks-and-datasets/vqa/) (vizwiz_vqa)
   - VizWizVQA Validation (vizwiz_vqa_val)
   - VizWizVQA Test (vizwiz_vqa_test)
