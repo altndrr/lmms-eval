@@ -206,16 +206,7 @@
 - [MMT-Bench](https://mmt-bench.github.io/) (mmt)
   - MMT Validation (mmt_val)
   - MMT Test (mmt_test)
-- [VITATECS](https://github.com/lscpku/VITATECS) (vitatecs)
-  - VITATECS Direction (vitatecs_direction)
-  - VITATECS Intensity (vitatecs_intensity)
-  - VITATECS Sequence (vitatecs_sequence)
-  - VITATECS Compositionality (vitatecs_compositionality)
-  - VITATECS Localization (vitatecs_localization)
-  - VITATECS Type (vitatecs_type)
-
 - [WorldQA](https://zhangyuanhan-ai.github.io/WorldQA/) (worldqa)
-
   - WorldQA Generation (worldqa_gen)
   - WorldQA Multiple Choice (worldqa_mc)
 
