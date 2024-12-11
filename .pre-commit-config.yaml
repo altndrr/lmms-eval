@@ -21,3 +21,10 @@ repos:
       - id: mixed-line-ending # replaces or checks mixed line ending
       - id: name-tests-test # verifies that test files are named correctly
       - id: trailing-whitespace # trims trailing whitespace
+
+  # yaml formatting
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.0.0-alpha.6
+    hooks:
+      - id: prettier
+        types: [yaml]
