@@ -51,8 +51,7 @@ DEFAULT_IMAGE_TOKEN = "<image>"
 
 @register_model("mantis")
 class Mantis(lmms):
-    """
-    Mantis Model
+    """Mantis Model
     This implementation is adapted from the Llava model from llava.py and the Idefics model from idefics.py
     """
 

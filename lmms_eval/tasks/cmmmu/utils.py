@@ -347,8 +347,9 @@ def normalize_str(string, answer):
 
 
 def get_fill_blank_prediction(response, answer):
-    """get the prediction from the generated response,
-    return a list of predicted strings or numbers"""
+    """Get the prediction from the generated response,
+    return a list of predicted strings or numbers
+    """
 
     def get_key_subresponses(response):
         key_responses = []
@@ -407,8 +408,9 @@ def get_fill_blank_prediction(response, answer):
 
 
 def get_TF_prediction(response):
-    """get the prediction from the generated response,
-    return a list of predicted strings or numbers"""
+    """Get the prediction from the generated response,
+    return a list of predicted strings or numbers
+    """
 
     def get_key_subresponses(response):
         key_responses = []

@@ -96,15 +96,17 @@ class lmms(abc.ABC):
     def create_from_arg_string(
         cls: Type[T], arg_string: str, additional_config: Optional[dict] = None
     ) -> T:
-        """
-        Creates an instance of the LMM class using the given argument string and additional config.
+        """Creates an instance of the LMM class using the given argument string and additional config.
 
-        Parameters:
+        Parameters
+        ----------
         - arg_string: A string containing arguments in the format key1=value1,key2=value2.
         - additional_config: Optional dictionary containing additional configuration parameters.
 
-        Returns:
+        Returns
+        -------
         - Instance of the LMM class.
+
         """
         additional_config = {} if additional_config is None else additional_config
         args = utils.simple_parse_args_string(arg_string)

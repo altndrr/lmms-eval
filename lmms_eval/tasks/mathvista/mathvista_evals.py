@@ -291,9 +291,7 @@ class MathVistaEvaluator:
         return ""
 
     def get_most_similar(self, prediction, choices):
-        """
-        Use the Levenshtein distance (or edit distance) to determine which of the choices is most similar to the given prediction
-        """
+        """Use the Levenshtein distance (or edit distance) to determine which of the choices is most similar to the given prediction"""
         distances = [distance(prediction, choice) for choice in choices]
         ind = distances.index(min(distances))
         return choices[ind]
@@ -301,9 +299,7 @@ class MathVistaEvaluator:
     def normalize_extracted_answer(
         self, extraction, choices, question_type, answer_type, precision
     ):
-        """
-        Normalize the extracted answer to match the answer type
-        """
+        """Normalize the extracted answer to match the answer type"""
         if question_type == "multi_choice":
             # make sure the extraction is a string
             if isinstance(extraction, str):
@@ -351,9 +347,7 @@ class MathVistaEvaluator:
         return extraction
 
     def safe_equal(self, prediction, answer):
-        """
-        Check if the prediction is equal to the answer, even if they are of different types
-        """
+        """Check if the prediction is equal to the answer, even if they are of different types"""
         try:
             if str(prediction).strip() == str(answer).strip():
                 return True
@@ -363,9 +357,7 @@ class MathVistaEvaluator:
             return False
 
     def get_acc_with_contion(self, res_pd, key, value):
-        """
-        Calculate the accuracy of predictions with a specific condition
-        """
+        """Calculate the accuracy of predictions with a specific condition"""
         if key == "skills":
             total_pd = res_pd[res_pd[key].apply(lambda x: value in x)]
         else:

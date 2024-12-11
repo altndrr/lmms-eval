@@ -29,8 +29,7 @@ from lmms_eval.utils import (
 
 @dataclass(init=False)
 class GeneralConfigTracker:
-    """
-    Tracker for the evaluation parameters.
+    """Tracker for the evaluation parameters.
 
     Attributes:
         model_source (str): Source of the model (e.g. Hugging Face, GGUF, etc.)
@@ -39,6 +38,7 @@ class GeneralConfigTracker:
         start_time (float): Start time of the experiment. Logged at class init.
         end_time (float): Start time of the experiment. Logged when calling [`GeneralConfigTracker.log_end_time`]
         total_evaluation_time_seconds (str): Inferred total evaluation time in seconds (from the start and end times).
+
     """
 
     model_source: str = None
@@ -100,8 +100,7 @@ class GeneralConfigTracker:
 
 
 class EvaluationTracker:
-    """
-    Keeps track and saves relevant information of the evaluation process.
+    """Keeps track and saves relevant information of the evaluation process.
     Compiles the data from trackers and writes it to files, which can be published to the Hugging Face hub if requested.
     """
 
@@ -120,8 +119,7 @@ class EvaluationTracker:
         point_of_contact: str = "",
         gated: bool = False,
     ) -> None:
-        """
-        Creates all the necessary loggers for evaluation tracking.
+        """Creates all the necessary loggers for evaluation tracking.
 
         Args:
             output_path (str): Path to save the results. If not provided, the results won't be saved.
@@ -136,6 +134,7 @@ class EvaluationTracker:
             leaderboard_url (str): URL to the leaderboard on the Hugging Face hub on the dataset card.
             point_of_contact (str): Contact information on the Hugging Face hub dataset card.
             gated (bool): Whether to gate the repository.
+
         """
         self.general_config_tracker = GeneralConfigTracker()
 
@@ -183,13 +182,13 @@ class EvaluationTracker:
         samples: dict,
         datetime_str: str,
     ) -> None:
-        """
-        Saves the aggregated results and samples to the output path and pushes them to the Hugging Face hub if requested.
+        """Saves the aggregated results and samples to the output path and pushes them to the Hugging Face hub if requested.
 
         Args:
             results (dict): The aggregated results to save.
             samples (dict): The samples results to save.
             datetime_str (str): The datetime string to use for the results file.
+
         """
         self.general_config_tracker.log_end_time()
 
@@ -259,12 +258,12 @@ class EvaluationTracker:
         task_name: str,
         samples: dict,
     ) -> None:
-        """
-        Saves the samples results to the output path and pushes them to the Hugging Face hub if requested.
+        """Saves the samples results to the output path and pushes them to the Hugging Face hub if requested.
 
         Args:
             task_name (str): The task name to save the samples for.
             samples (dict): The samples results to save.
+
         """
         if self.output_path:
             try:
@@ -343,10 +342,7 @@ class EvaluationTracker:
             eval_logger.info("Output path not provided, skipping saving sample results")
 
     def recreate_metadata_card(self) -> None:
-        """
-        Creates a metadata card for the evaluation results dataset and pushes it to the Hugging Face hub.
-        """
-
+        """Creates a metadata card for the evaluation results dataset and pushes it to the Hugging Face hub."""
         eval_logger.info("Recreating metadata card")
         repo_id = self.details_repo if self.public_repo else self.details_repo_private
 

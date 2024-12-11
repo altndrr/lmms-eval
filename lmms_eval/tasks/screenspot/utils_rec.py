@@ -17,14 +17,14 @@ def screenspot_rec_doc_to_text(doc):
 
 
 def parse_float_sequence_within(input_str):
-    """
-    Extract the first sequence of four floating-point numbers within square brackets from a string.
+    """Extract the first sequence of four floating-point numbers within square brackets from a string.
 
     Args:
     input_str (str): A string that may contain a sequence of four floats within square brackets.
 
     Returns:
     list: A list of four floats if the pattern is found, or a list of four zeros if the pattern is not found.
+
     """
     # Define the regex pattern to find the first instance of four floats within square brackets
     pattern = r"\[\s*(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)\s*\]"
@@ -41,12 +41,13 @@ def parse_float_sequence_within(input_str):
 
 
 def screenspot_rec_process_result(doc, result):
-    """
-    Args:
+    """Args:
         doc: a instance of the eval dataset
         results: [pred]
+
     Returns:
         a dictionary with key: metric name, value: metric value
+
     """
     pred = result[0] if len(result) > 0 else ""
     pred = parse_float_sequence_within(pred)
@@ -63,15 +64,17 @@ def screenspot_rec_process_result(doc, result):
 
 
 def compute_iou(box1, box2):
-    """
-    Compute the Intersection over Union (IoU) of two bounding boxes.
+    """Compute the Intersection over Union (IoU) of two bounding boxes.
 
-    Parameters:
+    Parameters
+    ----------
     - box1 (list of float): Bounding box [x_min, y_min, x_max, y_max].
     - box2 (list of float): Bounding box [x_min, y_min, x_max, y_max].
 
-    Returns:
+    Returns
+    -------
     - float: IoU of box1 and box2.
+
     """
     # Determine the coordinates of the intersection rectangle
     x_left = max(box1[0], box2[0])
@@ -96,31 +99,35 @@ def compute_iou(box1, box2):
 
 
 def compute_accuracy(box1, box2, threshold=0.5):
-    """
-    Compute the accuracy of two bounding boxes based on a specified threshold.
+    """Compute the accuracy of two bounding boxes based on a specified threshold.
 
-    Parameters:
+    Parameters
+    ----------
     - box1 (list of float): Bounding box [x_min, y_min, x_max, y_max].
     - box2 (list of float): Bounding box [x_min, y_min, x_max, y_max].
     - threshold (float): Threshold for the IoU to consider the prediction correct.
 
-    Returns:
+    Returns
+    -------
     - float: Accuracy of the prediction based on the IoU threshold.
+
     """
     iou = compute_iou(box1, box2)
     return iou >= threshold
 
 
 def compute_center_accuracy(box1, box2):
-    """
-    Compute if the center point of box 2 is within box 1.
+    """Compute if the center point of box 2 is within box 1.
 
-    Parameters:
+    Parameters
+    ----------
     - box1 (list of float): Bounding box [x_min, y_min, x_max, y_max].
     - box2 (list of float): Bounding box [x_min, y_min, x_max, y_max].
 
-    Returns:
+    Returns
+    -------
     - bool: True if the center point of box 2 is within box 1, False otherwise.
+
     """
     # Compute the center point of box 2
     center_x = (box2[0] + box2[2]) / 2
@@ -131,8 +138,7 @@ def compute_center_accuracy(box1, box2):
 
 
 def screenspot_rec_aggregation_result(results, metric):
-    """
-    Aggregate the results of the screenspot evaluation task using the specified metric.
+    """Aggregate the results of the screenspot evaluation task using the specified metric.
 
     Args:
     - results (list of dict): List of result dictionaries.
@@ -140,6 +146,7 @@ def screenspot_rec_aggregation_result(results, metric):
 
     Returns:
     - dict: Dictionary containing the aggregated results for the specified metric.
+
     """
     scorers = {
         "IoU": compute_iou,

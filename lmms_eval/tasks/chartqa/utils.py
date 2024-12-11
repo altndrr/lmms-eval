@@ -41,6 +41,7 @@ def relaxed_correctness(prediction, target, max_relative_change: float = 0.05) -
 
     Returns:
       Whether the prediction was correct given the specified tolerance.
+
     """
 
     def _to_float(text: str):

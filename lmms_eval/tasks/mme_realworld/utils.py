@@ -118,12 +118,13 @@ def extract_characters_regex(s, choices=["(A)", "(B)", "(C)", "(D)", "(E)"]):
 
 
 def mme_realworld_process_results(doc, results):
-    """
-    Args:
+    """Args:
         doc: a instance of the eval dataset
         results: [pred]
+
     Returns:
         a dictionary with key: metric name (in this case mme_realworld score), value: metric value
+
     """
     pred = results[0]
     pred_ans = extract_characters_regex(pred)
@@ -161,12 +162,13 @@ def get_correct_answer(sample):
 
 
 def mme_realworld_exact_match(doc, results):
-    """
-    Args:
+    """Args:
         doc: a instance of the eval dataset
         results: [pred]
+
     Returns:
         a dictionary with key: metric name (in this case mme_realworld score), value: metric value
+
     """
     pred_ans = results[0]
     answer = get_correct_answer(doc)
@@ -188,13 +190,12 @@ def mme_realworld_exact_match(doc, results):
 
 
 def mme_realworld_aggregate_results(results):
-    """
-    Args:
+    """Args:
         results: a list of values returned by process_results
     Returns:
         A score
-    """
 
+    """
     metrics = {}
     for task in TASKS:
         metrics[f"{task}"] = {}

@@ -121,12 +121,13 @@ def llava_doc_to_text(doc, lmms_eval_specific_kwargs=None):
 
 
 def llava_process_results(doc, result):
-    """
-    Args:
+    """Args:
         doc: a instance of the eval dataset
         results: [pred]
+
     Returns:
         a dictionary with key: metric name (in this case coco_bleu), value: metric value
+
     """
     try:
         question = doc.get("question", "")

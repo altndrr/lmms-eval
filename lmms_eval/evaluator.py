@@ -341,7 +341,6 @@ def evaluate(
     :return
         Dictionary of results
     """
-
     # stores the final result for each task, for each metric/filter pair.
     results = collections.defaultdict(dict)
     # Tracks each task's version.

@@ -19,9 +19,7 @@ from loguru import logger as eval_logger
 
 @register_model("minicpm_v")
 class MiniCPM_V(lmms):
-    """
-    MiniCPM_V Model
-    """
+    """MiniCPM_V Model"""
 
     def __init__(
         self,

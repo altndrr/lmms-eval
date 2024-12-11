@@ -25,9 +25,7 @@ from lmms_eval.api.registry import register_model
 
 @register_model("fuyu")
 class Fuyu(lmms):
-    """
-    Fuyu Model
-    """
+    """Fuyu Model"""
 
     def __init__(
         self,

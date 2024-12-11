@@ -102,9 +102,7 @@ def handle_non_serializable(o):
 
 
 def sanitize_list(sub):
-    """
-    Takes possible nested list and recursively converts all inner component to strings
-    """
+    """Takes possible nested list and recursively converts all inner component to strings"""
     if isinstance(sub, list):
         return [sanitize_list(item) for item in sub]
     if isinstance(sub, tuple):
@@ -114,8 +112,7 @@ def sanitize_list(sub):
 
 
 def simple_parse_args_string(args_string):
-    """
-    Parses something like
+    """Parses something like
         args1=val1,arg2=val2
     Into a dictionary
     """
@@ -133,16 +130,17 @@ def join_iters(iters):
 
 
 def chunks(iter, n: int = 0, fn=None):
-    """
-    Divides an iterable into chunks of specified size or based on a given function.
+    """Divides an iterable into chunks of specified size or based on a given function.
     Useful for batching
 
-    Parameters:
+    Parameters
+    ----------
     - iter: The input iterable to be divided into chunks.
     - n: An integer representing the size of each chunk. Default is 0.
     - fn: A function that takes the current index and the iterable as arguments and returns the size of the chunk. Default is None.
 
-    Returns:
+    Returns
+    -------
     An iterator that yields chunks of the input iterable.
 
     Example usage:
@@ -158,6 +156,7 @@ def chunks(iter, n: int = 0, fn=None):
     [7, 8, 9]
     [10]
     ```
+
     """
     arr = []
     for i, x in enumerate(iter):
@@ -225,23 +224,17 @@ def general_detokenize(string):
 
 
 def get_file_task_name(filename: str) -> str:
-    """
-    Given the sample results filenames, extracts and returns the task name.
-    """
+    """Given the sample results filenames, extracts and returns the task name."""
     return filename[filename.find("_") + 1 : filename.rfind("_")]
 
 
 def get_file_datetime(filename: str) -> str:
-    """
-    Given the results and sample results filenames, extracts and returns the datetime.
-    """
+    """Given the results and sample results filenames, extracts and returns the datetime."""
     return filename[filename.rfind("_") + 1 :].replace(".jsonl", "")
 
 
 def sanitize_model_name(model_name: str, full_path: bool = False) -> str:
-    """
-    Given the model name, returns a sanitized version of it.
-    """
+    """Given the model name, returns a sanitized version of it."""
     if full_path:
         return re.sub(r"[\"<>:/\|\\?\*\[\]]+", "__", model_name)
     else:
@@ -253,36 +246,27 @@ def sanitize_model_name(model_name: str, full_path: bool = False) -> str:
 
 
 def sanitize_task_name(task_name: str) -> str:
-    """
-    Given the task name, returns a sanitized version of it.
-    """
+    """Given the task name, returns a sanitized version of it."""
     return re.sub(r"\W", "_", task_name)
 
 
 def get_latest_filename(filenames: List[str]) -> str:
-    """
-    Given a list of filenames, returns the filename with the latest datetime.
-    """
+    """Given a list of filenames, returns the filename with the latest datetime."""
     return max(filenames, key=lambda f: get_file_datetime(f))
 
 
 def get_results_filenames(filenames: List[str]) -> List[str]:
-    """
-    Extracts filenames that correspond to aggregated results.
-    """
+    """Extracts filenames that correspond to aggregated results."""
     return [f for f in filenames if "results" in f and ".json" in f]
 
 
 def get_sample_results_filenames(filenames: List[str]) -> List[str]:
-    """
-    Extracts filenames that correspond to sample results.
-    """
+    """Extracts filenames that correspond to sample results."""
     return [f for f in filenames if "/samples_" in f and ".json" in f]
 
 
 def get_rolling_token_windows(token_list, prefix_token, max_seq_len, context_len):
-    """
-    - context_len allows for a rolling window context, allowing each prediction window to potentially
+    """- context_len allows for a rolling window context, allowing each prediction window to potentially
       condition on some context
 
     :param token_list: list
@@ -328,8 +312,7 @@ def make_disjoint_window(pair):
 
 
 class EnhancedJSONEncoder(json.JSONEncoder):
-    """
-    Provides a proper json encoding for the loggers and trackers json dumps.
+    """Provides a proper json encoding for the loggers and trackers json dumps.
     Notably manages the json encoding of dataclasses.
     """
 
@@ -346,6 +329,7 @@ class Reorderer:
         Args:
             arr (List[Any]): The initial array
             fn (Callable[[Any], Any]): A function to determine the priority of elements
+
         """
         self.size = len(arr)
         arr = list(enumerate(arr))
@@ -362,6 +346,7 @@ class Reorderer:
 
         Returns:
             List[Any]: The reordered array
+
         """
         return [x[1] for x in self.arr]
 
@@ -373,6 +358,7 @@ class Reorderer:
 
         Returns:
             List[Any]: The array restored to the original order
+
         """
         res = [None] * self.size
         cov = [False] * self.size
@@ -388,8 +374,7 @@ class Reorderer:
 
 
 class Grouper:
-    """
-    takes an array `arr` and function `fn` and returns a dictionary
+    """takes an array `arr` and function `fn` and returns a dictionary
     with keys fn(ob) for each ob in `arr` and with values `self.arr[key]` a list of all
     objects in `arr` satisfying `key == fn(ob)`.
     """
@@ -522,8 +507,7 @@ def make_table(result_dict, column: str = "results", sort_results: bool = False)
 
 
 def positional_deprecated(fn):
-    """
-    A decorator to nudge users into passing only keyword args (`kwargs`) to the
+    """A decorator to nudge users into passing only keyword args (`kwargs`) to the
     wrapped function, `fn`.
     """
 
@@ -542,8 +526,7 @@ def positional_deprecated(fn):
 
 @positional_deprecated
 def find_test_root(start_path: pathlib.Path) -> pathlib.Path:
-    """
-    Search upward in the directory tree to a maximum of three layers
+    """Search upward in the directory tree to a maximum of three layers
     to find and return the package root (containing the 'tests' folder)
     """
     cur_path = start_path.resolve()
@@ -560,9 +543,7 @@ def find_test_root(start_path: pathlib.Path) -> pathlib.Path:
 
 @positional_deprecated
 def run_task_tests(task_list: List[str]):
-    """
-    Find the package root and run the tests for the given tasks
-    """
+    """Find the package root and run the tests for the given tasks"""
     import pytest
 
     package_root = find_test_root(start_path=pathlib.Path(__file__))
@@ -582,8 +563,7 @@ def run_task_tests(task_list: List[str]):
 
 
 def get_git_commit_hash():
-    """
-    Gets the git commit hash of your current repo (if it exists).
+    """Gets the git commit hash of your current repo (if it exists).
     Source: https://github.com/EleutherAI/gpt-neox/blob/b608043be541602170bfcfb8ec9bf85e8a0799e0/megatron/neox_arguments/neox_args.py#L42
     """
     try:
@@ -596,9 +576,7 @@ def get_git_commit_hash():
 
 
 def get_datetime_str(timezone="Asia/Singapore"):
-    """
-    Gets the current datetime in UTC+8 timezone as a string.
-    """
+    """Gets the current datetime in UTC+8 timezone as a string."""
     # Default: UTC+8 timezone
     tz = pytz.timezone(timezone)
     utc_now = datetime.datetime.now(datetime.timezone.utc)
@@ -696,8 +674,7 @@ def apply_template(template: str, doc: dict) -> str:
 
 
 def create_iterator(raw_iterator, rank, world_size, limit=None):
-    """
-    Method for creating a (potentially) sliced and limited
+    """Method for creating a (potentially) sliced and limited
     iterator from a raw document iterator. Used for splitting data
     among ranks in multigpu setting or only pulling a sample of documents
     """
@@ -709,8 +686,7 @@ def pad_and_concat(
     tensors: List[torch.Tensor],
     padding_side: Literal["right", "left"] = "right",
 ):
-    """
-    Method for padding a list of tensors given the maximum tensor
+    """Method for padding a list of tensors given the maximum tensor
     length in the batch. Used for batching inputs and continuations in
     seq2seq models.
     """
@@ -879,8 +855,7 @@ def divide(iterable, n) -> List[Iterator]:
 
 
 class Collator:
-    """
-    A class for reordering and batching elements of an array.
+    """A class for reordering and batching elements of an array.
 
     This class allows for sorting an array based on a provided sorting function, grouping elements based on a grouping function, and generating batches from the sorted and grouped data.
     """
@@ -905,15 +880,17 @@ class Collator:
         self.arr_with_indices = self.group(self.arr_with_indices, fn=self.group_fn, values=False)
 
     def get_batched(self, n: int = 1, batch_fn: Optional[Callable] = None) -> Iterator:
-        """
-        Generates and yields batches from the reordered array.
+        """Generates and yields batches from the reordered array.
 
-        Parameters:
+        Parameters
+        ----------
         - n (int): The size of each batch. Defaults to 1.
         - batch_fn (Optional[Callable[[int, Iterable], int]]): A function to determine the size of each batch. Defaults to None.
 
-        Yields:
+        Yields
+        ------
         Iterator: An iterator over batches of reordered elements.
+
         """
         if self.grouping:
             for (
@@ -929,28 +906,32 @@ class Collator:
             yield from batch
 
     def _reorder(self, arr: Union[List, Tuple[Tuple[int, Any], ...]]) -> List:
-        """
-        Reorders the elements in the array based on the sorting function.
+        """Reorders the elements in the array based on the sorting function.
 
-        Parameters:
+        Parameters
+        ----------
         - arr (Union[List, Tuple[Tuple[int, Any], ...]]): The array or iterable to be reordered.
 
-        Yields:
+        Yields
+        ------
         List: Yields reordered elements one by one.
+
         """
         arr = sorted(arr, key=lambda x: self.fn(x[1]))
         self.reorder_indices.extend([x[0] for x in arr])
         yield from [x[1] for x in arr]
 
     def get_original(self, newarr: List) -> List:
-        """
-        Restores the original order of elements from the reordered list.
+        """Restores the original order of elements from the reordered list.
 
-        Parameters:
+        Parameters
+        ----------
         - newarr (List): The reordered array.
 
-        Returns:
+        Returns
+        -------
         List: The array with elements restored to their original order.
+
         """
         res = [None] * self.size
         cov = [False] * self.size
@@ -968,16 +949,18 @@ class Collator:
 
     @staticmethod
     def group(arr: Iterable, fn: Callable, values: bool = False) -> Iterable:
-        """
-        Groups elements of an iterable based on a provided function.
+        """Groups elements of an iterable based on a provided function.
 
-        Parameters:
+        Parameters
+        ----------
         - arr (Iterable): The iterable to be grouped.
         - fn (Callable): The function to determine the grouping.
         - values (bool): If True, returns the values of the group. Defaults to False.
 
-        Returns:
+        Returns
+        -------
         Iterable: An iterable of grouped elements.
+
         """
         res = collections.defaultdict(list)
         for ob in arr:
@@ -998,16 +981,17 @@ class Collator:
 
     @staticmethod
     def get_chunks(_iter, n: int = 0, fn=None):
-        """
-        Divides an iterable into chunks of specified size or based on a given function.
+        """Divides an iterable into chunks of specified size or based on a given function.
         Useful for batching
 
-        Parameters:
+        Parameters
+        ----------
         - iter: The input iterable to be divided into chunks.
         - n: An integer representing the size of each chunk. Default is 0.
         - fn: A function that takes the current index and the iterable as arguments and returns the size of the chunk. Default is None.
 
-        Returns:
+        Returns
+        -------
         An iterator that yields chunks of the input iterable.
 
         Example usage:
@@ -1023,6 +1007,7 @@ class Collator:
         [7, 8, 9]
         [10]
         ```
+
         """
         arr = []
         _iter = tuple(_iter)

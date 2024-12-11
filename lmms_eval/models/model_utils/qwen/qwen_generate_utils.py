@@ -39,7 +39,6 @@ def get_ltor_masks_and_position_ids(
     eod_mask_loss,
 ):
     """Build masks and position id for left to right model."""
-
     # Extract batch size and sequence length.
     micro_batch_size, seq_length = data.size()
 
@@ -299,8 +298,8 @@ def decode_tokens(
 
 
 class StopWordsLogitsProcessor(LogitsProcessor):
-    """
-    :class:`transformers.LogitsProcessor` that enforces that when specified sequences appear, stop geration.
+    """:class:`transformers.LogitsProcessor` that enforces that when specified sequences appear, stop geration.
+
     Args:
         stop_words_ids (:obj:`List[List[int]]`):
             List of list of token ids of stop ids. In order to get the tokens of the words
@@ -308,6 +307,7 @@ class StopWordsLogitsProcessor(LogitsProcessor):
             add_prefix_space=True).input_ids`.
         eos_token_id (:obj:`int`):
             The id of the `end-of-sequence` token.
+
     """
 
     def __init__(self, stop_words_ids: Iterable[Iterable[int]], eos_token_id: int):
@@ -379,8 +379,8 @@ def top_k_logits(logits, top_k=0, top_p=0.0, filter_value=-float("Inf")):
     """This function has been mostly taken from huggingface conversational
     ai code at
         https://medium.com/huggingface/how-to-build-a-state-of-the-art-
-             conversational-ai-with-transfer-learning-2d818ac26313"""
-
+             conversational-ai-with-transfer-learning-2d818ac26313
+    """
     if top_k > 0:
         # Remove all tokens with a probability less than the
         # last token of the top-k

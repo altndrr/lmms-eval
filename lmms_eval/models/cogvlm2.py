@@ -19,9 +19,7 @@ from loguru import logger as eval_logger
 
 @register_model("cogvlm2")
 class CogVLM2(lmms):
-    """
-    CogVLM2 Model
-    """
+    """CogVLM2 Model"""
 
     def __init__(
         self,

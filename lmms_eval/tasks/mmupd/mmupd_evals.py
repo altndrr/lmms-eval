@@ -41,14 +41,16 @@ def dump(data, f):
 
 
 def load(f):
-    """
-    Loads data from various file formats.
+    """Loads data from various file formats.
 
-    Parameters:
+    Parameters
+    ----------
     - file_path: Path to the file to be loaded.
 
-    Returns:
+    Returns
+    -------
     - Loaded data.
+
     """
 
     def load_pkl(pth):
@@ -559,16 +561,15 @@ class MMUPD_Evaluator:
 
     # Evaluate Results
     def eval_result(self, results, eval_method, upd_type, question_type, eval_type):
-        """
-        Parameters:
+        """Parameters
         - args: Arguments.
         - results: Results to evaluate.
         - eval_method: The evaluation method. either "openai".
         - upd_type: The type of UPD. either "aad", "iasd", or "ivqd".
         - question_type: The type of question. either "base", "option", or "inst".
         - eval_type: The type of evaluation. either "standard", "aad", "iasd", "ivqd".
-        """
 
+        """
         rd.seed(2680)
         assert eval_method == "openai"
 

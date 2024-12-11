@@ -73,12 +73,13 @@ def parse_pred_ans(pred_ans):
 
 
 def mme_process_results(doc, results):
-    """
-    Args:
+    """Args:
         doc: a instance of the eval dataset
         results: [pred]
+
     Returns:
         a dictionary with key: metric name (in this case mme score), value: metric value
+
     """
     pred = results[0]
     pred_ans = parse_pred_ans(pred)
@@ -98,11 +99,11 @@ def mme_process_results(doc, results):
 
 
 def mme_aggregate_results(results):
-    """
-    Args:
+    """Args:
         results: a list of values returned by process_results
     Returns:
         A score
+
     """
     category2score = defaultdict(dict)
     for result in results:

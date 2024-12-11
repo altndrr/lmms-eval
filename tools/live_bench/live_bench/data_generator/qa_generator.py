@@ -54,11 +54,11 @@ class QAData(object):
         return "Unknown Subtask"
 
     def set_subtask(self, subtask: str):
-        """
-        Set the subtask for the QAData instance after parsing it.
+        """Set the subtask for the QAData instance after parsing it.
 
         Args:
             subtask (str): The subtask string to be set.
+
         """
         self.subtask = self.parse_subtask(subtask)
 

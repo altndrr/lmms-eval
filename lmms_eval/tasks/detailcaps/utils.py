@@ -47,14 +47,14 @@ def detailcaps_doc_to_target(doc):
 
 
 def detailcaps_process_result(doc, result):
-    """
-    Args:
+    """Args:
         doc: a instance of the eval dataset
         results: [pred]
+
     Returns:
         a dictionary with key: metric name, value: metric value
-    """
 
+    """
     pred = result[0]
     # The question id in our dataset is the image file itself
     image_id = doc["image"]
@@ -195,12 +195,13 @@ def detailcaps_capture(results, args=None):
 
 
 def detailcaps_test_process_result(doc, result):
-    """
-    Args:
+    """Args:
         doc: a instance of the eval dataset
         results: [pred]
+
     Returns:
         a dictionary with key: metric name (in this case detailcaps_passthrough), value: metric value
+
     """
     return {"detailcaps_passthrough": {"pred": result[0], "image_id": doc["image_id"]}}
 

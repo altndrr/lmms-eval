@@ -40,8 +40,7 @@ def ai2d_doc_to_target(doc, model_specific_target_kwargs):
 
 class MultiChoiceRegexFilter(ExtendedRegexFilter):
     def __init__(self, *args, **kwargs):
-        """
-        regex_pattern: The basic regex pattern to use. If fails to match, we will use the customized match procedure
+        """regex_pattern: The basic regex pattern to use. If fails to match, we will use the customized match procedure
                         - step 1 : We parse the choices between ([A-Z])s then try to find these choices in the response.
                         - step 2 : We parse the choice with regex :[\s]*([A-?]), where ? varies by number of choices.
         group_select: Selects the (group_select)th match from the findall result.

@@ -30,12 +30,13 @@ def textcaps_doc_to_text(doc, lmms_eval_specific_kwargs=None):
 
 
 def textcaps_process_result(doc, result):
-    """
-    Args:
+    """Args:
         doc: a instance of the eval dataset
         results: [pred]
+
     Returns:
         a dictionary with key: metric name, value: metric value
+
     """
     pred = result[0] if len(result) > 0 else ""
 
@@ -144,12 +145,13 @@ def textcaps_spice(results, args=None):
 
 
 def textcaps_test_process_result(doc, result):
-    """
-    Args:
+    """Args:
         doc: a instance of the eval dataset
         results: [pred]
+
     Returns:
         a dictionary with key: metric name (in this case textcaps_passthrough), value: metric value
+
     """
     return {"textcaps_passthrough": {"pred": result, "image_id": doc["image_id"]}}
 

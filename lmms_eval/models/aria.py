@@ -22,8 +22,7 @@ DEFAULT_IMAGE_TOKEN = "<image>"
 
 @register_model("aria")
 class Aria(lmms):
-    """
-    Llava Model for Hugging Face Transformers: https://huggingface.co/docs/transformers/v4.39.3/en/model_doc/llava
+    """Llava Model for Hugging Face Transformers: https://huggingface.co/docs/transformers/v4.39.3/en/model_doc/llava
 
     Adapted from the LLaVA-HF model in lmms_eval/models/llava_hf.py
 

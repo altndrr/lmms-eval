@@ -27,8 +27,7 @@ except ImportError:
 
 @register_model("idefics2")
 class Idefics2(lmms):
-    """
-    Idefics2 Model for Hugging Face Transformers: https://github.com/huggingface/transformers/blob/main/src/transformers/models/idefics2/modeling_idefics2.py
+    """Idefics2 Model for Hugging Face Transformers: https://github.com/huggingface/transformers/blob/main/src/transformers/models/idefics2/modeling_idefics2.py
 
     Example usage:
 

@@ -22,8 +22,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 
 @register_model("qwen_vl")
 class Qwen_VL(lmms):
-    """
-    Qwen_VL Model
+    """Qwen_VL Model
     https://github.com/QwenLM/Qwen-VL/blob/master/eval_mm/evaluate_vqa.py
     """
 

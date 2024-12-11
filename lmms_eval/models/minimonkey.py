@@ -19,9 +19,7 @@ from loguru import logger as eval_logger
 
 @register_model("minimonkey")
 class MiniMonkey(lmms):
-    """
-    MiniMonkey Model
-    """
+    """MiniMonkey Model"""
 
     def __init__(
         self,

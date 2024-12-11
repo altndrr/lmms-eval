@@ -17,10 +17,9 @@ from lmms_eval.utils import eval_logger, positional_deprecated
 
 
 class TaskOutput:
-    """
-    Wrapper class for Task outputs.It contains various attributes and methods to manage and calculate metrics for the task.
+    """Wrapper class for Task outputs.It contains various attributes and methods to manage and calculate metrics for the task.
 
-        Attributes:
+    Attributes:
             task (object): The task object.
             task_name (str): The name of the task.
             task_config (dict): The configuration of the task.
@@ -35,12 +34,13 @@ class TaskOutput:
             sample_metrics (defaultdict): The dictionary of samples' metrics.
             agg_metrics (defaultdict): The dictionary of aggregate metrics.
 
-        Methods:
+    Methods:
             from_taskdict(cls, task_name: str, task):
                 Creates a TaskOutput instance from a task dictionary.
 
             calculate_aggregate_metric(bootstrap_iters=100000) -> None:
                 Calculates the aggregate metrics for the task.
+
     """
 
     def __init__(
@@ -216,8 +216,7 @@ def prepare_print_tasks(
     task_depth=0,
     group_depth=0,
 ) -> Tuple[dict, dict]:
-    """
-    @param task_dict: Dictionary representing the group hierarchy of tasks. Each key is a group name and its
+    """@param task_dict: Dictionary representing the group hierarchy of tasks. Each key is a group name and its
     value is a list of task names.
     @param results: Dictionary containing the results of each task. Each key is a
     group name and its value is a dictionary of task results.
@@ -232,11 +231,9 @@ def prepare_print_tasks(
     """
 
     def _sort_task_dict(task_dict):
-        """
-        Helper utility. Sorts the task dict at the current level of the hierarchy based on alphabetized task name.
+        """Helper utility. Sorts the task dict at the current level of the hierarchy based on alphabetized task name.
         Required so that we end up sorting within each sub-header correctly.
         """
-
         return dict(
             sorted(
                 task_dict.items(),
@@ -305,8 +302,7 @@ def prepare_print_tasks(
 def consolidate_results(
     eval_tasks: List[TaskOutput],
 ) -> Tuple[dict, dict, dict, dict, dict, dict]:
-    """
-    @param eval_tasks: list(TaskOutput).
+    """@param eval_tasks: list(TaskOutput).
     @return: A tuple containing the consolidated results, samples, configs, versions, and num_fewshot.
 
     Consolidates the results of multiple evaluation tasks into a single structure.
@@ -370,8 +366,7 @@ def consolidate_group_results(
     show_group_table=False,
     task_aggregation_list=None,
 ) -> Tuple[dict, dict, bool, Union[None, dict]]:
-    """
-    (Recursively) calculates groups' aggregated metrics and updates the results and versions dictionaries with this info.
+    """(Recursively) calculates groups' aggregated metrics and updates the results and versions dictionaries with this info.
 
     @return: a tuple [results, versions, show_group_table, task_aggregation_list] with formats described below:
 
@@ -489,8 +484,7 @@ def consolidate_group_results(
 
 @positional_deprecated
 def find_test_root(start_path: pathlib.Path) -> pathlib.Path:
-    """
-    Search upward in the directory tree to a maximum of three layers
+    """Search upward in the directory tree to a maximum of three layers
     to find and return the package root (containing the 'tests' folder)
     """
     cur_path = start_path.resolve()
@@ -507,9 +501,7 @@ def find_test_root(start_path: pathlib.Path) -> pathlib.Path:
 
 @positional_deprecated
 def run_task_tests(task_list: List[str]):
-    """
-    Find the package root and run the tests for the given tasks
-    """
+    """Find the package root and run the tests for the given tasks"""
     import pytest
 
     package_root = find_test_root(start_path=pathlib.Path(__file__))

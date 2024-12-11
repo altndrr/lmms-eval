@@ -29,7 +29,5 @@ class Instance:
 
     @property
     def args(self):
-        """
-        Returns (string,) where `string` is the string to calculate loglikelihood over
-        """
+        """Returns (string,) where `string` is the string to calculate loglikelihood over"""
         return self.arguments if isinstance(self.arguments, tuple) else (self.arguments,)

@@ -30,6 +30,7 @@ class WandbLogger:
             wandb_logger.post_init(results)
             wandb_logger.log_eval_result()
             wandb_logger.log_eval_samples(results["samples"])
+
         """
         try:
             import wandb
@@ -195,6 +196,7 @@ class WandbLogger:
 
         Returns:
             pd.DataFrame: A dataframe that is ready to be uploaded to W&B.
+
         """
         ids = [x["doc_id"] for x in data]
         labels = [x["target"] for x in data]
@@ -293,6 +295,7 @@ class WandbLogger:
 
         Args:
             samples (Dict[str, List[Dict[str, Any]]]): Evaluation samples for each task.
+
         """
         task_names: List[str] = [x for x in self.task_names if x not in self.group_names]
 

@@ -34,12 +34,13 @@ def refcoco_doc_to_text(doc):
 
 
 def refcoco_process_result(doc, result):
-    """
-    Args:
+    """Args:
         doc: a instance of the eval dataset
         results: [pred]
+
     Returns:
         a dictionary with key: metric name (in this case coco_bleu), value: metric value
+
     """
     pred = result[0] if len(result) > 0 else ""
     ann_id = doc["question_id"]

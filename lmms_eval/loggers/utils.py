@@ -19,6 +19,7 @@ def remove_none_pattern(input_string: str) -> Tuple[str, bool]:
     Returns:
         Tuple[str, bool]: A tuple containing the modified input_string with the ',none' substring removed
                           and a boolean indicating whether the modification was made (True) or not (False).
+
     """
     # Define the pattern to match ',none' at the end of the string
     pattern = re.compile(r",none$")
@@ -42,6 +43,7 @@ def _handle_non_serializable(o: Any) -> Union[int, str, list]:
         Union[int, str, list]: The converted object. If the object is of type np.int64 or np.int32,
             it will be converted to int. If the object is of type set, it will be converted
             to a list. Otherwise, it will be converted to str.
+
     """
     if isinstance(o, np.int64) or isinstance(o, np.int32):
         return int(o)
@@ -76,8 +78,7 @@ def get_commit_from_path(repo_path: Union[Path, str]) -> Optional[str]:
 
 
 def get_git_commit_hash():
-    """
-    Gets the git commit hash of your current repo (if it exists).
+    """Gets the git commit hash of your current repo (if it exists).
     Source: https://github.com/EleutherAI/gpt-neox/blob/b608043be541602170bfcfb8ec9bf85e8a0799e0/megatron/neox_arguments/neox_args.py#L42
     """
     try:

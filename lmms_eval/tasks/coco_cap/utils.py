@@ -22,12 +22,13 @@ def coco_doc_to_text(doc):
 
 
 def coco_process_result(doc, result):
-    """
-    Args:
+    """Args:
         doc: a instance of the eval dataset
         results: [pred]
+
     Returns:
         a dictionary with key: metric name, value: metric value
+
     """
     pred = result[0] if len(result) > 0 else ""
     question_id = doc["question_id"]
@@ -139,12 +140,13 @@ def coco_spice(results, args):
 
 
 def coco_test_process_result(doc, result):
-    """
-    Args:
+    """Args:
         doc: a instance of the eval dataset
         results: [pred]
+
     Returns:
         a dictionary with key: metric name (in this case coco_passthrough), value: metric value
+
     """
     question_id = doc["question_id"]
     # The question id in our dataset is the image file itself

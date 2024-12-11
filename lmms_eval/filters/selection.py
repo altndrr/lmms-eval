@@ -5,14 +5,10 @@ from lmms_eval.api.filter import Filter
 
 class TakeFirstFilter(Filter):
     def __init__(self) -> None:
-        """
-        Can define custom behavior here, if an individual instantiation of a Filter class should have state.
-        """
+        """Can define custom behavior here, if an individual instantiation of a Filter class should have state."""
 
     def apply(self, resps, docs):
-        """
-        Assuming each entry of `resps` is a list of model responses, we discard all but the first response.
-        """
+        """Assuming each entry of `resps` is a list of model responses, we discard all but the first response."""
         return map(lambda r: r[0], resps)
 
 
@@ -32,13 +28,10 @@ class TakeKFilter(Filter):
 
 class MajorityVoteFilter(Filter):
     def __init__(self) -> None:
-        """
-        Can define custom behavior here, if an individual instantiation of a Filter class should have state.
-        """
+        """Can define custom behavior here, if an individual instantiation of a Filter class should have state."""
 
     def apply(self, resps, docs):
-        """
-        Each entry of `resps` is a list of model responses.
+        """Each entry of `resps` is a list of model responses.
         We select the response that occurs most frequently in each entry of `resps`.
         """
 

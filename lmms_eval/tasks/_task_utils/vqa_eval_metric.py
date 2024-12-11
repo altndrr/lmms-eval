@@ -2,10 +2,9 @@ import re
 
 
 class EvalAIAnswerProcessor:
-    """
-    Processes an answer similar to Eval AI
-        copied from
-        https://github.com/facebookresearch/mmf/blob/c46b3b3391275b4181567db80943473a89ab98ab/pythia/tasks/processors.py#L897
+    """Processes an answer similar to Eval AI
+    copied from
+    https://github.com/facebookresearch/mmf/blob/c46b3b3391275b4181567db80943473a89ab98ab/pythia/tasks/processors.py#L897
     """
 
     CONTRACTIONS = {

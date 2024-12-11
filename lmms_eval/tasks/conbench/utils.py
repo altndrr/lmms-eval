@@ -51,12 +51,13 @@ def parse_pred_ans_choice(pred_ans):
 
 
 def conbench_process_results(doc, results):
-    """
-    Args:
+    """Args:
         doc: a instance of the eval dataset
         results: [pred]
+
     Returns:
         a dictionary with key: metric name (in this case mme score), value: metric value
+
     """
     pred = results[0]
     pred = pred.replace("\n", "").lower()
@@ -92,11 +93,11 @@ def conbench_process_results(doc, results):
 
 
 def conbench_aggregate_results(results):
-    """
-    Args:
+    """Args:
         results: a list of values returned by process_results
     Returns:
         A score
+
     """
     summary = defaultdict(dict)
     for result in results:

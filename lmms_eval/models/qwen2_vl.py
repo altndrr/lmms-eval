@@ -25,8 +25,7 @@ except ImportError:
 
 @register_model("qwen2_vl")
 class Qwen2_VL(lmms):
-    """
-    Qwen2_VL Model
+    """Qwen2_VL Model
     "https://github.com/QwenLM/Qwen2-VL"
     """
 

@@ -14,8 +14,7 @@ from lmms_eval.api.registry import register_model
 
 @register_model("phi3v")
 class Phi3v(lmms):
-    """
-    This class implements inference for the microsoft/Phi-3-vision-128k-instruct model.
+    """This class implements inference for the microsoft/Phi-3-vision-128k-instruct model.
     To learn more about this model please visit the following links:
     1. https://huggingface.co/microsoft/Phi-3-vision-128k-instruct
     2. https://azure.microsoft.com/en-us/blog/new-models-added-to-the-phi-3-family-available-on-microsoft-azure/
@@ -24,9 +23,9 @@ class Phi3v(lmms):
     NOTE: This class was adapted from quen_vl.py and llava_hf.py.
 
     Example:
-
     accelerate launch --num_processes=4 -m lmms_eval --model phi3v --tasks mmmu_val \
         --batch_size 1 --log_samples --log_samples_suffix phi3v_mmmu --output_path ./logs/
+
     """
 
     def __init__(

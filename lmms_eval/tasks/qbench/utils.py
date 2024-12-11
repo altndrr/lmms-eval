@@ -28,12 +28,10 @@ def q_bench_doc_to_visual(doc):
 
 
 def get_multi_choice_info(options):
-    """
-    Given the list of options for multiple choice question
+    """Given the list of options for multiple choice question
     Return the index2ans and all_choices
     https://github.com/MMMU-Benchmark/MMMU/blob/51ce7f3e829c16bb44bc5445782686b4c3508794/eval/data_utils.py#L54
     """
-
     start_chr = "A"
     all_choices = []
     index2ans = {}
@@ -45,8 +43,7 @@ def get_multi_choice_info(options):
 
 
 def parse_multi_choice_response(response, all_choices, index2ans):
-    """
-    Parse the prediction from the generated response.
+    """Parse the prediction from the generated response.
     Return the predicted index e.g., A, B, C, D.
     https://github.com/MMMU-Benchmark/MMMU/blob/51ce7f3e829c16bb44bc5445782686b4c3508794/eval/eval_utils.py#L10
     """

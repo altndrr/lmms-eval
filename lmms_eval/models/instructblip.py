@@ -20,9 +20,7 @@ from loguru import logger as eval_logger
 
 @register_model("instructblip")
 class InstructBLIP(lmms):
-    """
-    InstructBLIP Model
-    """
+    """InstructBLIP Model"""
 
     def __init__(
         self,

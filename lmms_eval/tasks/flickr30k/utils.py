@@ -31,12 +31,13 @@ def flickr_doc_to_text(doc):
 
 
 def flickr_process_result(doc, result):
-    """
-    Args:
+    """Args:
         doc: a instance of the eval dataset
         results: [pred]
+
     Returns:
         a dictionary with key: metric name, value: metric value
+
     """
     pred = result[0] if len(result) > 0 else ""
     image_id = int(doc["img_id"])
@@ -145,12 +146,13 @@ def flickr_spice(results, args):
 
 
 def flickr_test_process_result(doc, result):
-    """
-    Args:
+    """Args:
         doc: a instance of the eval dataset
         results: [pred]
+
     Returns:
         a dictionary with key: metric name (in this case flickr_passthrough), value: metric value
+
     """
     # The question id in our dataset is the image file itself
     image_id = doc["img_id"]

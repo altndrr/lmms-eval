@@ -27,9 +27,7 @@ def get_filter(filter_name):
 
 
 def build_filter_ensemble(filter_name, components):
-    """
-    Create a filtering pipeline.
-    """
+    """Create a filtering pipeline."""
     filters = []
     for function, kwargs in components:
         if kwargs is None:

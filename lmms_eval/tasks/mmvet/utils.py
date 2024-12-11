@@ -182,11 +182,11 @@ cap_details_columns = pd.DataFrame(
 
 
 def mmvet_aggregate_results(results):
-    """
-    Args:
+    """Args:
         results: a list of values returned by process_results
     Returns:
         A score
+
     """
     # Calculate the overall score
     overall_score = sum([result["score"] for result in results]) / len(results) * 100

@@ -61,17 +61,13 @@ class ContextSampler:
         return labeled_examples
 
     def sample(self, n):
-        """
-        Draw `n` samples from our fewshot docs. This method should be overridden by subclasses.
-        """
-
+        """Draw `n` samples from our fewshot docs. This method should be overridden by subclasses."""
         return self.rnd.sample(self.docs, n)
 
 
 class FirstNSampler(ContextSampler):
     def sample(self, n) -> None:
-        """
-        Draw the first `n` samples in order from the specified split.
+        """Draw the first `n` samples in order from the specified split.
         Used for tasks with "canonical" ordered fewshot examples, such as MMLU and CMMLU.
         """
         assert (
@@ -82,11 +78,9 @@ class FirstNSampler(ContextSampler):
 
 class BalancedSampler(ContextSampler):
     def sample(self, n) -> None:
-        """
-        TODO: this should return approximately class-balanced samples from our fewshot examples.
+        """TODO: this should return approximately class-balanced samples from our fewshot examples.
         TODO: what order should they be in? maybe random?
         """
-
         pass
 
 

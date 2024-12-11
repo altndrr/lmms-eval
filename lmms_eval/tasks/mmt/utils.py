@@ -170,8 +170,7 @@ def mmt_test_aggregate_results_for_submission(results, args):
 
 
 def parse_multi_choice_response(response, all_choices):
-    """
-    Parse the prediction from the generated response.
+    """Parse the prediction from the generated response.
     Return the predicted choice letter e.g., A, B, C, D.
     """
     # Clean response of unwanted characters

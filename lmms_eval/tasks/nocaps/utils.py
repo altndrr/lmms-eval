@@ -31,12 +31,13 @@ def nocaps_doc_to_text(doc, lmms_eval_specific_kwargs=None):
 
 
 def nocaps_process_result(doc, result):
-    """
-    Args:
+    """Args:
         doc: a instance of the eval dataset
         results: [pred]
+
     Returns:
         a dictionary with key: metric name, value: metric value
+
     """
     pred = result[0]
     # The question id in our dataset is the image file itself
@@ -146,12 +147,13 @@ def nocaps_spice(results, args=None):
 
 
 def nocaps_test_process_result(doc, result):
-    """
-    Args:
+    """Args:
         doc: a instance of the eval dataset
         results: [pred]
+
     Returns:
         a dictionary with key: metric name (in this case nocaps_passthrough), value: metric value
+
     """
     return {"nocaps_passthrough": {"pred": result[0], "image_id": doc["image_id"]}}
 

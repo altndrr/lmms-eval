@@ -528,7 +528,7 @@ def get_task_name_from_object(task_object):
 
 
 def _check_duplicates(task_dict: dict) -> List[str]:
-    """helper function solely used in validating get_task_dict output.
+    """Helper function solely used in validating get_task_dict output.
     Takes the output of lmms_eval.evaluator_utils.get_subtask_list and
     returns a list of all leaf subtasks contained within, and errors if any such leaf subtasks are
     "oversubscribed" to several disjoint groups.
@@ -571,7 +571,6 @@ def get_task_dict(
     :return
         Dictionary of task objects
     """
-
     task_name_from_string_dict = {}
     task_name_from_config_dict = {}
     task_name_from_object_dict = {}

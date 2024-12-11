@@ -42,8 +42,7 @@ except Exception:
 
 @register_model("llava_hf")
 class LlavaHf(lmms):
-    """
-    Llava Model for Hugging Face Transformers: https://huggingface.co/docs/transformers/v4.39.3/en/model_doc/llava
+    """Llava Model for Hugging Face Transformers: https://huggingface.co/docs/transformers/v4.39.3/en/model_doc/llava
 
     Adapted from the InstructBLIP model in lmms_eval/models/instructblip.py
 

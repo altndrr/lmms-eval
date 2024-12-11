@@ -152,7 +152,7 @@ class TaskConfig(dict):
         return setattr(self, item, value)
 
     def to_dict(self):
-        """dumps the current config as a dictionary object, as a printable format.
+        """Dumps the current config as a dictionary object, as a printable format.
         null fields will not be printed.
         Used for dumping results alongside full task configuration
 
@@ -200,8 +200,7 @@ class Task(abc.ABC):
         download_mode=None,
         config=None,
     ) -> None:
-        """
-        :param data_dir: str
+        """:param data_dir: str
             Stores the path to a local folder containing the `Task`'s data files.
             Use this to specify the path to manually downloaded data (usually when
             the dataset is not publicly accessible).
@@ -306,30 +305,26 @@ class Task(abc.ABC):
         pass
 
     def training_docs(self):
-        """
-        :return: Iterable[obj]
-            A iterable of any object, that doc_to_text can handle
+        """:return: Iterable[obj]
+        A iterable of any object, that doc_to_text can handle
         """
         return []
 
     def validation_docs(self):
-        """
-        :return: Iterable[obj]
-            A iterable of any object, that doc_to_text can handle
+        """:return: Iterable[obj]
+        A iterable of any object, that doc_to_text can handle
         """
         return []
 
     def test_docs(self):
-        """
-        :return: Iterable[obj]
-            A iterable of any object, that doc_to_text can handle
+        """:return: Iterable[obj]
+        A iterable of any object, that doc_to_text can handle
         """
         return []
 
     def fewshot_docs(self):
-        """
-        :return: Iterable[obj]
-            A iterable of any object, that doc_to_text can handle
+        """:return: Iterable[obj]
+        A iterable of any object, that doc_to_text can handle
         """
         if self.has_training_docs():
             return self.training_docs()
@@ -344,8 +339,7 @@ class Task(abc.ABC):
             return self.test_docs()
 
     def _process_doc(self, doc):
-        """
-        Override this to process (detokenize, strip, replace, etc.) individual
+        """Override this to process (detokenize, strip, replace, etc.) individual
         documents. This can be used in a map over documents of a data split.
         E.g. `map(self._process_doc, self.dataset["validation"])`
 
@@ -546,19 +540,17 @@ class Task(abc.ABC):
 
     @abc.abstractmethod
     def aggregation(self):
-        """
-        :returns: {str: [metric_score] -> float}
-            A dictionary where keys are the names of submetrics and values are
-            functions that aggregate a list of metric scores
+        """:returns: {str: [metric_score] -> float}
+        A dictionary where keys are the names of submetrics and values are
+        functions that aggregate a list of metric scores
         """
         pass
 
     @abc.abstractmethod
     def higher_is_better(self):
-        """
-        :returns: {str: bool}
-            A dictionary where keys are the names of submetrics and values are
-            whether a higher value of the submetric is better
+        """:returns: {str: bool}
+        A dictionary where keys are the names of submetrics and values are
+        whether a higher value of the submetric is better
         """
         pass
 
@@ -657,11 +649,12 @@ class Task(abc.ABC):
             setattr(self._config, key, value)
 
     def override_metric(self, metric_name: str) -> None:
-        """
-        Override the default metrics used for evaluation with custom metrics.
+        """Override the default metrics used for evaluation with custom metrics.
 
-        Parameters:
+        Parameters
+        ----------
         - metric_name (str): The name of the custom metric to override. Should be registered in api.metrics.
+
         """
         (
             self._metric_fn_list,
@@ -1082,7 +1075,6 @@ class ConfigurableTask(Task):
         :returns: str
             The fewshot context.
         """
-
         if apply_chat_template:
             labeled_examples = []
         else:
@@ -1187,8 +1179,7 @@ class ConfigurableTask(Task):
                     )
 
     def _process_doc(self, doc):
-        """
-        Override this to process (detokenize, strip, replace, etc.) individual
+        """Override this to process (detokenize, strip, replace, etc.) individual
         documents. This can be used in a map over documents of a data split.
         E.g. `map(self._process_doc, self.dataset["validation"])`
 

@@ -215,9 +215,7 @@ class MathVerseEvaluator:
         return False
 
     def get_acc_with_contion(self, res_pd, key, value):
-        """
-        Calculate the accuracy of predictions with a specific condition
-        """
+        """Calculate the accuracy of predictions with a specific condition"""
         total_pd = res_pd[res_pd[key] == value]
 
         correct_pd = total_pd[total_pd["true_false"] == True]

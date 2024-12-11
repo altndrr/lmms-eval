@@ -43,9 +43,7 @@ else:
 
 @register_model("tinyllava")
 class TinyLlava(lmms):
-    """
-    TinyLlava Model
-    """
+    """TinyLlava Model"""
 
     def __init__(
         self,

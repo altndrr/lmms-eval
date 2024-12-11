@@ -50,6 +50,7 @@ def _handle_non_serializable(o: Any) -> Union[int, str, list]:
         Union[int, str, list]: The converted object. If the object is of type np.int64 or np.int32,
             it will be converted to int. If the object is of type set, it will be converted
             to a list. Otherwise, it will be converted to str.
+
     """
     if isinstance(o, np.int64) or isinstance(o, np.int32):
         return int(o)
@@ -259,6 +260,7 @@ class WandbLogger:
 
         Returns:
             pd.DataFrame: A dataframe that is ready to be uploaded to W&B.
+
         """
         ids = [x["doc_id"] for x in data]
         labels = [x["target"] for x in data]
@@ -351,6 +353,7 @@ class WandbLogger:
 
         Args:
             samples (Dict[str, List[Dict[str, Any]]]): Evaluation samples for each task.
+
         """
         task_names: List[str] = [x for x in self.task_names if x not in self.group_names]
 

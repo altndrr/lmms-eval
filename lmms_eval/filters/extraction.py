@@ -36,8 +36,7 @@ class RegexFilter(Filter):
         group_select=0,
         fallback: str = "[invalid]",
     ) -> None:
-        """
-        pass a string `regex` to run `re.compile(r"regex")` on.
+        """Pass a string `regex` to run `re.compile(r"regex")` on.
         `fallback` defines the output returned if no matches for the regex are located.
         """
         self.regex_pattern = regex_pattern
@@ -72,8 +71,7 @@ class RegexFilter(Filter):
 
 
 class MultiChoiceRegexFilter(RegexFilter):
-    """
-    A filter used to extract a model's answer on multiple choice questions with
+    """A filter used to extract a model's answer on multiple choice questions with
     letter answers. assumes each document has a "choices" field
     containing the list of answer choices and that the answer label symbols
     are of the form (A), (B), (C), ... or A, B, C.
@@ -88,8 +86,7 @@ class MultiChoiceRegexFilter(RegexFilter):
         ignore_punctuation=False,
         regexes_to_ignore=None,
     ) -> None:
-        """
-        regex_pattern: The basic regex pattern to use. If fails to match, we will use the customized match procedure
+        """regex_pattern: The basic regex pattern to use. If fails to match, we will use the customized match procedure
                         - step 1 : We parse the choices between ([A-Z])s then try to find these choices in the response.
                         - step 2 : We parse the choice with regex :[\s]*([A-?]), where ? varies by number of choices.
         group_select: Selects the (group_select)th match from the findall result.
@@ -224,8 +221,7 @@ class ExtendedRegexFilter(RegexFilter):
 # Designed for the AI2D/RealworldQA dataset
 class SimpleMultiChoiceRegexFilter(ExtendedRegexFilter):
     def __init__(self, *args, **kwargs):
-        """
-        regex_pattern: The basic regex pattern to use. If fails to match, we will use the customized match procedure
+        """regex_pattern: The basic regex pattern to use. If fails to match, we will use the customized match procedure
                         - step 1 : We parse the choices between ([A-Z])s then try to find these choices in the response.
                         - step 2 : We parse the choice with regex :[\s]*([A-?]), where ? varies by number of choices.
         group_select: Selects the (group_select)th match from the findall result.

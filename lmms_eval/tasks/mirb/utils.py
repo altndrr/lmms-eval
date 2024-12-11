@@ -39,8 +39,7 @@ def mirb_doc_to_target(doc):
 
 
 def extract_numbers(string):
-    """
-    Exact all forms of numbers from a string with regex.
+    """Exact all forms of numbers from a string with regex.
     https://github.com/MMMU-Benchmark/MMMU/blob/51ce7f3e829c16bb44bc5445782686b4c3508794/eval/eval_utils.py#L100
     """
     # Pattern for numbers with commas
@@ -63,8 +62,7 @@ def extract_numbers(string):
 
 
 def check_is_number(string):
-    """
-    Check if the given string a number.
+    """Check if the given string a number.
     https://github.com/MMMU-Benchmark/MMMU/blob/51ce7f3e829c16bb44bc5445782686b4c3508794/eval/eval_utils.py#L65
     """
     try:
@@ -76,8 +74,7 @@ def check_is_number(string):
 
 
 def normalize_str(string):
-    """
-    Normalize the str to lower case and make them float numbers if possible.
+    """Normalize the str to lower case and make them float numbers if possible.
     https://github.com/MMMU-Benchmark/MMMU/blob/51ce7f3e829c16bb44bc5445782686b4c3508794/eval/eval_utils.py#L76
     """
     # check if characters in the string
@@ -119,8 +116,7 @@ def parse_multi_choice_response(response):
 
 
 def parse_open_response(response):
-    """
-    Parse the prediction from the generated response.
+    """Parse the prediction from the generated response.
     Return a list of predicted strings or numbers.
     https://github.com/MMMU-Benchmark/MMMU/blob/51ce7f3e829c16bb44bc5445782686b4c3508794/eval/eval_utils.py#L122
     """
@@ -208,8 +204,7 @@ def mirb_process_results(doc, results):
 
 
 def eval_multi_choice(gold_i, pred_i):
-    """
-    Evaluate a multiple choice instance.
+    """Evaluate a multiple choice instance.
     https://github.com/MMMU-Benchmark/MMMU/blob/51ce7f3e829c16bb44bc5445782686b4c3508794/eval/eval_utils.py#L175
     """
     correct = False
@@ -226,8 +221,7 @@ def eval_multi_choice(gold_i, pred_i):
 
 
 def eval_open(gold_i, pred_i):
-    """
-    Evaluate an open question instance
+    """Evaluate an open question instance
     https://github.com/MMMU-Benchmark/MMMU/blob/51ce7f3e829c16bb44bc5445782686b4c3508794/eval/eval_utils.py#L191
     """
     correct = False
