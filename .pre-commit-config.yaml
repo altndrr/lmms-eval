@@ -28,3 +28,12 @@ repos:
     hooks:
       - id: prettier
         types: [yaml]
+
+  # word spelling linter
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.2.4
+    hooks:
+      - id: codespell
+        args:
+          - --skip=libs/**,logs/**,*.bib,*.ipynb,*.js,**/vqa_eval_metric.py
+          - --ignore-words-list=ans,nd,ned,nin,hart,rouge,vist

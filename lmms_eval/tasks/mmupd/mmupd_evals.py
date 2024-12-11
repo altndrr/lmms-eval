@@ -575,23 +575,23 @@ class MMUPD_Evaluator:
 
         return overall_hit_rate, category_hit_rate, data_main
 
-    def report_acc(self, df, groupd="category"):
+    def report_acc(self, df, group="category"):
         assert "split" in df
-        assert groupd in [None, "category", "l2-category"]
+        assert group in [None, "category", "l2-category"]
 
         res = defaultdict(list)
         res["split"] = ["test"]
-        if groupd is None:
+        if group is None:
             res["overall"] = [
                 np.mean(df["hit"]),
             ]
             return pd.DataFrame(res)
 
-        elif groupd in df:
-            abilities = list(set(df[groupd]))
+        elif group in df:
+            abilities = list(set(df[group]))
             abilities.sort()
             for ab in abilities:
-                sub_df = df[df[groupd] == ab]
+                sub_df = df[df[group] == ab]
                 res[ab] = [
                     np.mean(sub_df["hit"]),
                 ]

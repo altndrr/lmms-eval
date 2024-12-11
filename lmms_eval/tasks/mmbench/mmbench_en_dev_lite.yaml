@@ -11,7 +11,6 @@ lmms_eval_specific_kwargs:
     post_prompt: "\nAnswer with the option's letter from the given choices directly."
 doc_to_visual: !function en_utils.mmbench_doc_to_visual
 doc_to_text: !function en_utils.mmbench_doc_to_text
-doc_to_target: "answer"
 process_results: !function en_utils.mmbench_process_results
 model_specific_generation_kwargs:
   llava:

@@ -38,7 +38,7 @@ This version of the dataset does not contain OCR or original HTML, it simply tre
 ## Metrics
 
 This task uses SQUAD-style evaluation metrics, of which F1 score over tokens is used.
-The orignal paper also uses Exact Match (EM) score, but this is not implemented here as that metric is more conducive for Encoder-only extraction models.
+The original paper also uses Exact Match (EM) score, but this is not implemented here as that metric is more conducive for Encoder-only extraction models.
 
 ### F1 Score
 

@@ -200,8 +200,8 @@ def mme_realworld_aggregate_results(results):
     for task, tasks_values in metrics.items():
         eval_logger.info(f"*" * 32 + f"{task} (Task Start)")
         cnt_task, cnt_E, sum_task = 0, 0, 0
-        for substask, subtask_value in tasks_values.items():
-            eval_logger.info(f"+" * 16 + f"{substask} (Subtask Start)")
+        for subtask, subtask_value in tasks_values.items():
+            eval_logger.info(f"+" * 16 + f"{subtask} (Subtask Start)")
             cnt_subtask, sum_subtask, e_subtask = 0, 0, 0
             for category, category_dict in subtask_value.items():
                 cnt_subtask += category_dict["true"]
@@ -215,7 +215,7 @@ def mme_realworld_aggregate_results(results):
                 e_subtask = 0
             else:
                 acc_subtasks = cnt_subtask / sum_subtask
-            eval_logger.info(f"+" * 16 + f"\t Acc " + "{:.4f}".format(acc_subtasks) + f"\t E choice {e_subtask} \t{substask} ({sum_subtask} items)")
+            eval_logger.info(f"+" * 16 + f"\t Acc " + "{:.4f}".format(acc_subtasks) + f"\t E choice {e_subtask} \t{subtask} ({sum_subtask} items)")
             cnt_task += cnt_subtask
             sum_task += sum_subtask
             cnt_E += e_subtask

@@ -64,7 +64,7 @@ class JSONParseEvaluator:
         Update cost for tree edit distance.
         If both are leaf node, calculate string edit distance between two labels (special token '<leaf>' will be ignored).
         If one of them is leaf node, cost is length of string in leaf node + 1.
-        If neither are leaf node, cost is 0 if label1 is same with label2 othewise 1
+        If neither are leaf node, cost is 0 if label1 is same with label2 otherwise 1
         """
         label1 = node1.label
         label2 = node2.label

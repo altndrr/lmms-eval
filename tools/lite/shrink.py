@@ -20,9 +20,9 @@ AVAILABEL_SHRINKER = {"embed": "Embed_Shrinker"}
 def parse_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument("--shrinker", type=str, help="The type of shrinker you want to use")
-    parser.add_argument("--num_items", type=str, help="The number of items you want in your shrinked dataset")
+    parser.add_argument("--num_items", type=str, help="The number of items you want in your shrunk dataset")
     parser.add_argument("--tasks", type=str, help="The task you want to shrink. Separate each task with comma, will be parsed in to list")
-    parser.add_argument("--push_to_hub", action="store_true", default=False, help="Whether to push the shrinked dataset to hub")
+    parser.add_argument("--push_to_hub", action="store_true", default=False, help="Whether to push the shrunk dataset to hub")
     parser.add_argument("--shrinker_kwargs", type=str, help="In args=xxx,args2=xxx format. Will be parsed into dict")
 
     return parser.parse_args()

@@ -53,7 +53,7 @@ Other:
 
 We recomment to browse existing tasks in the `lmms_eval/tasks` folder to get a sense of the different options available.
 
-Here we will provide some explainations on the existing tasks and how to define new tasks. Here we use MME as an example.
+Here we will provide some explanations on the existing tasks and how to define new tasks. Here we use MME as an example.
 
 ```yaml
 dataset_path: lmms-lab/MME # The name of the dataset as listed by HF in the datasets Hub.
@@ -73,7 +73,7 @@ generation_kwargs: # Auxiliary arguments for the `generate` function from HF tra
   do_sample: false
 # The return value of process_results will be used by metrics
 process_results: !function utils.mme_process_results
-# Note that the metric name can be either a registed metric function (such as the case for GQA) or a key name returned by process_results
+# Note that the metric name can be either a registered metric function (such as the case for GQA) or a key name returned by process_results
 # e.g. Following metrics `mme_perception_score` is custom defined.
 # So `mme_process_results` function should return the dict `{"mme_perception_score": {sub_k:sub_v, ..., } }`
 # And the `mme_aggregate_results` function could get the dict `{sub_k:sub_v, ..., }`, and use the information to gather the final accuracy.
@@ -230,7 +230,7 @@ generation_kwargs:
   do_sample: false
 # The return value of process_results will be used by metrics
 process_results: !function utils.mme_process_results
-# Note that the metric name can be either a registed metric function (such as the case for GQA) or a key name returned by process_results
+# Note that the metric name can be either a registered metric function (such as the case for GQA) or a key name returned by process_results
 # e.g. Following metrics `mme_perception_score` is custom defined.
 # So `mme_process_results` function should return the dict `{"mme_perception_score": {sub_k:sub_v, ..., } }`
 # And the `mme_aggregate_results` function could get the dict `{sub_k:sub_v, ..., }`, and use the information to gather the final accuracy.
