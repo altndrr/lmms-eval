@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # install lmms_eval without building dependencies
 cd lmms_eval;
 pip install --no-deps -U -e .
