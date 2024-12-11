@@ -1,11 +1,9 @@
-import json
 import os
 
 from tqdm import tqdm
 
 from lmms_eval.tasks.hallusion_bench.utils import (
     assign_correctness,
-    check_same_by_chatgpt,
     evaluate_by_chatgpt,
     get_eval_all,
     get_eval_fig,
@@ -53,11 +51,23 @@ def hb_aggregation_result(results, metric, args):
     os.makedirs(path, exist_ok=True)
     save_json_path_vd = f"{path}/hallusion_output_vd_model.json"
     save_json_path_vs = f"{path}/hallusion_output_vs_model.json"
-    data_vd = evaluate_by_chatgpt(data_vd, output_entry=output_entry, correctness_entry=correctness_entry, load_json=True, save_json_path=save_json_path_vd)
+    data_vd = evaluate_by_chatgpt(
+        data_vd,
+        output_entry=output_entry,
+        correctness_entry=correctness_entry,
+        load_json=True,
+        save_json_path=save_json_path_vd,
+    )
     # data_vd = check_same_by_chatgpt(data_vd, output_entry=output_entry, load_json=True, save_json_path=save_json_path_vd)
     data_vd = assign_correctness(data_vd, correctness_entry=correctness_entry)
     eval_logger.info("Do gpt eval vs")
-    data_vs = evaluate_by_chatgpt(data_vs, output_entry=output_entry, correctness_entry=correctness_entry, load_json=True, save_json_path=save_json_path_vs)
+    data_vs = evaluate_by_chatgpt(
+        data_vs,
+        output_entry=output_entry,
+        correctness_entry=correctness_entry,
+        load_json=True,
+        save_json_path=save_json_path_vs,
+    )
     # data_vs = check_same_by_chatgpt(data_vs, output_entry=output_entry, load_json=True, save_json_path=save_json_path_vs)
     data_vs = assign_correctness(data_vs, correctness_entry=correctness_entry)
     results = data_vs + data_vd
@@ -97,7 +107,9 @@ def hb_aggregation_result_intern(results, metric):
     elif metric == "qAcc":
         qlist = {}
         for r in results:
-            key = "_".join([r["category"], r["subcategory"], str(r["set_id"]), str(r["question_id"])])
+            key = "_".join(
+                [r["category"], r["subcategory"], str(r["set_id"]), str(r["question_id"])]
+            )
             try:
                 qlist[key].append(r["answer"] == r["gt_answer"])
             except:
@@ -110,7 +122,9 @@ def hb_aggregation_result_intern(results, metric):
     elif metric == "fAcc":
         qlist = {}
         for r in results:
-            key = "_".join([r["category"], r["subcategory"], str(r["set_id"]), str(r["figure_id"])])
+            key = "_".join(
+                [r["category"], r["subcategory"], str(r["set_id"]), str(r["figure_id"])]
+            )
             try:
                 qlist[key].append(r["answer"] == r["gt_answer"])
             except:

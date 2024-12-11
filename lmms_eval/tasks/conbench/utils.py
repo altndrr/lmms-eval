@@ -9,7 +9,14 @@ dir_name = os.path.dirname(os.path.abspath(__file__))
 # 19 classes
 eval_type_dict = {
     "Sensation": ["count", "color", "scene", "poster", "attribute_recognition", "ocr", "position"],
-    "Cognition": ["calculation", "code", "translation", "math", "cross_instance_reason", "attribute_reason"],
+    "Cognition": [
+        "calculation",
+        "code",
+        "translation",
+        "math",
+        "cross_instance_reason",
+        "attribute_reason",
+    ],
     "Knowledge": ["celebrity", "chemistry", "physics", "biology", "landmark", "artwork"],
 }
 
@@ -44,12 +51,13 @@ def parse_pred_ans_choice(pred_ans):
 
 
 def conbench_process_results(doc, results):
-    """
-    Args:
+    """Args:
         doc: a instance of the eval dataset
         results: [pred]
+
     Returns:
         a dictionary with key: metric name (in this case mme score), value: metric value
+
     """
     pred = results[0]
     pred = pred.replace("\n", "").lower()
@@ -64,18 +72,32 @@ def conbench_process_results(doc, results):
     gt_ans = doc["answer"].lower()
 
     # score
-    score = 1 if (doc["question_field"] == "Q/A" and anls_score(prediction=pred_ans, gold_labels=[gt_ans], threshold=0.95) >= 0.4) or (gt_ans == pred_ans) else 0
+    score = (
+        1
+        if (
+            doc["question_field"] == "Q/A"
+            and anls_score(prediction=pred_ans, gold_labels=[gt_ans], threshold=0.95) >= 0.4
+        )
+        or (gt_ans == pred_ans)
+        else 0
+    )
     # Note: the key name here is very important. It decides which aggregation function will receive the results
     # We note down the question id/category to help us aggregate the results later
-    return {"ConScore_D": {"image_id": doc["image_id"], "question_field": doc["question_field"], "score": score}}
+    return {
+        "ConScore_D": {
+            "image_id": doc["image_id"],
+            "question_field": doc["question_field"],
+            "score": score,
+        }
+    }
 
 
 def conbench_aggregate_results(results):
-    """
-    Args:
+    """Args:
         results: a list of values returned by process_results
     Returns:
         A score
+
     """
     summary = defaultdict(dict)
     for result in results:

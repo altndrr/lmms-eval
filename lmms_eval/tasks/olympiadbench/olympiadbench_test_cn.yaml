@@ -1,7 +1,7 @@
 dataset_path: lmms-lab/OlympiadBench
 dataset_kwargs:
   token: True
-task : "olympiadbench_test_cn"
+task: "olympiadbench_test_cn"
 test_split: test_cn
 output_type: generate_until
 doc_to_visual: !function cn_utils.olympiadbench_doc_to_visual

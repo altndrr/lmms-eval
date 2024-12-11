@@ -83,7 +83,9 @@ class MathVerseEvaluator:
             "Content-Type": "application/json",
         }
     elif API_TYPE == "azure":
-        API_URL = os.getenv("AZURE_ENDPOINT", "https://api.cognitive.microsoft.com/sts/v1.0/issueToken")
+        API_URL = os.getenv(
+            "AZURE_ENDPOINT", "https://api.cognitive.microsoft.com/sts/v1.0/issueToken"
+        )
         API_KEY = os.getenv("AZURE_API_KEY", "YOUR_API_KEY")
         headers = {
             "api-key": API_KEY,
@@ -104,11 +106,19 @@ class MathVerseEvaluator:
         response.raise_for_status()
         return response.json()
 
-    def get_chat_response(self, prompt, temperature=0, max_tokens=256, n=1, patience=10000000, sleep_time=0):
+    def get_chat_response(
+        self, prompt, temperature=0, max_tokens=256, n=1, patience=10000000, sleep_time=0
+    ):
         messages = [
             {"role": "user", "content": prompt},
         ]
-        payload = {"model": self.gpt_model, "messages": messages, "temperature": temperature, "max_tokens": max_tokens, "n": n}
+        payload = {
+            "model": self.gpt_model,
+            "messages": messages,
+            "temperature": temperature,
+            "max_tokens": max_tokens,
+            "n": n,
+        }
 
         while patience > 0:
             patience -= 1
@@ -119,7 +129,9 @@ class MathVerseEvaluator:
                     if prediction and prediction != "":
                         return prediction
                 else:
-                    prediction = [choice["message"]["content"].strip() for choice in response["choices"]]
+                    prediction = [
+                        choice["message"]["content"].strip() for choice in response["choices"]
+                    ]
                     if prediction and prediction[0] != "":
                         return prediction
 
@@ -180,7 +192,7 @@ class MathVerseEvaluator:
             return extraction
         except Exception as e:
             eval_logger.error(e)
-            eval_logger.error(f"Error in extracting answer for problem")
+            eval_logger.error("Error in extracting answer for problem")
 
         return ""
 
@@ -198,21 +210,31 @@ class MathVerseEvaluator:
 
         except Exception as e:
             print(e)
-            print(f"Error in matching answer")
+            print("Error in matching answer")
 
         return False
 
     def get_acc_with_contion(self, res_pd, key, value):
-        """
-        Calculate the accuracy of predictions with a specific condition
-        """
+        """Calculate the accuracy of predictions with a specific condition"""
         total_pd = res_pd[res_pd[key] == value]
 
         correct_pd = total_pd[total_pd["true_false"] == True]
-        acc = "{:.2f}".format(len(correct_pd) / len(total_pd) * 100) if len(total_pd) > 0 else "0.00"
+        acc = (
+            "{:.2f}".format(len(correct_pd) / len(total_pd) * 100) if len(total_pd) > 0 else "0.00"
+        )
         return len(correct_pd), len(total_pd), acc
 
-    def create_one_query(self, problem, shot_type, hint, query_type, examples=None, shot_num=0, use_caption=False, use_ocr=False):
+    def create_one_query(
+        self,
+        problem,
+        shot_type,
+        hint,
+        query_type,
+        examples=None,
+        shot_num=0,
+        use_caption=False,
+        use_ocr=False,
+    ):
         ### [1] Demo prompt
         if shot_num == 0:
             demo_prompt = ""
@@ -284,12 +306,23 @@ class MathVerseEvaluator:
                 "question_for_eval": inst["question"],
             }
             if config["metadata"].get("trunk_response", -1) > 0:
-                prediction = " ".join(full_prediction.split(" ")[-config["metadata"]["trunk_response"] :])
+                prediction = " ".join(
+                    full_prediction.split(" ")[-config["metadata"]["trunk_response"] :]
+                )
             else:
                 prediction = full_prediction
             extraction = self.extract_answer(prediction)
             # set test set answer to None
-            true_false = self.score_answer(problem["question_for_eval"], problem["answer"], extraction, config["metadata"]["quick_match"]) if problem["answer"] is not None else False
+            true_false = (
+                self.score_answer(
+                    problem["question_for_eval"],
+                    problem["answer"],
+                    extraction,
+                    config["metadata"]["quick_match"],
+                )
+                if problem["answer"] is not None
+                else False
+            )
 
             inst["extraction"] = extraction
             inst["prediction"] = prediction
@@ -316,6 +349,10 @@ class MathVerseEvaluator:
                 correct, total, acc = self.get_acc_with_contion(df, key, value)
                 if total > 0:
                     scores[key][value] = {"accuracy": acc, "correct": correct, "total": total}
-            scores[key] = dict(sorted(scores[key].items(), key=lambda item: float(item[1]["accuracy"]), reverse=True))
+            scores[key] = dict(
+                sorted(
+                    scores[key].items(), key=lambda item: float(item[1]["accuracy"]), reverse=True
+                )
+            )
 
         return results_dict, scores

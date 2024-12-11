@@ -31,12 +31,16 @@ def load_driver(
             chrome_type = ChromeType.GOOGLE
         elif chrome_type == "BRAVE":
             chrome_type = ChromeType.BRAVE
-        service = ChromeDriverManager(driver_version=driver_version, chrome_type=chrome_type).install()
+        service = ChromeDriverManager(
+            driver_version=driver_version, chrome_type=chrome_type
+        ).install()
     if headless:
         options.add_argument("--headless")
     if adblock:
         try:
-            adblock_url = f"https://code.getadblock.com/releases/adblockchrome-{adblock_version}.zip"
+            adblock_url = (
+                f"https://code.getadblock.com/releases/adblockchrome-{adblock_version}.zip"
+            )
             adblock_path = os.path.join(extension_cache_dir, f"adblockchrome-{adblock_version}")
             if not os.path.isdir(adblock_path):
                 os.makedirs(os.path.join(adblock_path, ".."), exist_ok=True)

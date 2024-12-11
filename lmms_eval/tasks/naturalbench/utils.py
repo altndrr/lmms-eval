@@ -1,21 +1,18 @@
-import datetime
-import json
 import os
 import re
-from collections import defaultdict
 
 from loguru import logger as eval_logger
 
-from lmms_eval.tasks._task_utils.file_utils import generate_submission_file
-
 dir_name = os.path.dirname(os.path.abspath(__file__))
 
-SUFFIX_FOR_VQA = {"yes_no": "Please answer Yes or No.", "multiple_choice": "Please output the letter corresponding to the correct option."}
+SUFFIX_FOR_VQA = {
+    "yes_no": "Please answer Yes or No.",
+    "multiple_choice": "Please output the letter corresponding to the correct option.",
+}
 
 
 def get_scores(scores):
-    """
-    Calculate various scores based on the given results.
+    """Calculate various scores based on the given results.
 
     Args:
         scores (dict or list): A dictionary or list containing results where each result can be:
@@ -34,6 +31,7 @@ def get_scores(scores):
             - 'image_score': Average image score
             - 'binary_score': Average binary VQA score
             - 'group_score': Average group score
+
     """
     question_score = 0.0
     image_score = 0.0
@@ -105,25 +103,32 @@ def get_scores(scores):
             binary_score += calculate_binary_score(result)
             group += calculate_group(result)
 
-    results = {"question_score": question_score / float(num_samples * 2), "image_score": image_score / float(num_samples * 2), "binary_score": binary_score / float(num_samples * 4), "group_score": group / num_samples}
+    results = {
+        "question_score": question_score / float(num_samples * 2),
+        "image_score": image_score / float(num_samples * 2),
+        "binary_score": binary_score / float(num_samples * 4),
+        "group_score": group / num_samples,
+    }
 
     return results
 
 
 def extract_answer(output_string, task_type="yes_no"):
-    """
-    Extracts the answer from the output string based on the task type.
+    """Extracts the answer from the output string based on the task type.
 
-    Parameters:
+    Parameters
+    ----------
     output_string (str): The output string.
     task_type (str): The type of task. Must be either "yes_no" or "multiple_choice".
 
-    Returns:
+    Returns
+    -------
     int:
         1 if "yes" or "A"
         0 if "no" or "B"
         -1 if no relevant answer is found.
         Raises a ValueError if an unsupported task_type is provided.
+
     """
 
     def find_word_position(string, word):
@@ -166,12 +171,13 @@ def naturalbench_doc_to_text(doc):
 
 
 def naturalbench_process_results(doc, results):
-    """
-    Args:
+    """Args:
         doc: a instance of the eval dataset
         results: [pred]
+
     Returns:
         a dictionary with key: metric name (in this case mme score), value: metric value
+
     """
     pred = results[0]
     type = doc["Question_Type"]
@@ -180,11 +186,11 @@ def naturalbench_process_results(doc, results):
 
 
 def naturalbench_aggregate_results(results):
-    """
-    Args:
+    """Args:
         results: a list of values returned by process_results
     Returns:
         A score
+
     """
     assert len(results) == 1900 * 4
     answers = {}
@@ -194,7 +200,12 @@ def naturalbench_aggregate_results(results):
         assert int(results[i * 4 + 1]["id"]) == i * 4 + 1
         assert int(results[i * 4 + 2]["id"]) == i * 4 + 2
         assert int(results[i * 4 + 3]["id"]) == i * 4 + 3
-        answers[i] = {"q0_i0": results[i * 4]["score"], "q0_i1": results[i * 4 + 1]["score"], "q1_i0": results[i * 4 + 2]["score"], "q1_i1": results[i * 4 + 3]["score"]}
+        answers[i] = {
+            "q0_i0": results[i * 4]["score"],
+            "q0_i1": results[i * 4 + 1]["score"],
+            "q1_i0": results[i * 4 + 2]["score"],
+            "q1_i1": results[i * 4 + 3]["score"],
+        }
 
     scores = get_scores(answers)
 

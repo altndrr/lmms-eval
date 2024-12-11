@@ -5,8 +5,9 @@ import os
 from time import sleep
 
 import openai
-from live_bench.data_generator.response import Response
 from PIL import Image
+
+from live_bench.data_generator.response import Response
 
 logger = logging.getLogger("lmms-eval")
 
@@ -51,7 +52,19 @@ def format_printable_messages(messages):
     return messages
 
 
-def gpt4v_generate_response(messages, *, client=None, model="gpt-4o", max_tokens: int = 4096, max_try_times: int = 5, json_format="auto", test=False, system=None, temperature=0.5, **kwargs) -> Response:
+def gpt4v_generate_response(
+    messages,
+    *,
+    client=None,
+    model="gpt-4o",
+    max_tokens: int = 4096,
+    max_try_times: int = 5,
+    json_format="auto",
+    test=False,
+    system=None,
+    temperature=0.5,
+    **kwargs,
+) -> Response:
     if system:
         messages = [{"role": "system", "content": system}] + messages
 
@@ -66,7 +79,9 @@ def gpt4v_generate_response(messages, *, client=None, model="gpt-4o", max_tokens
                         break
                 else:
                     for content in contents:
-                        if content.get("type", None) == "text" and "json" in content.get("text", ""):
+                        if content.get("type", None) == "text" and "json" in content.get(
+                            "text", ""
+                        ):
                             json_format = True
                             break
 
@@ -76,12 +91,26 @@ def gpt4v_generate_response(messages, *, client=None, model="gpt-4o", max_tokens
         response_format = None
 
     def _generate():
-        return client.chat.completions.create(model=model, messages=messages, max_tokens=max_tokens, response_format=response_format, temperature=temperature, **kwargs)
+        return client.chat.completions.create(
+            model=model,
+            messages=messages,
+            max_tokens=max_tokens,
+            response_format=response_format,
+            temperature=temperature,
+            **kwargs,
+        )
 
     for times in range(max_try_times):
         try:
             response = _generate()
-            return Response(success=True, content=response.choices[0].message.content, full_log={"input": format_printable_messages(messages), "output": response.choices[0].message.content})
+            return Response(
+                success=True,
+                content=response.choices[0].message.content,
+                full_log={
+                    "input": format_printable_messages(messages),
+                    "output": response.choices[0].message.content,
+                },
+            )
         except Exception as e:
             logger.error(f"Failed to generate response: {e}")
             if times < max_try_times - 1:
@@ -89,4 +118,8 @@ def gpt4v_generate_response(messages, *, client=None, model="gpt-4o", max_tokens
                 sleep(3)
             else:
                 logger.error("Failed to generate response after retrying.")
-                return Response(success=False, content=str(e), full_log={"input": format_printable_messages(messages), "output": None})
+                return Response(
+                    success=False,
+                    content=str(e),
+                    full_log={"input": format_printable_messages(messages), "output": None},
+                )

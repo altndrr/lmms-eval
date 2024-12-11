@@ -78,18 +78,28 @@ class FromLog(lmms):
                             else:
                                 log_time = "unknown"
 
-                            if task not in self.logs or (self.logs[task]["time"] == "unknown" or datetime.strptime(log_time, "%m%d_%H%M") > datetime.strptime(self.logs[task]["time"], "%m%d_%H%M")):
+                            if task not in self.logs or (
+                                self.logs[task]["time"] == "unknown"
+                                or datetime.strptime(log_time, "%m%d_%H%M")
+                                > datetime.strptime(self.logs[task]["time"], "%m%d_%H%M")
+                            ):
                                 self.logs[task] = {"time": log_time, "logs": logs}
 
-                        except Exception as e:
+                        except Exception:
                             pass
 
         accelerator = Accelerator()
         if accelerator.num_processes > 1:
-            assert accelerator.distributed_type in [DistributedType.FSDP, DistributedType.MULTI_GPU, DistributedType.DEEPSPEED], "Unsupported distributed type provided. Only DDP and FSDP are supported."
+            assert accelerator.distributed_type in [
+                DistributedType.FSDP,
+                DistributedType.MULTI_GPU,
+                DistributedType.DEEPSPEED,
+            ], "Unsupported distributed type provided. Only DDP and FSDP are supported."
             self.accelerator = accelerator
             if self.accelerator.is_local_main_process:
-                eval_logger.info(f"Using {accelerator.num_processes} devices with data parallelism")
+                eval_logger.info(
+                    f"Using {accelerator.num_processes} devices with data parallelism"
+                )
             self._rank = self.accelerator.local_process_index
             self._world_size = self.accelerator.num_processes
         else:
@@ -103,7 +113,9 @@ class FromLog(lmms):
         res = []
         pbar = tqdm(total=len(requests), disable=(self.rank != 0), desc="Model Responding")
 
-        for contexts, gen_kwargs, doc_to_visual, doc_id, task, split in [reg.args for reg in requests]:
+        for contexts, gen_kwargs, doc_to_visual, doc_id, task, split in [
+            reg.args for reg in requests
+        ]:
             response = self.logs[task]["logs"][doc_id]
             res.append(response[0])
             pbar.update(1)

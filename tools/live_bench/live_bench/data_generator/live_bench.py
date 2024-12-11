@@ -5,6 +5,8 @@ from datetime import datetime
 from typing import List, Tuple
 
 from datasets import Dataset, load_dataset
+from tqdm import tqdm
+
 from live_bench.data_generator.live_bench_data import LiveBenchData
 from live_bench.data_generator.qa_generator import (
     QAData,
@@ -19,18 +21,22 @@ from live_bench.data_generator.score_getter import (
     get_score_getter,
 )
 from live_bench.data_generator.utils.extract_information import (
-    ImageInfomation,
     InfomationExtractor,
 )
 from live_bench.driver import load_driver
 from live_bench.screen_shoter import ScreenImage, ScreenShoter, get_shoter
 from live_bench.websites import Website
-from tqdm import tqdm
 
 logger = logging.getLogger("lmms-eval")
 
 
-def get_qa_data(images: ScreenImage, qa_generator: QAGenerator, *, information_getter: InfomationExtractor = None, test=False) -> Tuple[List[QAData], Response]:
+def get_qa_data(
+    images: ScreenImage,
+    qa_generator: QAGenerator,
+    *,
+    information_getter: InfomationExtractor = None,
+    test=False,
+) -> Tuple[List[QAData], Response]:
     if information_getter:
         information = information_getter.extract_information(images)
     else:
@@ -41,14 +47,35 @@ def get_qa_data(images: ScreenImage, qa_generator: QAGenerator, *, information_g
 
 
 def get_live_bench_data(
-    driver, website: Website, screen_shoter: ScreenShoter, qa_generator: QAGenerator, checker: QAGenerator, information_getter: InfomationExtractor, question_finalizer: QuestionFinalizer, test=False, scorer=None, score_threshold=5
+    driver,
+    website: Website,
+    screen_shoter: ScreenShoter,
+    qa_generator: QAGenerator,
+    checker: QAGenerator,
+    information_getter: InfomationExtractor,
+    question_finalizer: QuestionFinalizer,
+    test=False,
+    scorer=None,
+    score_threshold=5,
 ) -> Tuple[List[LiveBenchData], Response]:
     images = screen_shoter.capture(driver, website)
-    qa_data, logs = get_qa_data(images, qa_generator, test=test, information_getter=information_getter)
+    qa_data, logs = get_qa_data(
+        images, qa_generator, test=test, information_getter=information_getter
+    )
     data = []
     for qa in qa_data:
         # qa_data = question_finalizer.finalize_question(qa, images.images)
-        item = LiveBenchData(screen=images, question=qa.question, answer=qa.answer, subtask=qa.subtask, criteria=qa.criteria, data_generator=qa_generator.get_name(), checker=checker, scorer=scorer, finalizer=question_finalizer)
+        item = LiveBenchData(
+            screen=images,
+            question=qa.question,
+            answer=qa.answer,
+            subtask=qa.subtask,
+            criteria=qa.criteria,
+            data_generator=qa_generator.get_name(),
+            checker=checker,
+            scorer=scorer,
+            finalizer=question_finalizer,
+        )
         if score_threshold and (not item.score or item.score < score_threshold):
             continue
         data.append(item)
@@ -56,7 +83,18 @@ def get_live_bench_data(
 
 
 class LiveBench(object):
-    def __init__(self, path: str = "lmms-lab/LiveBench", *, name="auto", split="test", cache_dir=None, remote_path=None, trust_remote_code=True, force_clear=False, **kwargs):
+    def __init__(
+        self,
+        path: str = "lmms-lab/LiveBench",
+        *,
+        name="auto",
+        split="test",
+        cache_dir=None,
+        remote_path=None,
+        trust_remote_code=True,
+        force_clear=False,
+        **kwargs,
+    ):
         self.path = path
         if name == "auto":
             name = datetime.now().strftime("%Y-%m")
@@ -70,7 +108,14 @@ class LiveBench(object):
             self.clear()
         else:
             try:
-                self.hf_data = load_dataset(self.path, name=self.name, split=split, cache_dir=cache_dir, trust_remote_code=trust_remote_code, **kwargs)
+                self.hf_data = load_dataset(
+                    self.path,
+                    name=self.name,
+                    split=split,
+                    cache_dir=cache_dir,
+                    trust_remote_code=trust_remote_code,
+                    **kwargs,
+                )
             except Exception as e:
                 logger.error(f"Error loading dataset: {e}")
                 self.clear()
@@ -144,7 +189,17 @@ class LiveBench(object):
         information_getter = InfomationExtractor()
         for website in tqdm(websites, desc="Capturing websites"):
             try:
-                data, log = get_live_bench_data(driver, website, screen_shoter, qa_generator, checker, test=test, scorer=scorer, information_getter=information_getter, question_finalizer=question_finalizer)
+                data, log = get_live_bench_data(
+                    driver,
+                    website,
+                    screen_shoter,
+                    qa_generator,
+                    checker,
+                    test=test,
+                    scorer=scorer,
+                    information_getter=information_getter,
+                    question_finalizer=question_finalizer,
+                )
                 logs.append(log.to_dict())
                 for d in data:
                     self.add(d)
@@ -184,7 +239,9 @@ class LiveBench(object):
             driver.quit()
 
     def upload(self, **kwargs):
-        self.hf_data.push_to_hub(self.remote_path, config_name=self.name, split=self.split, **kwargs)
+        self.hf_data.push_to_hub(
+            self.remote_path, config_name=self.name, split=self.split, **kwargs
+        )
 
     def save(self, path: str):
         self.hf_data.save_to_disk(path)

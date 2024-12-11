@@ -1,4 +1,5 @@
 # User Guide
+
 This document details the running examples for different models in `lmms_eval`. We include commandas on how to prepare environments for different model and some commands to run these models
 
 ## Environmental Variables
@@ -7,14 +8,15 @@ Before running experiments and evaluations, we recommend you to export following
 
 ```bash
 export OPENAI_API_KEY="<YOUR_API_KEY>"
-export HF_HOME="<Path to HF cache>" 
+export HF_HOME="<Path to HF cache>"
 export HF_TOKEN="<YOUR_API_KEY>"
 export HF_HUB_ENABLE_HF_TRANSFER="1"
-# Other possible environment variables include 
+# Other possible environment variables include
 # ANTHROPIC_API_KEY,DASHSCOPE_API_KEY etc.
 ```
 
 ## Some common environment issue
+
 Sometimes you might encounter some common issues for example error related to `httpx` or `protobuf`. To solve these issues, you can first try
 
 ```bash
@@ -29,6 +31,7 @@ python3 -m pip install sentencepiece;
 # Image Model
 
 ### LLaVA
+
 First, you will need to clone repo of `lmms_eval` and repo of [`llava`](https://github.com/LLaVA-VL/LLaVA-NeXT/tree/inference)
 
 ```bash
@@ -57,6 +60,7 @@ accelerate launch --num_processes 8 --main_process_port 12345 -m lmms_eval \
     --log_samples_suffix $TASK_SUFFIX \
     --output_path ./logs/
 ```
+
 If you are trying to use large LLaVA models such as LLaVA-NeXT-Qwen1.5-72B, you can try adding `device_map=auto` in model_args and change `num_processes` to 1.
 
 ### IDEFICS2
@@ -81,7 +85,7 @@ accelerate launch --num_processes 8 --main_process_port 12345 -m lmms_eval \
     --batch_size 1 \
     --log_samples \
     --log_samples_suffix $TASK_SUFFIX \
-    --output_path ./logs/ 
+    --output_path ./logs/
 ```
 
 ### InternVL2
@@ -108,11 +112,11 @@ accelerate launch --num_processes 8 --main_process_port 12380 -m lmms_eval \
     --batch_size 1 \
     --log_samples \
     --log_samples_suffix $TASK_SUFFIX \
-    --output_path ./logs/ 
+    --output_path ./logs/
 ```
 
-
 ### InternVL-1.5
+
 First you need to fork [`InternVL`](https://github.com/OpenGVLab/InternVL)
 
 ```bash
@@ -137,7 +141,7 @@ accelerate launch --num_processes 8 --main_process_port 12345 -m lmms_eval \
     --batch_size 1 \
     --log_samples \
     --log_samples_suffix $TASK_SUFFIX \
-    --output_path ./logs/ 
+    --output_path ./logs/
 
 ```
 
@@ -167,7 +171,7 @@ accelerate launch --num_processes 8 --main_process_port 10000 -m lmms_eval \
     --batch_size 1 \
     --log_samples \
     --log_samples_suffix $TASK_SUFFIX \
-    --output_path ./logs/ 
+    --output_path ./logs/
 
 # For Xcomposer-4kHD
 accelerate launch --num_processes 8 --main_process_port 12345 -m lmms_eval \
@@ -202,6 +206,6 @@ accelerate launch --num_processes 8 --main_process_port 12345 -m lmms_eval \
     --batch_size 1 \
     --log_samples \
     --log_samples_suffix instructblip \
-    --output_path ./logs/ 
+    --output_path ./logs/
 
 ```

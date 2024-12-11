@@ -11,7 +11,6 @@ import openai
 import pandas as pd
 import requests
 import yaml
-from tqdm import tqdm
 
 eval_logger = logging.getLogger("lmms-eval")
 
@@ -80,15 +79,28 @@ Your response should be in the JSON format:
 
 
 def format_prompt(question, ground_truth_answer, answer, criteria):
-    return _PROMPT_WITH_IMAGE.format(prompt=question, generation=answer, reference=ground_truth_answer, criteria=criteria)
+    return _PROMPT_WITH_IMAGE.format(
+        prompt=question, generation=answer, reference=ground_truth_answer, criteria=criteria
+    )
 
 
-def get_chat_response(gpt_model_name, base64_images, question, ground_truth_answer, answer, criteria, max_retries=5, wait_time=10):
+def get_chat_response(
+    gpt_model_name,
+    base64_images,
+    question,
+    ground_truth_answer,
+    answer,
+    criteria,
+    max_retries=5,
+    wait_time=10,
+):
     # client = openai.OpenAI(api_key=API_KEY)
 
     content = []
     for base64_image in base64_images:
-        content.append({"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}})
+        content.append(
+            {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}}
+        )
     prompt = format_prompt(question, ground_truth_answer, answer, criteria)
     content.append(
         {
@@ -113,7 +125,13 @@ def get_chat_response(gpt_model_name, base64_images, question, ground_truth_answ
 
     for attempt in range(max_retries):
         try:
-            response = client.chat.completions.create(model=gpt_model_name, messages=messages, max_tokens=1024, response_format={"type": "json_object"}, temperature=0.0)
+            response = client.chat.completions.create(
+                model=gpt_model_name,
+                messages=messages,
+                max_tokens=1024,
+                response_format={"type": "json_object"},
+                temperature=0.0,
+            )
             response_data = response.choices[0].message.content
             # print(response_data)
             response_data = json.loads(response_data)
@@ -155,7 +173,12 @@ def livebench_doc_to_text(doc, lmms_eval_specific_kwargs=None):
     return f"{pre_prompt}{doc['question']}{post_prompt}"
 
 
-SUBTASKS = ["Concrete Recognition", "Analytical Questions", "Divergent Thinking", "Real-world Assistance"]
+SUBTASKS = [
+    "Concrete Recognition",
+    "Analytical Questions",
+    "Divergent Thinking",
+    "Real-world Assistance",
+]
 
 
 def livebench_process_results_for_name(doc, results, model, eval_name):
@@ -163,12 +186,42 @@ def livebench_process_results_for_name(doc, results, model, eval_name):
     subtask = doc["subtask"]
     criteria = doc["criteria"]
     if not results or results[0] == "":
-        return {eval_name: {"rating": 0, "explanation": "No response", "model_name": "N/A", "subtask": subtask}}
-    rating, explanation, model_name = get_chat_response(gpt_model_name=model, base64_images=base64_images, question=doc["question"], ground_truth_answer=doc["answer"], answer=results[0] if results else "", criteria=criteria)
+        return {
+            eval_name: {
+                "rating": 0,
+                "explanation": "No response",
+                "model_name": "N/A",
+                "subtask": subtask,
+            }
+        }
+    rating, explanation, model_name = get_chat_response(
+        gpt_model_name=model,
+        base64_images=base64_images,
+        question=doc["question"],
+        ground_truth_answer=doc["answer"],
+        answer=results[0] if results else "",
+        criteria=criteria,
+    )
     if rating >= 0:
-        return {eval_name: {"rating": rating, "explanation": explanation, "model_name": model_name, "subtask": subtask, "id": doc["id"]}}
+        return {
+            eval_name: {
+                "rating": rating,
+                "explanation": explanation,
+                "model_name": model_name,
+                "subtask": subtask,
+                "id": doc["id"],
+            }
+        }
     else:
-        return {eval_name: {"rating": -1, "explanation": explanation, "model_name": "N/A", "subtask": subtask, "id": doc["id"]}}
+        return {
+            eval_name: {
+                "rating": -1,
+                "explanation": explanation,
+                "model_name": "N/A",
+                "subtask": subtask,
+                "id": doc["id"],
+            }
+        }
 
 
 def livebench_process_results_4o(doc, results):

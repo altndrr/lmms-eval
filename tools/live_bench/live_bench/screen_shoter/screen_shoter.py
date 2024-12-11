@@ -5,10 +5,11 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import List
 
-from live_bench.screen_shoter.screen import ScreenImage
-from live_bench.websites import Website
 from PIL import Image
 from selenium import webdriver
+
+from live_bench.screen_shoter.screen import ScreenImage
+from live_bench.websites import Website
 
 logger = logging.getLogger("lmms-eval")
 
@@ -28,7 +29,13 @@ class ScreenShoter(ABC):
                 driver.set_window_size(page_width, 1024)
         # print("Screen size:", driver.get_window_size())
         images = self.get_screenshot(driver)
-        return ScreenImage(images, website, self.get_name(), self.screen_size, datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        return ScreenImage(
+            images,
+            website,
+            self.get_name(),
+            self.screen_size,
+            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        )
 
     def __call__(self, driver: webdriver.Chrome, website: Website) -> List[Image.Image]:
         return self.capture(driver, website)
@@ -97,7 +104,13 @@ class HumanScreenShoter(ScreenShoter):
                 logger.error(f"Error loading image {path}: {e}")
         if not images:
             raise ValueError(f"No images found in {path}")
-        return ScreenImage(images, website, self.get_name(), self.screen_size, datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        return ScreenImage(
+            images,
+            website,
+            self.get_name(),
+            self.screen_size,
+            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        )
 
     def get_screenshot(self, driver: webdriver.Chrome) -> List[Image.Image]:
         return []

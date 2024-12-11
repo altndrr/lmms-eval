@@ -45,8 +45,12 @@ def save_to_cache(file_name, obj):
     for item in obj:
         sub_serializable_obj = []
         for subitem in item:
-            if hasattr(subitem, "arguments"):  # we need to handle the arguments specially since doc_to_visual is callable method and not serializable
-                serializable_arguments = tuple(arg if not callable(arg) else None for arg in subitem.arguments)
+            if hasattr(
+                subitem, "arguments"
+            ):  # we need to handle the arguments specially since doc_to_visual is callable method and not serializable
+                serializable_arguments = tuple(
+                    arg if not callable(arg) else None for arg in subitem.arguments
+                )
                 subitem.arguments = serializable_arguments
             sub_serializable_obj.append(_handle_non_serializable(subitem))
         serializable_obj.append(sub_serializable_obj)

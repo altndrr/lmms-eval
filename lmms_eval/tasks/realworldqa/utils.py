@@ -3,7 +3,9 @@ import re
 from lmms_eval.filters.extraction import ExtendedRegexFilter
 from lmms_eval.filters.transformation import MapFilter
 
-REPLACE_PROMPT = "Please answer directly with only the letter of the correct option and nothing else."
+REPLACE_PROMPT = (
+    "Please answer directly with only the letter of the correct option and nothing else."
+)
 
 
 def realworldqa_doc_to_visual(doc):
@@ -45,7 +47,19 @@ def realworldqa_process_results(doc, results):
 
 class NumberWordsToDigitsFilter(MapFilter):
     def __init__(self) -> None:
-        mapping_dict = {"zero": "0", "one": "1", "two": "2", "three": "3", "four": "4", "five": "5", "six": "6", "seven": "7", "eight": "8", "nine": "9", "ten": "10"}
+        mapping_dict = {
+            "zero": "0",
+            "one": "1",
+            "two": "2",
+            "three": "3",
+            "four": "4",
+            "five": "5",
+            "six": "6",
+            "seven": "7",
+            "eight": "8",
+            "nine": "9",
+            "ten": "10",
+        }
         super().__init__(mapping_dict, default_value=None)
 
     def apply(self, resps, docs):
@@ -57,8 +71,7 @@ class NumberWordsToDigitsFilter(MapFilter):
 
 class MultiChoiceRegexFilter(ExtendedRegexFilter):
     def __init__(self, *args, **kwargs):
-        """
-        regex_pattern: The basic regex pattern to use. If fails to match, we will use the customized match procedure
+        """regex_pattern: The basic regex pattern to use. If fails to match, we will use the customized match procedure
                         - step 1 : We parse the choices between ([A-Z])s then try to find these choices in the response.
                         - step 2 : We parse the choice with regex :[\s]*([A-?]), where ? varies by number of choices.
         group_select: Selects the (group_select)th match from the findall result.
@@ -76,7 +89,7 @@ class MultiChoiceRegexFilter(ExtendedRegexFilter):
 
         filtered_resps = []
 
-        for r, doc in zip(resps, docs):
+        for r, doc in zip(resps, docs, strict=False):
             fallback_regexes = []
             choice_to_alpha = {}
             next_alpha = "A"

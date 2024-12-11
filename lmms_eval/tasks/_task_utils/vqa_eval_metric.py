@@ -2,10 +2,9 @@ import re
 
 
 class EvalAIAnswerProcessor:
-    """
-    Processes an answer similar to Eval AI
-        copied from
-        https://github.com/facebookresearch/mmf/blob/c46b3b3391275b4181567db80943473a89ab98ab/pythia/tasks/processors.py#L897
+    """Processes an answer similar to Eval AI
+    copied from
+    https://github.com/facebookresearch/mmf/blob/c46b3b3391275b4181567db80943473a89ab98ab/pythia/tasks/processors.py#L897
     """
 
     CONTRACTIONS = {
@@ -183,7 +182,9 @@ class EvalAIAnswerProcessor:
     def process_punctuation(self, in_text):
         out_text = in_text
         for p in self.PUNCTUATIONS:
-            if (p + " " in in_text or " " + p in in_text) or (re.search(self.COMMA_STRIP, in_text) is not None):
+            if (p + " " in in_text or " " + p in in_text) or (
+                re.search(self.COMMA_STRIP, in_text) is not None
+            ):
                 out_text = out_text.replace(p, "")
             else:
                 out_text = out_text.replace(p, " ")

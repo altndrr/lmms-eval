@@ -1,12 +1,12 @@
 import argparse
 import json
 import os
-from typing import Dict, List, Union
+from typing import Dict, List
 
 import datasets
 import numpy as np
 import pandas as pd
-from datasets import Dataset, load_dataset
+from datasets import Dataset
 from PIL import Image
 from tqdm import tqdm
 
@@ -24,11 +24,19 @@ RESULT_FEATURES = {
     "reason": datasets.Value("string"),
 }
 
-SUBTASKS = ["Concrete Recognition", "Analytical Questions", "Evaluative Questions", "Divergent Thinking", "Real-world Assistance"]
+SUBTASKS = [
+    "Concrete Recognition",
+    "Analytical Questions",
+    "Evaluative Questions",
+    "Divergent Thinking",
+    "Real-world Assistance",
+]
 
 
 def load_images(config) -> Dict[int, List[Image.Image]]:
-    dataset = datasets.load_dataset(config["dataset_path"], config["dataset_name"], split=config["test_split"])
+    dataset = datasets.load_dataset(
+        config["dataset_path"], config["dataset_name"], split=config["test_split"]
+    )
     images = {}
     for data in tqdm(dataset, desc="Loading images"):
         images[data["id"]] = data["images"]
@@ -53,7 +61,9 @@ def get_hf_results(results, detailed_results):
             res["reason"] = result["gpt4_eval_score"]["explanation"]
             yield res
 
-    result_dataset = Dataset.from_generator(load_results, features=datasets.Features(RESULT_FEATURES))
+    result_dataset = Dataset.from_generator(
+        load_results, features=datasets.Features(RESULT_FEATURES)
+    )
 
     return result_dataset
 
@@ -101,7 +111,9 @@ def get_results(folder):
     model_configs = results["model_configs"]
     version = results["configs"]["live_bench"]["metadata"]["version"]
 
-    assert model_configs["limit"] is None, "Model limit is not None, please check if the model is tested on the full dataset"
+    assert (
+        model_configs["limit"] is None
+    ), "Model limit is not None, please check if the model is tested on the full dataset"
 
     with open(detailed_file, "r") as f:
         detailed_results = json.load(f)
@@ -138,9 +150,13 @@ def upload_results(
     score_dict = {item["Subtask"]: item["Score"] for index, item in score.iterrows()}
     score_dict["Model Name"] = model_name
     try:
-        hf_score = datasets.load_dataset("lmms-lab/LiveBenchResults", dataset_version, split="test")
+        hf_score = datasets.load_dataset(
+            "lmms-lab/LiveBenchResults", dataset_version, split="test"
+        )
     except:
-        hf_score = Dataset.from_dict({subtask: [] for subtask in ["Model Name", "Total"] + SUBTASKS})
+        hf_score = Dataset.from_dict(
+            {subtask: [] for subtask in ["Model Name", "Total"] + SUBTASKS}
+        )
     hf_score = hf_score.add_item(score_dict)
     df_score = pd.DataFrame(hf_score)
     df_score = df_score.drop_duplicates(subset=["Model Name"], keep="last")

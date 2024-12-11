@@ -15,7 +15,6 @@ from huggingface_hub.utils import build_hf_headers, get_session, hf_raise_for_st
 
 from lmms_eval.utils import (
     eval_logger,
-    get_datetime_str,
     get_file_datetime,
     get_file_task_name,
     get_results_filenames,
@@ -30,8 +29,7 @@ from lmms_eval.utils import (
 
 @dataclass(init=False)
 class GeneralConfigTracker:
-    """
-    Tracker for the evaluation parameters.
+    """Tracker for the evaluation parameters.
 
     Attributes:
         model_source (str): Source of the model (e.g. Hugging Face, GGUF, etc.)
@@ -40,6 +38,7 @@ class GeneralConfigTracker:
         start_time (float): Start time of the experiment. Logged at class init.
         end_time (float): Start time of the experiment. Logged when calling [`GeneralConfigTracker.log_end_time`]
         total_evaluation_time_seconds (str): Inferred total evaluation time in seconds (from the start and end times).
+
     """
 
     model_source: str = None
@@ -87,7 +86,9 @@ class GeneralConfigTracker:
         self.model_name = GeneralConfigTracker._get_model_name(model_args)
         self.model_name_sanitized = sanitize_model_name(self.model_name)
         self.system_instruction = system_instruction
-        self.system_instruction_sha = hash_string(system_instruction) if system_instruction else None
+        self.system_instruction_sha = (
+            hash_string(system_instruction) if system_instruction else None
+        )
         self.chat_template = chat_template
         self.chat_template_sha = hash_string(chat_template) if chat_template else None
         self.fewshot_as_multiturn = fewshot_as_multiturn
@@ -99,8 +100,7 @@ class GeneralConfigTracker:
 
 
 class EvaluationTracker:
-    """
-    Keeps track and saves relevant information of the evaluation process.
+    """Keeps track and saves relevant information of the evaluation process.
     Compiles the data from trackers and writes it to files, which can be published to the Hugging Face hub if requested.
     """
 
@@ -119,8 +119,7 @@ class EvaluationTracker:
         point_of_contact: str = "",
         gated: bool = False,
     ) -> None:
-        """
-        Creates all the necessary loggers for evaluation tracking.
+        """Creates all the necessary loggers for evaluation tracking.
 
         Args:
             output_path (str): Path to save the results. If not provided, the results won't be saved.
@@ -135,6 +134,7 @@ class EvaluationTracker:
             leaderboard_url (str): URL to the leaderboard on the Hugging Face hub on the dataset card.
             point_of_contact (str): Contact information on the Hugging Face hub dataset card.
             gated (bool): Whether to gate the repository.
+
         """
         self.general_config_tracker = GeneralConfigTracker()
 
@@ -148,19 +148,28 @@ class EvaluationTracker:
         self.gated_repo = gated
 
         if not self.api and (push_results_to_hub or push_samples_to_hub):
-            raise ValueError("Hugging Face token is not defined, but 'push_results_to_hub' or 'push_samples_to_hub' is set to True. " "Please provide a valid Hugging Face token by setting the HF_TOKEN environment variable.")
+            raise ValueError(
+                "Hugging Face token is not defined, but 'push_results_to_hub' or 'push_samples_to_hub' is set to True. "
+                "Please provide a valid Hugging Face token by setting the HF_TOKEN environment variable."
+            )
 
         if self.api and hub_results_org == "" and (push_results_to_hub or push_samples_to_hub):
             hub_results_org = self.api.whoami()["name"]
-            eval_logger.warning(f"hub_results_org was not specified. Results will be pushed to '{hub_results_org}'.")
+            eval_logger.warning(
+                f"hub_results_org was not specified. Results will be pushed to '{hub_results_org}'."
+            )
 
         if hub_repo_name == "":
-            details_repo_name = details_repo_name if details_repo_name != "" else "lmms-eval-results"
+            details_repo_name = (
+                details_repo_name if details_repo_name != "" else "lmms-eval-results"
+            )
             results_repo_name = results_repo_name if results_repo_name != "" else details_repo_name
         else:
             details_repo_name = hub_repo_name
             results_repo_name = hub_repo_name
-            eval_logger.warning("hub_repo_name was specified. Both details and results will be pushed to the same repository. Using hub_repo_name is no longer recommended, details_repo_name and results_repo_name should be used instead.")
+            eval_logger.warning(
+                "hub_repo_name was specified. Both details and results will be pushed to the same repository. Using hub_repo_name is no longer recommended, details_repo_name and results_repo_name should be used instead."
+            )
 
         self.details_repo = f"{hub_results_org}/{details_repo_name}"
         self.details_repo_private = f"{hub_results_org}/{details_repo_name}-private"
@@ -173,13 +182,13 @@ class EvaluationTracker:
         samples: dict,
         datetime_str: str,
     ) -> None:
-        """
-        Saves the aggregated results and samples to the output path and pushes them to the Hugging Face hub if requested.
+        """Saves the aggregated results and samples to the output path and pushes them to the Hugging Face hub if requested.
 
         Args:
             results (dict): The aggregated results to save.
             samples (dict): The samples results to save.
             datetime_str (str): The datetime string to use for the results file.
+
         """
         self.general_config_tracker.log_end_time()
 
@@ -191,7 +200,10 @@ class EvaluationTracker:
                 task_hashes = {}
                 if samples:
                     for task_name, task_samples in samples.items():
-                        sample_hashes = [s["doc_hash"] + s["prompt_hash"] + s["target_hash"] for s in task_samples]
+                        sample_hashes = [
+                            s["doc_hash"] + s["prompt_hash"] + s["target_hash"]
+                            for s in task_samples
+                        ]
                         task_hashes[task_name] = hash_string("".join(sample_hashes))
 
                 # update initial results dict
@@ -230,7 +242,10 @@ class EvaluationTracker:
                         repo_type="dataset",
                         commit_message=f"Adding aggregated results for {self.general_config_tracker.model_name}",
                     )
-                    eval_logger.info("Successfully pushed aggregated results to the Hugging Face Hub. " f"You can find them at: {repo_id}")
+                    eval_logger.info(
+                        "Successfully pushed aggregated results to the Hugging Face Hub. "
+                        f"You can find them at: {repo_id}"
+                    )
 
             except Exception as e:
                 eval_logger.warning("Could not save results aggregated")
@@ -243,12 +258,12 @@ class EvaluationTracker:
         task_name: str,
         samples: dict,
     ) -> None:
-        """
-        Saves the samples results to the output path and pushes them to the Hugging Face hub if requested.
+        """Saves the samples results to the output path and pushes them to the Hugging Face hub if requested.
 
         Args:
             task_name (str): The task name to save the samples for.
             samples (dict): The samples results to save.
+
         """
         if self.output_path:
             try:
@@ -265,7 +280,9 @@ class EvaluationTracker:
                     # otherwise we won't be able to load the dataset
                     # using the datasets library
                     arguments = {}
-                    for key, value in enumerate(sample["arguments"][1]):  # update metadata into args
+                    for key, value in enumerate(
+                        sample["arguments"][1]
+                    ):  # update metadata into args
                         arguments[key] = value
 
                     sample["input"] = sample["arguments"][0]
@@ -313,7 +330,10 @@ class EvaluationTracker:
                         repo_type="dataset",
                         commit_message=f"Adding samples results for {task_name} to {self.general_config_tracker.model_name}",
                     )
-                    eval_logger.info(f"Successfully pushed sample results for task: {task_name} to the Hugging Face Hub. " f"You can find them at: {repo_id}")
+                    eval_logger.info(
+                        f"Successfully pushed sample results for task: {task_name} to the Hugging Face Hub. "
+                        f"You can find them at: {repo_id}"
+                    )
 
             except Exception as e:
                 eval_logger.warning("Could not save sample results")
@@ -322,10 +342,7 @@ class EvaluationTracker:
             eval_logger.info("Output path not provided, skipping saving sample results")
 
     def recreate_metadata_card(self) -> None:
-        """
-        Creates a metadata card for the evaluation results dataset and pushes it to the Hugging Face hub.
-        """
-
+        """Creates a metadata card for the evaluation results dataset and pushes it to the Hugging Face hub."""
         eval_logger.info("Recreating metadata card")
         repo_id = self.details_repo if self.public_repo else self.details_repo_private
 
@@ -373,15 +390,21 @@ class EvaluationTracker:
             eval_date_sanitized = re.sub(r"[^\w\.]", "_", eval_date)
             results_filename = Path("**") / Path(results_filename).name
             config_name = f"{model_name}__results"
-            sanitized_last_eval_date_results = re.sub(r"[^\w\.]", "_", latest_task_results_datetime[config_name])
+            sanitized_last_eval_date_results = re.sub(
+                r"[^\w\.]", "_", latest_task_results_datetime[config_name]
+            )
 
             if eval_date_sanitized == sanitized_last_eval_date_results:
                 # Ensure that all results files are listed in the metadata card
                 current_results = card_metadata.get(config_name, {"data_files": []})
-                current_results["data_files"].append({"split": eval_date_sanitized, "path": [str(results_filename)]})
+                current_results["data_files"].append(
+                    {"split": eval_date_sanitized, "path": [str(results_filename)]}
+                )
                 card_metadata[config_name] = current_results
                 # If the results file is the newest, update the "latest" field in the metadata card
-                card_metadata[config_name]["data_files"].append({"split": "latest", "path": [str(results_filename)]})
+                card_metadata[config_name]["data_files"].append(
+                    {"split": "latest", "path": [str(results_filename)]}
+                )
 
         # Add the tasks details configs
         for file_path in sample_files:
@@ -394,21 +417,33 @@ class EvaluationTracker:
             eval_date_sanitized = re.sub(r"[^\w\.]", "_", eval_date)
             results_filename = Path("**") / Path(filename).name
             config_name = f"{model_name}__{task_name_sanitized}"
-            sanitized_last_eval_date_results = re.sub(r"[^\w\.]", "_", latest_task_results_datetime[config_name])
+            sanitized_last_eval_date_results = re.sub(
+                r"[^\w\.]", "_", latest_task_results_datetime[config_name]
+            )
             if eval_date_sanitized == sanitized_last_eval_date_results:
                 # Ensure that all sample results files are listed in the metadata card
                 current_details_for_task = card_metadata.get(config_name, {"data_files": []})
-                current_details_for_task["data_files"].append({"split": eval_date_sanitized, "path": [str(results_filename)]})
+                current_details_for_task["data_files"].append(
+                    {"split": eval_date_sanitized, "path": [str(results_filename)]}
+                )
                 card_metadata[config_name] = current_details_for_task
                 # If the samples results file is the newest, update the "latest" field in the metadata card
-                card_metadata[config_name]["data_files"].append({"split": "latest", "path": [str(results_filename)]})
+                card_metadata[config_name]["data_files"].append(
+                    {"split": "latest", "path": [str(results_filename)]}
+                )
 
         # Get latest results and extract info to update metadata card examples
         latest_datetime = max(latest_task_results_datetime.values())
-        latest_model_name = max(latest_task_results_datetime, key=lambda k: latest_task_results_datetime[k])
+        latest_model_name = max(
+            latest_task_results_datetime, key=lambda k: latest_task_results_datetime[k]
+        )
         last_results_file = [f for f in results_files if latest_datetime.replace(":", "-") in f][0]
-        last_results_file_path = hf_hub_url(repo_id=repo_id, filename=last_results_file, repo_type="dataset")
-        latest_results_file = load_dataset("json", data_files=last_results_file_path, split="train")
+        last_results_file_path = hf_hub_url(
+            repo_id=repo_id, filename=last_results_file, repo_type="dataset"
+        )
+        latest_results_file = load_dataset(
+            "json", data_files=last_results_file_path, split="train"
+        )
         results_dict = latest_results_file["results"][0]
         new_dictionary = {"all": results_dict}
         new_dictionary.update(results_dict)
@@ -427,7 +462,10 @@ class EvaluationTracker:
             "To load the details from a run, you can for instance do the following:\n"
         )
         if self.general_config_tracker.model_source == "hf":
-            dataset_summary += "```python\nfrom datasets import load_dataset\n" f'data = load_dataset(\n\t"{repo_id}",\n\tname="{latest_model_name}",\n\tsplit="latest"\n)\n```\n\n'
+            dataset_summary += (
+                "```python\nfrom datasets import load_dataset\n"
+                f'data = load_dataset(\n\t"{repo_id}",\n\tname="{latest_model_name}",\n\tsplit="latest"\n)\n```\n\n'
+            )
         dataset_summary += (
             "## Latest results\n\n"
             f'These are the [latest results from run {latest_datetime}]({last_results_file_path.replace("/resolve/", "/blob/")}) '

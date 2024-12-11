@@ -1,7 +1,6 @@
 import re
 
 from lmms_eval.filters.extraction import ExtendedRegexFilter
-from lmms_eval.filters.transformation import MapFilter
 
 
 def ai2d_doc_to_text(doc, lmms_eval_specific_kwargs=None):
@@ -11,14 +10,18 @@ def ai2d_doc_to_text(doc, lmms_eval_specific_kwargs=None):
     pre_prompt = lmms_eval_specific_kwargs["pre_prompt"]
     if lmms_eval_specific_kwargs["prompt_format"] == "mcq":
         options = [chr(ord("A") + i) for i in range(len_choices)]
-        choices_str = "\n".join([f"{option}. {choice}" for option, choice in zip(options, choices)])
+        choices_str = "\n".join(
+            [f"{option}. {choice}" for option, choice in zip(options, choices, strict=False)]
+        )
         return f"{pre_prompt}{question}\n{choices_str}{post_prompt}"
     elif lmms_eval_specific_kwargs["prompt_format"] == "qa":
         options = "\n".join(choices)
         return f"{pre_prompt}{question}{options}{post_prompt}"
     elif lmms_eval_specific_kwargs["prompt_format"] == "mcq_xcomposer":
         options = [chr(ord("A") + i) for i in range(len_choices)]
-        choices_str = " ".join([f"{option}. {choice}" for option, choice in zip(options, choices)])
+        choices_str = " ".join(
+            [f"{option}. {choice}" for option, choice in zip(options, choices, strict=False)]
+        )
         return f"{pre_prompt}{question}\nContext: N/A\n{choices_str}{post_prompt}"
     else:
         raise ValueError(f"Unknown prompt format: {lmms_eval_specific_kwargs['prompt_format']}")
@@ -39,8 +42,7 @@ def ai2d_doc_to_target(doc, model_specific_target_kwargs):
 
 class MultiChoiceRegexFilter(ExtendedRegexFilter):
     def __init__(self, *args, **kwargs):
-        """
-        regex_pattern: The basic regex pattern to use. If fails to match, we will use the customized match procedure
+        """regex_pattern: The basic regex pattern to use. If fails to match, we will use the customized match procedure
                         - step 1 : We parse the choices between ([A-Z])s then try to find these choices in the response.
                         - step 2 : We parse the choice with regex :[\s]*([A-?]), where ? varies by number of choices.
         group_select: Selects the (group_select)th match from the findall result.
@@ -58,7 +60,7 @@ class MultiChoiceRegexFilter(ExtendedRegexFilter):
 
         filtered_resps = []
 
-        for r, doc in zip(resps, docs):
+        for r, doc in zip(resps, docs, strict=False):
             # Regex to directly extract the option letter from the model response
             option_letter_regex = re.compile(r"^\s*([A-Z])\.")
 

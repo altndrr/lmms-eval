@@ -5,7 +5,6 @@ import random
 import re
 from collections import defaultdict
 
-import matplotlib.font_manager as fm
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
@@ -24,11 +23,23 @@ def add_order_label(image, label, font_size=40):
     # Calculate text size and position
     text_width = text_height = font_size
     label_background_margin = 10
-    label_background_size = (text_width + 2 * label_background_margin, text_height + 2 * label_background_margin)
+    label_background_size = (
+        text_width + 2 * label_background_margin,
+        text_height + 2 * label_background_margin,
+    )
 
     # Draw a solid white square for the label background
     label_background_position = (0, 0)  # Top-left corner
-    draw.rectangle([label_background_position, (label_background_position[0] + label_background_size[0], label_background_position[1] + label_background_size[1])], fill="white")
+    draw.rectangle(
+        [
+            label_background_position,
+            (
+                label_background_position[0] + label_background_size[0],
+                label_background_position[1] + label_background_size[1],
+            ),
+        ],
+        fill="white",
+    )
 
     # Add the label text in black over the white square
     label_position = (label_background_margin, label_background_margin)
@@ -46,7 +57,7 @@ def resize_image_height(image, fixed_size):
 
 def concatenate_images_horizontal(image_list):
     # Concatenate images horizontally
-    widths, heights = zip(*(i.size for i in image_list))
+    widths, heights = zip(*(i.size for i in image_list), strict=False)
     total_width = sum(widths)
     max_height = max(heights)
     assert all(height == max_height for height in heights)
@@ -67,7 +78,7 @@ def resize_image_width(image, fixed_size):
 
 def concatenate_images_vertical(image_list):
     # Concatenate images horizontally
-    widths, heights = zip(*(i.size for i in image_list))
+    widths, heights = zip(*(i.size for i in image_list), strict=False)
     total_height = sum(heights)
     max_width = max(widths)
     assert all(width == max_width for width in widths)
@@ -144,7 +155,12 @@ def replace_images_tokens(input_string):
 
 def parse_options(options):
     option_letters = [chr(ord("A") + i) for i in range(len(options))]
-    choices_str = "\n".join([f"({option_letter}) {option}" for option_letter, option in zip(option_letters, options)])
+    choices_str = "\n".join(
+        [
+            f"({option_letter}) {option}"
+            for option_letter, option in zip(option_letters, options, strict=False)
+        ]
+    )
     return choices_str
 
 
@@ -169,7 +185,9 @@ def mmmu_doc_to_visual(doc):
     prompt = construct_prompt(doc)
     image_tokens = re.findall(r"<image \d+>", prompt)
     # Remove <> and  swap space as _
-    image_tokens = sorted(list(set([image_token.strip("<>").replace(" ", "_") for image_token in image_tokens])))
+    image_tokens = sorted(
+        list(set([image_token.strip("<>").replace(" ", "_") for image_token in image_tokens]))
+    )
     visual = [doc[image_token].convert("RGB") for image_token in image_tokens]
     visual = process_images(visual)
     return [visual]
@@ -183,7 +201,13 @@ def mmmu_process_results(doc, results):
     else:
         parsed_pred = parse_open_response(pred)
     id = doc["id"]
-    mmmu_acc = {"id": id, "subdomain": extract_subset_name(doc["id"]), "question_type": doc["question_type"], "answer": doc["answer"], "parsed_pred": parsed_pred}
+    mmmu_acc = {
+        "id": id,
+        "subdomain": extract_subset_name(doc["id"]),
+        "question_type": doc["question_type"],
+        "answer": doc["answer"],
+        "parsed_pred": parsed_pred,
+    }
     return {
         "mmmu_acc": mmmu_acc,
         "submission": {
@@ -223,12 +247,14 @@ def mmmu_aggregate_results(results):
     for domain, in_domain_cats in DOMAIN_CAT2SUB_CAT.items():
         in_domain_cat_results = {}
         for cat_name in in_domain_cats:
-            if cat_name in evaluation_result.keys():
+            if cat_name in evaluation_result:
                 in_domain_cat_results[cat_name] = evaluation_result[cat_name]
             else:
                 pass
         in_domain_ins_acc = calculate_ins_level_acc(in_domain_cat_results)
-        in_domain_data_num = sum([cat_results["num_example"] for cat_results in in_domain_cat_results.values()])
+        in_domain_data_num = sum(
+            [cat_results["num_example"] for cat_results in in_domain_cat_results.values()]
+        )
         printable_results["Overall-" + domain] = {
             "num": int(in_domain_data_num),
             "acc": round(in_domain_ins_acc, 3),
@@ -303,8 +329,7 @@ DOMAIN_CAT2SUB_CAT = {
 
 
 def eval_multi_choice(gold_i, pred_i):
-    """
-    Evaluate a multiple choice instance.
+    """Evaluate a multiple choice instance.
     https://github.com/MMMU-Benchmark/MMMU/blob/51ce7f3e829c16bb44bc5445782686b4c3508794/eval/eval_utils.py#L175
     """
     correct = False
@@ -321,8 +346,7 @@ def eval_multi_choice(gold_i, pred_i):
 
 
 def eval_open(gold_i, pred_i):
-    """
-    Evaluate an open question instance
+    """Evaluate an open question instance
     https://github.com/MMMU-Benchmark/MMMU/blob/51ce7f3e829c16bb44bc5445782686b4c3508794/eval/eval_utils.py#L191
     """
     correct = False
@@ -350,8 +374,7 @@ def eval_open(gold_i, pred_i):
 
 
 def evaluate_mmmu(samples):
-    """
-    Batch evaluation for multiple choice and open questions.
+    """Batch evaluation for multiple choice and open questions.
     https://github.com/MMMU-Benchmark/MMMU/blob/51ce7f3e829c16bb44bc5445782686b4c3508794/eval/eval_utils.py#L219
     """
     pred_correct = 0
@@ -376,8 +399,7 @@ def evaluate_mmmu(samples):
 
 
 def parse_multi_choice_response(response, all_choices, index2ans):
-    """
-    Parse the prediction from the generated response.
+    """Parse the prediction from the generated response.
     Return the predicted index e.g., A, B, C, D.
     https://github.com/MMMU-Benchmark/MMMU/blob/51ce7f3e829c16bb44bc5445782686b4c3508794/eval/eval_utils.py#L10
     """
@@ -437,8 +459,7 @@ def parse_multi_choice_response(response, all_choices, index2ans):
 
 
 def extract_numbers(string):
-    """
-    Exact all forms of numbers from a string with regex.
+    """Exact all forms of numbers from a string with regex.
     https://github.com/MMMU-Benchmark/MMMU/blob/51ce7f3e829c16bb44bc5445782686b4c3508794/eval/eval_utils.py#L100
     """
     # Pattern for numbers with commas
@@ -461,8 +482,7 @@ def extract_numbers(string):
 
 
 def check_is_number(string):
-    """
-    Check if the given string a number.
+    """Check if the given string a number.
     https://github.com/MMMU-Benchmark/MMMU/blob/51ce7f3e829c16bb44bc5445782686b4c3508794/eval/eval_utils.py#L65
     """
     try:
@@ -474,8 +494,7 @@ def check_is_number(string):
 
 
 def normalize_str(string):
-    """
-    Normalize the str to lower case and make them float numbers if possible.
+    """Normalize the str to lower case and make them float numbers if possible.
     https://github.com/MMMU-Benchmark/MMMU/blob/51ce7f3e829c16bb44bc5445782686b4c3508794/eval/eval_utils.py#L76
     """
     # check if characters in the string
@@ -500,8 +519,7 @@ def normalize_str(string):
 
 
 def parse_open_response(response):
-    """
-    Parse the prediction from the generated response.
+    """Parse the prediction from the generated response.
     Return a list of predicted strings or numbers.
     https://github.com/MMMU-Benchmark/MMMU/blob/51ce7f3e829c16bb44bc5445782686b4c3508794/eval/eval_utils.py#L122
     """
@@ -572,12 +590,10 @@ def parse_open_response(response):
 
 
 def get_multi_choice_info(options):
-    """
-    Given the list of options for multiple choice question
+    """Given the list of options for multiple choice question
     Return the index2ans and all_choices
     https://github.com/MMMU-Benchmark/MMMU/blob/51ce7f3e829c16bb44bc5445782686b4c3508794/eval/data_utils.py#L54
     """
-
     start_chr = "A"
     all_choices = []
     index2ans = {}

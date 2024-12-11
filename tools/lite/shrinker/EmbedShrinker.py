@@ -1,6 +1,6 @@
 import os
 import sys
-from typing import Dict, List, Union
+from typing import Union
 
 import numpy as np
 import torch
@@ -12,6 +12,7 @@ from .sampling_methods import AVAILABEL_METHODS
 
 sys.path.append("..")
 from embedder import BaseEmbedder
+
 from shrinker import sampling_methods as sampling_methods_module
 
 
@@ -28,12 +29,25 @@ class Embed_Shrinker(BaseShrinker):
         super().__init__(task, num_items, name, push_to_hub)
         self.embed_cache_path = embed_cache_path
         initialize_tasks()
-        self.DATASET_PATH, self.DATASET_NAME, self.split, _, self.task_obj, docs = BaseEmbedder.init_task(task)
-        assert sampling_methods in AVAILABEL_METHODS, f"Not available sampling methods, Choose from {AVAILABEL_METHODS.keys()}"
-        self.sampling_methods = getattr(sampling_methods_module, AVAILABEL_METHODS[sampling_methods])
+        (
+            self.DATASET_PATH,
+            self.DATASET_NAME,
+            self.split,
+            _,
+            self.task_obj,
+            docs,
+        ) = BaseEmbedder.init_task(task)
+        assert (
+            sampling_methods in AVAILABEL_METHODS
+        ), f"Not available sampling methods, Choose from {AVAILABEL_METHODS.keys()}"
+        self.sampling_methods = getattr(
+            sampling_methods_module, AVAILABEL_METHODS[sampling_methods]
+        )
 
     def shrink(self):
-        task_embedding = np.load(open(os.path.join(self.embed_cache_path, f"{self.task}_embed.npy"), "rb"))
+        task_embedding = np.load(
+            open(os.path.join(self.embed_cache_path, f"{self.task}_embed.npy"), "rb")
+        )
         task_embedding = torch.from_numpy(task_embedding)
         # I know torch.squeeze is safe but numpy reshape sometimes may not
         # so I just do it here by converting to torch
@@ -51,5 +65,7 @@ class Embed_Shrinker(BaseShrinker):
         tiny_dataset = dataset.select(anchor_points)
 
         if self.push_to_hub:
-            tiny_dataset.push_to_hub(repo_id=f"lmms-lab/LMMs-Eval-Lite", config_name=self.task, split="lite")
+            tiny_dataset.push_to_hub(
+                repo_id="lmms-lab/LMMs-Eval-Lite", config_name=self.task, split="lite"
+            )
         return

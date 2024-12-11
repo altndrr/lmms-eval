@@ -17,4 +17,3 @@ lmms_eval_specific_kwargs:
   default:
     pre_prompt: "Instruction: Please try to answer the single-answer multiple choice question below based on the picture provided.\n"
     post_prompt: "\nAnswer:"
-  

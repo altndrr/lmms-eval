@@ -18,13 +18,14 @@ from lmms_eval.api.registry import register_model
 try:
     from qwen_vl_utils import process_vision_info
 except ImportError:
-    eval_logger.warning("Failed to import qwen_vl_utils; Please install it via `pip install qwen-vl-utils`")
+    eval_logger.warning(
+        "Failed to import qwen_vl_utils; Please install it via `pip install qwen-vl-utils`"
+    )
 
 
 @register_model("qwen2_vl")
 class Qwen2_VL(lmms):
-    """
-    Qwen2_VL Model
+    """Qwen2_VL Model
     "https://github.com/QwenLM/Qwen2-VL"
     """
 
@@ -64,8 +65,12 @@ class Qwen2_VL(lmms):
                 attn_implementation="flash_attention_2",
             ).eval()
         else:
-            self._model = Qwen2VLForConditionalGeneration.from_pretrained(pretrained, torch_dtype="auto", device_map=self.device_map).eval()
-        self.processor = AutoProcessor.from_pretrained(pretrained, max_pixels=max_pixels, min_pixels=min_pixels)
+            self._model = Qwen2VLForConditionalGeneration.from_pretrained(
+                pretrained, torch_dtype="auto", device_map=self.device_map
+            ).eval()
+        self.processor = AutoProcessor.from_pretrained(
+            pretrained, max_pixels=max_pixels, min_pixels=min_pixels
+        )
         self.max_pixels = max_pixels
         self.min_pixels = min_pixels
         self.max_num_frames = max_num_frames
@@ -86,7 +91,9 @@ class Qwen2_VL(lmms):
                 self._model = accelerator.prepare_model(self.model, evaluation_mode=True)
             self.accelerator = accelerator
             if self.accelerator.is_local_main_process:
-                eval_logger.info(f"Using {accelerator.num_processes} devices with data parallelism")
+                eval_logger.info(
+                    f"Using {accelerator.num_processes} devices with data parallelism"
+                )
             self._rank = self.accelerator.local_process_index
             self._world_size = self.accelerator.num_processes
         else:
@@ -164,7 +171,9 @@ class Qwen2_VL(lmms):
         re_ords = utils.Collator([reg.args for reg in requests], _collate, grouping=True)
         chunks = re_ords.get_batched(n=self.batch_size, batch_fn=None)
         for chunk in chunks:
-            contexts, all_gen_kwargs, doc_to_visual, doc_id, task, split = zip(*chunk)
+            contexts, all_gen_kwargs, doc_to_visual, doc_id, task, split = zip(
+                *chunk, strict=False
+            )
             task = task[0]
             split = split[0]
             visuals = [doc_to_visual[0](self.task_dict[task][split][ids]) for ids in doc_id]
@@ -181,7 +190,9 @@ class Qwen2_VL(lmms):
                 if isinstance(until, str):
                     until = [until]
                 elif not isinstance(until, list):
-                    raise ValueError(f"Expected `gen_kwargs['until']` to be of type Union[str,list] but got {type(until)}")
+                    raise ValueError(
+                        f"Expected `gen_kwargs['until']` to be of type Union[str,list] but got {type(until)}"
+                    )
 
             if isinstance(contexts, tuple):
                 contexts = list(contexts)
@@ -206,8 +217,21 @@ class Qwen2_VL(lmms):
                         base64_image.save(buffer, format="JPEG")
                         base64_bytes = base64.b64encode(buffer.getvalue())
                         base64_string = base64_bytes.decode("utf-8")
-                        message.append({"role": "user", "content": [{"type": "image", "image": f"data:image/jpeg;base64,{base64_string}"}, {"type": "text", "text": context}]})
-                    elif isinstance(visual, (list, tuple)) and all(isinstance(v, Image.Image) for v in visual):  # Multiple images
+                        message.append(
+                            {
+                                "role": "user",
+                                "content": [
+                                    {
+                                        "type": "image",
+                                        "image": f"data:image/jpeg;base64,{base64_string}",
+                                    },
+                                    {"type": "text", "text": context},
+                                ],
+                            }
+                        )
+                    elif isinstance(visual, (list, tuple)) and all(
+                        isinstance(v, Image.Image) for v in visual
+                    ):  # Multiple images
                         image_content = []
                         for v in visual:
                             base64_image = v.convert("RGB")
@@ -215,16 +239,33 @@ class Qwen2_VL(lmms):
                             base64_image.save(buffer, format="JPEG")
                             base64_bytes = base64.b64encode(buffer.getvalue())
                             base64_string = base64_bytes.decode("utf-8")
-                            image_content.append({"type": "image", "image": f"data:image/jpeg;base64,{base64_string}"})
-                        message.append({"role": "user", "content": image_content + [{"type": "text", "text": context}]})
+                            image_content.append(
+                                {
+                                    "type": "image",
+                                    "image": f"data:image/jpeg;base64,{base64_string}",
+                                }
+                            )
+                        message.append(
+                            {
+                                "role": "user",
+                                "content": image_content + [{"type": "text", "text": context}],
+                            }
+                        )
                     else:
-                        message.append({"role": "user", "content": [{"type": "text", "text": context}]})
+                        message.append(
+                            {"role": "user", "content": [{"type": "text", "text": context}]}
+                        )
                 else:
-                    message.append({"role": "user", "content": [{"type": "text", "text": context}]})
+                    message.append(
+                        {"role": "user", "content": [{"type": "text", "text": context}]}
+                    )
 
                 messages.append(message)
 
-            texts = [self.processor.apply_chat_template(msg, tokenize=False, add_generation_prompt=True) for msg in messages]
+            texts = [
+                self.processor.apply_chat_template(msg, tokenize=False, add_generation_prompt=True)
+                for msg in messages
+            ]
             image_inputs, video_inputs = process_vision_info(messages)
             if video_inputs is not None:
                 total_frames = video_inputs[0].shape[0]
@@ -233,7 +274,13 @@ class Qwen2_VL(lmms):
                 if total_frames - 1 not in indices:
                     indices = np.append(indices, total_frames - 1)
                 video_inputs[0] = video_inputs[0][indices]
-            inputs = self.processor(text=texts, images=image_inputs, videos=video_inputs, padding=True, return_tensors="pt")
+            inputs = self.processor(
+                text=texts,
+                images=image_inputs,
+                videos=video_inputs,
+                padding=True,
+                return_tensors="pt",
+            )
 
             if self.device_map == "auto":
                 inputs = inputs.to("cuda")
@@ -263,15 +310,20 @@ class Qwen2_VL(lmms):
                 use_cache=self.use_cache,
             )
 
-            generated_ids_trimmed = [out_ids[len(in_ids) :] for in_ids, out_ids in zip(inputs.input_ids, cont)]
-            answers = self.processor.batch_decode(generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False)
+            generated_ids_trimmed = [
+                out_ids[len(in_ids) :]
+                for in_ids, out_ids in zip(inputs.input_ids, cont, strict=False)
+            ]
+            answers = self.processor.batch_decode(
+                generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False
+            )
             for i, ans in enumerate(answers):
                 for term in until:
                     if len(term) > 0:
                         ans = ans.split(term)[0]
                 answers[i] = ans
 
-            for ans, context in zip(answers, contexts):
+            for ans, context in zip(answers, contexts, strict=False):
                 res.append(ans)
                 self.cache_hook.add_partial("generate_until", (context, gen_kwargs), ans)
                 pbar.update(1)

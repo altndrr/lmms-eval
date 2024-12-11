@@ -1,11 +1,13 @@
+#!/bin/bash
+
 # install lmms_eval without building dependencies
-cd lmms_eval;
+cd lmms_eval || exit
 pip install --no-deps -U -e .
 
 # install TinyLLaVA without building dependencies
 cd ..
 git clone https://github.com/TinyLLaVA/TinyLLaVA_Factory
-cd TinyLLaVA_Factory
+cd TinyLLaVA_Factory || exit
 pip install --no-deps -U -e .
 
 # install all the requirements that require for reproduce llava results

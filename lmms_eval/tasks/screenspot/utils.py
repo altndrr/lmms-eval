@@ -1,5 +1,5 @@
 from PIL import ImageDraw
-from pycocoevalcap.eval import Bleu, Cider, COCOEvalCap, Meteor, Rouge, Spice
+from pycocoevalcap.eval import Cider, COCOEvalCap
 from pycocoevalcap.tokenizer.ptbtokenizer import PTBTokenizer
 from pycocotools.coco import COCO
 
@@ -20,16 +20,23 @@ def screenspot_bbox_doc_to_visual(doc):
 
 
 def screenspot_process_result(doc, result):
-    """
-    Args:
+    """Args:
         doc: a instance of the eval dataset
         results: [pred]
+
     Returns:
         a dictionary with key: metric name (in this case coco_bleu), value: metric value
+
     """
     pred = result[0] if len(result) > 0 else ""
     ann_id = doc["file_name"]
-    data_dict = {"instruction": doc["instruction"], "pred": pred, "ann_id": ann_id, "data_type": doc["data_type"], "data_source": doc["data_source"]}
+    data_dict = {
+        "instruction": doc["instruction"],
+        "pred": pred,
+        "ann_id": ann_id,
+        "data_type": doc["data_type"],
+        "data_source": doc["data_source"],
+    }
     return {f"screenspot_{metric}": data_dict for metric in COCO_METRICS}
 
 
@@ -54,7 +61,9 @@ def screenspot_aggregation_result(results, metric):
     for result in results:
         stored_results.append({"image_id": idx, "caption": result["pred"]})
         # for s in result["answer"]:
-        dataset["annotations"].append({"image_id": idx, "caption": result["instruction"], "id": ann_id})
+        dataset["annotations"].append(
+            {"image_id": idx, "caption": result["instruction"], "id": ann_id}
+        )
         ann_id += 1
 
         dataset["images"].append({"id": idx})

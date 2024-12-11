@@ -1,10 +1,8 @@
 import base64
-import json
 import os
 import re
 import time
 from collections import defaultdict
-from copy import deepcopy
 from io import BytesIO
 from pathlib import Path
 
@@ -12,7 +10,6 @@ import numpy as np
 import requests
 import yaml
 from loguru import logger as eval_logger
-from scipy import stats
 
 NUM_SECONDS_TO_SLEEP = 5
 
@@ -40,7 +37,9 @@ if API_TYPE == "openai":
         "Content-Type": "application/json",
     }
 elif API_TYPE == "azure":
-    API_URL = os.getenv("AZURE_ENDPOINT", "https://api.cognitive.microsoft.com/sts/v1.0/issueToken")
+    API_URL = os.getenv(
+        "AZURE_ENDPOINT", "https://api.cognitive.microsoft.com/sts/v1.0/issueToken"
+    )
     API_KEY = os.getenv("AZURE_API_KEY", "YOUR_API_KEY")
     headers = {
         "api-key": API_KEY,
@@ -86,7 +85,10 @@ def get_chat_response(base64_image, prompt, max_retries=5, wait_time=10):
                 "role": "user",
                 "content": [
                     {"type": "text", "text": prompt},
-                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64, {base64_image}"}},
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": f"data:image/jpeg;base64, {base64_image}"},
+                    },
                 ],
             },
         ],
@@ -140,7 +142,10 @@ def wild_vision_doc_to_text(doc, lmms_eval_specific_kwargs=None):
     question = doc["instruction"].strip()
     if "pre_prompt" in lmms_eval_specific_kwargs and lmms_eval_specific_kwargs["pre_prompt"] != "":
         question = f"{lmms_eval_specific_kwargs['pre_prompt']}{question}"
-    if "post_prompt" in lmms_eval_specific_kwargs and lmms_eval_specific_kwargs["post_prompt"] != "":
+    if (
+        "post_prompt" in lmms_eval_specific_kwargs
+        and lmms_eval_specific_kwargs["post_prompt"] != ""
+    ):
         question = f"{question}{lmms_eval_specific_kwargs['post_prompt']}"
     return question
 
@@ -151,7 +156,9 @@ def wild_vision_doc_to_target(doc):
 
 def wild_vision_process_results(doc, results):
     pred = results[0]
-    user_prompt = prompt_template.format(question_1=doc["instruction"], answer_1=doc[BASELINE_MODEL_NAME], answer_2=pred)
+    user_prompt = prompt_template.format(
+        question_1=doc["instruction"], answer_1=doc[BASELINE_MODEL_NAME], answer_2=pred
+    )
     base64_image = image_to_base64(doc["image"])
     resps, gpt_name = get_chat_response(base64_image, user_prompt)
     score, _ = get_score(resps, pattern=re.compile("\[\[([AB<>=]+)\]\]"))
@@ -226,7 +233,6 @@ def wild_vision_process_results(doc, results):
 
 import math
 
-import numpy as np
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
 
@@ -234,7 +240,13 @@ from sklearn.linear_model import LogisticRegression
 def prepare_elo_data(results):
     battles = []
     for result in results:
-        battles.append({"model_a": result["model_a"], "model_b": result["model_b"], "winner": result["winner"]})
+        battles.append(
+            {
+                "model_a": result["model_a"],
+                "model_b": result["model_b"],
+                "winner": result["winner"],
+            }
+        )
     return pd.DataFrame(battles)
 
 
@@ -319,8 +331,14 @@ def wild_vision_aggregation_elo_scores(results):
 
 def wild_vision_aggregation_win_rates(results):
     battles = prepare_elo_data(results)
-    win_rates = battles.groupby("model_b").apply(lambda x: (x["winner"] == "model_b").mean()).to_dict()
-    win_rates[BASELINE_MODEL_NAME] = battles.groupby("model_a").apply(lambda x: (x["winner"] == "model_a").mean()).get(BASELINE_MODEL_NAME, 0)
+    win_rates = (
+        battles.groupby("model_b").apply(lambda x: (x["winner"] == "model_b").mean()).to_dict()
+    )
+    win_rates[BASELINE_MODEL_NAME] = (
+        battles.groupby("model_a")
+        .apply(lambda x: (x["winner"] == "model_a").mean())
+        .get(BASELINE_MODEL_NAME, 0)
+    )
     return win_rates["evaluation_model"] * 100
 
 

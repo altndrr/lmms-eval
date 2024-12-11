@@ -35,7 +35,7 @@ GPT_EVAL_MODEL_NAME = config["metadata"]["gpt_eval_model_name"]
 
 EVALUATION_PROMPT_TEMPLATE_SIMPLE_V1 = """Text Caption: {caption}
 From 0 to 100, how much do you rate for this Text Caption in terms of the correct and comprehensive description of the image?
-Do not dominant the rating by a single attribute such as recognition correctness, but a overall rating on the object/scene appearance, position, pose, action, shape, etc., and contents in the background. 
+Do not dominant the rating by a single attribute such as recognition correctness, but a overall rating on the object/scene appearance, position, pose, action, shape, etc., and contents in the background.
 Do not consider the appropriateness or sensitive descriptors, such as "middle-aged western man", judge based on if it has correct specifications of the object and scenes in image.
 Provide a few lines for explanation and the rate number at last after "Final Score:"."""
 
@@ -108,7 +108,15 @@ def process_results(doc, results):
         response = "Failed to get GPT4 eval response."
 
     return {
-        "gpt_eval_info": {"question_id": question_id, "question": doc["question"], "model_caption": prediction, "explanation": response, "eval_model": GPT_EVAL_MODEL_NAME, "score": score, "prompt": prompt},
+        "gpt_eval_info": {
+            "question_id": question_id,
+            "question": doc["question"],
+            "model_caption": prediction,
+            "explanation": response,
+            "eval_model": GPT_EVAL_MODEL_NAME,
+            "score": score,
+            "prompt": prompt,
+        },
         "gpt_eval_avg_score": {
             "score": score,
         },

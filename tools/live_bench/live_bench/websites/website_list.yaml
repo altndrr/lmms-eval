@@ -1,11 +1,11 @@
 websites:
-- url: https://www.bbc.com/
-  # can add below line to specify the class to use for this website
-  # website_class: !constructor website.DefaultWebsite
-  # can add args tag to specify the arguments to pass to the class constructor
-  # args:
-  #  arg1: value1
-  #  arg2: value2
+  - url: https://www.bbc.com/
+    # can add below line to specify the class to use for this website
+    # website_class: !constructor website.DefaultWebsite
+    # can add args tag to specify the arguments to pass to the class constructor
+    # args:
+    #  arg1: value1
+    #  arg2: value2
 # - url: https://www.bbc.com/news
 # - url: https://www.bbc.com/sport
 # - url: https://www.bbc.com/business

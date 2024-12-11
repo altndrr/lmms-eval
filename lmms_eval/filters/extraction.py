@@ -1,9 +1,6 @@
-import os
 import re
 import sys
 import unicodedata
-
-import openai
 
 from lmms_eval.api.filter import Filter
 
@@ -39,8 +36,7 @@ class RegexFilter(Filter):
         group_select=0,
         fallback: str = "[invalid]",
     ) -> None:
-        """
-        pass a string `regex` to run `re.compile(r"regex")` on.
+        """Pass a string `regex` to run `re.compile(r"regex")` on.
         `fallback` defines the output returned if no matches for the regex are located.
         """
         self.regex_pattern = regex_pattern
@@ -75,8 +71,7 @@ class RegexFilter(Filter):
 
 
 class MultiChoiceRegexFilter(RegexFilter):
-    """
-    A filter used to extract a model's answer on multiple choice questions with
+    """A filter used to extract a model's answer on multiple choice questions with
     letter answers. assumes each document has a "choices" field
     containing the list of answer choices and that the answer label symbols
     are of the form (A), (B), (C), ... or A, B, C.
@@ -91,8 +86,7 @@ class MultiChoiceRegexFilter(RegexFilter):
         ignore_punctuation=False,
         regexes_to_ignore=None,
     ) -> None:
-        """
-        regex_pattern: The basic regex pattern to use. If fails to match, we will use the customized match procedure
+        """regex_pattern: The basic regex pattern to use. If fails to match, we will use the customized match procedure
                         - step 1 : We parse the choices between ([A-Z])s then try to find these choices in the response.
                         - step 2 : We parse the choice with regex :[\s]*([A-?]), where ? varies by number of choices.
         group_select: Selects the (group_select)th match from the findall result.
@@ -122,7 +116,9 @@ class MultiChoiceRegexFilter(RegexFilter):
                     match = convert_dict[match]
             return match
 
-        punct_tbl = dict.fromkeys(i for i in range(sys.maxunicode) if unicodedata.category(chr(i)).startswith("P"))
+        punct_tbl = dict.fromkeys(
+            i for i in range(sys.maxunicode) if unicodedata.category(chr(i)).startswith("P")
+        )
 
         def filter_ignores(st):
             if self.regexes_to_ignore is not None:
@@ -139,7 +135,7 @@ class MultiChoiceRegexFilter(RegexFilter):
 
         filtered_resps = []
 
-        for r, doc in zip(resps, docs):
+        for r, doc in zip(resps, docs, strict=False):
             fallback_regexes = []
             choice_to_alpha = {}
             next_alpha = "A"
@@ -167,7 +163,9 @@ class MultiChoiceRegexFilter(RegexFilter):
                 if not match:
                     match = find_match(fallback_regex, filter_ignores(resp), choice_to_alpha)
                     if not match:
-                        match = find_match(without_paren_fallback_regex, resp, without_paren_to_target)
+                        match = find_match(
+                            without_paren_fallback_regex, resp, without_paren_to_target
+                        )
                 if not match:
                     match = self.fallback
                 filtered.append(match)
@@ -177,7 +175,9 @@ class MultiChoiceRegexFilter(RegexFilter):
 
 
 class ExtendedRegexFilter(RegexFilter):
-    punct_tbl = dict.fromkeys(i for i in range(sys.maxunicode) if unicodedata.category(chr(i)).startswith("P"))
+    punct_tbl = dict.fromkeys(
+        i for i in range(sys.maxunicode) if unicodedata.category(chr(i)).startswith("P")
+    )
 
     def __init__(
         self,
@@ -221,8 +221,7 @@ class ExtendedRegexFilter(RegexFilter):
 # Designed for the AI2D/RealworldQA dataset
 class SimpleMultiChoiceRegexFilter(ExtendedRegexFilter):
     def __init__(self, *args, **kwargs):
-        """
-        regex_pattern: The basic regex pattern to use. If fails to match, we will use the customized match procedure
+        """regex_pattern: The basic regex pattern to use. If fails to match, we will use the customized match procedure
                         - step 1 : We parse the choices between ([A-Z])s then try to find these choices in the response.
                         - step 2 : We parse the choice with regex :[\s]*([A-?]), where ? varies by number of choices.
         group_select: Selects the (group_select)th match from the findall result.
@@ -240,7 +239,7 @@ class SimpleMultiChoiceRegexFilter(ExtendedRegexFilter):
 
         filtered_resps = []
 
-        for r, doc in zip(resps, docs):
+        for r, doc in zip(resps, docs, strict=False):
             fallback_regexes = []
             choice_to_alpha = {}
             next_alpha = "A"

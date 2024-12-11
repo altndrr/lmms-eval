@@ -1,6 +1,4 @@
 import ast
-import json
-import os
 import random
 import re
 from collections import defaultdict
@@ -8,11 +6,10 @@ from pathlib import Path
 
 import numpy as np
 import yaml
-from loguru import logger as eval_logger
 
-from lmms_eval.tasks._task_utils.file_utils import generate_submission_file
-
-MULTI_CHOICE_PROMPT = "与えられた選択肢の中から最も適切な回答のアルファベットを直接記入してください。"
+MULTI_CHOICE_PROMPT = (
+    "与えられた選択肢の中から最も適切な回答のアルファベットを直接記入してください。"
+)
 OPEN_ENDED_PROMPT = "質問に対する回答を単語や短いフレーズで記入してください。"
 
 
@@ -38,7 +35,12 @@ def replace_images_tokens(input_string):
 
 def parse_options(options):
     option_letters = [chr(ord("A") + i) for i in range(len(options))]
-    choices_str = "\n".join([f"{option_letter}. {option}" for option_letter, option in zip(option_letters, options)])
+    choices_str = "\n".join(
+        [
+            f"{option_letter}. {option}"
+            for option_letter, option in zip(option_letters, options, strict=False)
+        ]
+    )
     return choices_str
 
 
@@ -67,7 +69,9 @@ def jmmmu_doc_to_visual(doc):
 
     image_tokens = re.findall(r"<image \d+>", prompt)
     # Remove <> and  swap space as _
-    image_tokens = sorted(list(set([image_token.strip("<>").replace(" ", "_") for image_token in image_tokens])))
+    image_tokens = sorted(
+        list(set([image_token.strip("<>").replace(" ", "_") for image_token in image_tokens]))
+    )
     visual = [doc[image_token].convert("RGB") for image_token in image_tokens]
     return visual
 
@@ -80,7 +84,13 @@ def jmmmu_process_results(doc, results):
     else:
         parsed_pred = parse_open_response(pred)
     id = doc["id"]
-    jmmmu_acc = {"id": id, "subdomain": extract_subset_name(doc["id"]), "question_type": doc["question_type"], "answer": doc["answer"], "parsed_pred": parsed_pred}
+    jmmmu_acc = {
+        "id": id,
+        "subdomain": extract_subset_name(doc["id"]),
+        "question_type": doc["question_type"],
+        "answer": doc["answer"],
+        "parsed_pred": parsed_pred,
+    }
     return {
         "jmmmu_acc": jmmmu_acc,
         "submission": {
@@ -113,12 +123,14 @@ def jmmmu_aggregate_results(results):
     for domain, in_domain_cats in DOMAIN_CAT2SUB_CAT.items():
         in_domain_cat_results = {}
         for cat_name in in_domain_cats:
-            if cat_name in evaluation_result.keys():
+            if cat_name in evaluation_result:
                 in_domain_cat_results[cat_name] = evaluation_result[cat_name]
             else:
                 pass
         in_domain_ins_acc = calculate_ins_level_acc(in_domain_cat_results)
-        in_domain_data_num = sum([cat_results["num_example"] for cat_results in in_domain_cat_results.values()])
+        in_domain_data_num = sum(
+            [cat_results["num_example"] for cat_results in in_domain_cat_results.values()]
+        )
         printable_results["Overall-" + domain] = {
             "num": int(in_domain_data_num),
             "acc": round(in_domain_ins_acc, 5),
@@ -185,8 +197,7 @@ DOMAIN_CAT2SUB_CAT = {
 
 
 def eval_multi_choice(gold_i, pred_i):
-    """
-    Evaluate a multiple choice instance.
+    """Evaluate a multiple choice instance.
     https://github.com/MMMU-Benchmark/MMMU/blob/51ce7f3e829c16bb44bc5445782686b4c3508794/eval/eval_utils.py#L175
     """
     correct = False
@@ -203,8 +214,7 @@ def eval_multi_choice(gold_i, pred_i):
 
 
 def eval_open(gold_i, pred_i):
-    """
-    Evaluate an open question instance
+    """Evaluate an open question instance
     https://github.com/MMMU-Benchmark/MMMU/blob/51ce7f3e829c16bb44bc5445782686b4c3508794/eval/eval_utils.py#L191
     """
     correct = False
@@ -232,8 +242,7 @@ def eval_open(gold_i, pred_i):
 
 
 def evaluate_jmmmu(samples):
-    """
-    Batch evaluation for multiple choice and open questions.
+    """Batch evaluation for multiple choice and open questions.
     https://github.com/MMMU-Benchmark/MMMU/blob/51ce7f3e829c16bb44bc5445782686b4c3508794/eval/eval_utils.py#L219
     """
     pred_correct = 0
@@ -258,8 +267,7 @@ def evaluate_jmmmu(samples):
 
 
 def parse_multi_choice_response(response, all_choices, index2ans):
-    """
-    Parse the prediction from the generated response.
+    """Parse the prediction from the generated response.
     Return the predicted index e.g., A, B, C, D.
     https://github.com/MMMU-Benchmark/MMMU/blob/51ce7f3e829c16bb44bc5445782686b4c3508794/eval/eval_utils.py#L10
     """
@@ -326,9 +334,7 @@ def parse_multi_choice_response(response, all_choices, index2ans):
 
 
 def extract_numbers(string):
-    """
-    Exact all forms of numbers from a string with regex.
-    """
+    """Exact all forms of numbers from a string with regex."""
     # Pattern for numbers with commas
     pattern_commas = r"-?\b\d{1,3}(?:,\d{3})+\b"
     # Pattern for scientific notation
@@ -352,8 +358,7 @@ def extract_numbers(string):
 
 
 def check_is_number(string):
-    """
-    Check if the given string a number.
+    """Check if the given string a number.
     https://github.com/MMMU-Benchmark/MMMU/blob/51ce7f3e829c16bb44bc5445782686b4c3508794/eval/eval_utils.py#L65
     """
     try:
@@ -365,8 +370,7 @@ def check_is_number(string):
 
 
 def normalize_str(string):
-    """
-    Normalize the str to lower case and make them float numbers if possible.
+    """Normalize the str to lower case and make them float numbers if possible.
     https://github.com/MMMU-Benchmark/MMMU/blob/51ce7f3e829c16bb44bc5445782686b4c3508794/eval/eval_utils.py#L76
     """
     # check if characters in the string
@@ -391,8 +395,7 @@ def normalize_str(string):
 
 
 def parse_open_response(response):
-    """
-    Parse the prediction from the generated response.
+    """Parse the prediction from the generated response.
     Return a list of predicted strings or numbers.
     https://github.com/MMMU-Benchmark/MMMU/blob/51ce7f3e829c16bb44bc5445782686b4c3508794/eval/eval_utils.py#L122
     """
@@ -403,7 +406,17 @@ def parse_open_response(response):
         response = response.strip().strip("。")
         sub_responses = re.split(r"[。！？.]\s*|\n", response)
 
-        indicators_of_keys = ["よって", "よって、", "答えは", "答えは、", "最終的に", "最終的に、", "解答は", "解答は、" "回答は", "回答は、"]
+        indicators_of_keys = [
+            "よって",
+            "よって、",
+            "答えは",
+            "答えは、",
+            "最終的に",
+            "最終的に、",
+            "解答は",
+            "解答は、" "回答は",
+            "回答は、",
+        ]
         key_responses = []
         for index, resp in enumerate(sub_responses):
             # if last one, accept it's an equation (the entire response can be just one sentence with equation)
@@ -421,7 +434,21 @@ def parse_open_response(response):
 
             if shortest_key_response:
                 # and it's not trivial
-                if shortest_key_response.strip() not in [",", ".", "!", "?", ";", ":", "'", "、", "。", "！", "？", "；", "："]:
+                if shortest_key_response.strip() not in [
+                    ",",
+                    ".",
+                    "!",
+                    "?",
+                    ";",
+                    ":",
+                    "'",
+                    "、",
+                    "。",
+                    "！",
+                    "？",
+                    "；",
+                    "：",
+                ]:
                     key_responses.append(shortest_key_response)
         if len(key_responses) == 0:  # did not found any
             return [response]
@@ -446,12 +473,10 @@ def parse_open_response(response):
 
 
 def get_multi_choice_info(options):
-    """
-    Given the list of options for multiple choice question
+    """Given the list of options for multiple choice question
     Return the index2ans and all_choices
     https://github.com/MMMU-Benchmark/MMMU/blob/51ce7f3e829c16bb44bc5445782686b4c3508794/eval/data_utils.py#L54
     """
-
     start_chr = "A"
     all_choices = []
     index2ans = {}

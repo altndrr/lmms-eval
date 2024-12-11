@@ -14,32 +14,32 @@ generation_kwargs:
   num_beams: 1
   do_sample: false
 process_results: !function utils.detailcaps_process_result
-# Note that the metric name can be either a registed metric function (such as the case for GQA) or a key name returned by process_results
+# Note that the metric name can be either a registered metric function (such as the case for GQA) or a key name returned by process_results
 metric_list:
-  - metric: detailcaps_CAPTURE 
-    aggregation : !function utils.detailcaps_capture
-    higher_is_better : true
-  - metric: detailcaps_Bleu_4 
-    aggregation : !function utils.detailcaps_bleu4
-    higher_is_better : true
+  - metric: detailcaps_CAPTURE
+    aggregation: !function utils.detailcaps_capture
+    higher_is_better: true
+  - metric: detailcaps_Bleu_4
+    aggregation: !function utils.detailcaps_bleu4
+    higher_is_better: true
   - metric: detailcaps_Bleu_3
-    aggregation : !function utils.detailcaps_bleu3
-    higher_is_better : true
+    aggregation: !function utils.detailcaps_bleu3
+    higher_is_better: true
   - metric: detailcaps_Bleu_2
-    aggregation : !function utils.detailcaps_bleu2
-    higher_is_better : true
+    aggregation: !function utils.detailcaps_bleu2
+    higher_is_better: true
   - metric: detailcaps_Bleu_1
-    aggregation : !function utils.detailcaps_bleu1
-    higher_is_better : true
+    aggregation: !function utils.detailcaps_bleu1
+    higher_is_better: true
   - metric: detailcaps_METEOR
-    aggregation : !function utils.detailcaps_meteor
-    higher_is_better : true
+    aggregation: !function utils.detailcaps_meteor
+    higher_is_better: true
   - metric: detailcaps_ROUGE_L
-    aggregation : !function utils.detailcaps_rougel
-    higher_is_better : true
+    aggregation: !function utils.detailcaps_rougel
+    higher_is_better: true
   - metric: detailcaps_CIDEr
-    aggregation : !function utils.detailcaps_cider
-    higher_is_better : true
+    aggregation: !function utils.detailcaps_cider
+    higher_is_better: true
 
 metadata:
   - version: 0.0

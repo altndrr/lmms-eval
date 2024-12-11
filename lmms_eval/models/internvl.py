@@ -1,25 +1,18 @@
-import math
 import os
-import subprocess
 from datetime import timedelta
 from pathlib import Path
 from typing import List, Optional, Tuple, Union
 
-import numpy as np
-import requests
 import torch
 from accelerate import Accelerator, DistributedType, InitProcessGroupKwargs
 from accelerate.state import AcceleratorState
 from huggingface_hub import snapshot_download
-from PIL import Image
 from tqdm import tqdm
-from transformers import AutoConfig
 
 from lmms_eval import utils
 from lmms_eval.api.instance import Instance
 from lmms_eval.api.model import lmms
 from lmms_eval.api.registry import register_model
-from lmms_eval.utils import stop_sequences_criteria
 
 wd = Path(__file__).parent.parent.parent.resolve()
 import sys
@@ -46,22 +39,13 @@ except ImportError:
 
 import re
 import warnings
-from typing import Any, List, Optional, Tuple, Union
 
 import torch.utils.checkpoint
-from huggingface_hub import snapshot_download
 from peft import LoraConfig, get_peft_model
-from torch import nn
-from torch.nn import CrossEntropyLoss
 from transformers import (
-    AutoModel,
     AutoTokenizer,
     GenerationConfig,
-    LlamaForCausalLM,
-    LlamaTokenizer,
 )
-from transformers.modeling_outputs import CausalLMOutputWithPast
-from transformers.modeling_utils import PreTrainedModel
 
 
 @register_model("internvl")
@@ -157,14 +141,32 @@ class InternVLChat(lmms):
         self.dynamic = dynamic  # dynamic image_size
         self.max_num = max_num
         if accelerator.is_main_process:
-            cache_dir = snapshot_download(repo_id=pretrained, cache_dir="cache_dir", local_dir="cache_dir", local_dir_use_symlinks=False)
+            cache_dir = snapshot_download(
+                repo_id=pretrained,
+                cache_dir="cache_dir",
+                local_dir="cache_dir",
+                local_dir_use_symlinks=False,
+            )
         accelerator.wait_for_everyone()
         # So what I did is that I let main process to download the repo, and then
         # other process can just simply read from this repo
-        cache_dir = snapshot_download(repo_id=pretrained, cache_dir="cache_dir", local_dir="cache_dir", local_dir_use_symlinks=False)
+        cache_dir = snapshot_download(
+            repo_id=pretrained,
+            cache_dir="cache_dir",
+            local_dir="cache_dir",
+            local_dir_use_symlinks=False,
+        )
         config = InternVLChatConfig.from_pretrained(cache_dir)
-        tokenizer = AutoTokenizer.from_pretrained(cache_dir, trust_remote_code=True, use_fast=False)
-        model = InternVLChatModel.from_pretrained(cache_dir, low_cpu_mem_usage=True, config=config, torch_dtype=torch.bfloat16, load_in_8bit=load_in_8bit).eval()
+        tokenizer = AutoTokenizer.from_pretrained(
+            cache_dir, trust_remote_code=True, use_fast=False
+        )
+        model = InternVLChatModel.from_pretrained(
+            cache_dir,
+            low_cpu_mem_usage=True,
+            config=config,
+            torch_dtype=torch.bfloat16,
+            load_in_8bit=load_in_8bit,
+        ).eval()
         if not load_in_8bit:
             model = model.cuda()
         # self.model=model
@@ -182,7 +184,11 @@ class InternVLChat(lmms):
         self.use_cache = use_cache
         self.truncate_context = truncate_context
         if accelerator.num_processes > 1:
-            assert accelerator.distributed_type in [DistributedType.FSDP, DistributedType.MULTI_GPU, DistributedType.DEEPSPEED], "Unsupported distributed type provided. Only DDP and FSDP are supported."
+            assert accelerator.distributed_type in [
+                DistributedType.FSDP,
+                DistributedType.MULTI_GPU,
+                DistributedType.DEEPSPEED,
+            ], "Unsupported distributed type provided. Only DDP and FSDP are supported."
             # If you want to use DistributedType.DEEPSPEED, you have to run accelerate config before using the model
             # Also, you have to select zero stage 0 (equivalent to DDP) in order to make the prepare model works
             # I tried to set different parameters in the kwargs to let default zero 2 stage works, but it didn't work.
@@ -191,16 +197,25 @@ class InternVLChat(lmms):
                     "train_micro_batch_size_per_gpu": self.batch_size_per_gpu,
                     "train_batch_size": self.batch_size_per_gpu * accelerator.num_processes,
                 }
-                AcceleratorState().deepspeed_plugin.deepspeed_config_process(must_match=True, **kwargs)
-                eval_logger.info("Detected that you are using DistributedType.DEEPSPEED. Make sure you run `accelerate config` and set zero stage to 0")
+                AcceleratorState().deepspeed_plugin.deepspeed_config_process(
+                    must_match=True, **kwargs
+                )
+                eval_logger.info(
+                    "Detected that you are using DistributedType.DEEPSPEED. Make sure you run `accelerate config` and set zero stage to 0"
+                )
 
-            if accelerator.distributed_type == DistributedType.FSDP or accelerator.distributed_type == DistributedType.DEEPSPEED:
+            if (
+                accelerator.distributed_type == DistributedType.FSDP
+                or accelerator.distributed_type == DistributedType.DEEPSPEED
+            ):
                 self._model = accelerator.prepare(self.model)
             else:
                 self._model = accelerator.prepare_model(self.model, evaluation_mode=True)
             self.accelerator = accelerator
             if self.accelerator.is_local_main_process:
-                eval_logger.info(f"Using {accelerator.num_processes} devices with data parallelism")
+                eval_logger.info(
+                    f"Using {accelerator.num_processes} devices with data parallelism"
+                )
             self._rank = self.accelerator.local_process_index
             self._world_size = self.accelerator.num_processes
         elif accelerator.num_processes == 1 and device_map == "auto":
@@ -229,7 +244,19 @@ class InternVLChat(lmms):
 
     def wrap_llm_lora(self, r=128, lora_alpha=256, lora_dropout=0.05):
         lora_config = LoraConfig(
-            r=r, target_modules=["self_attn.q_proj", "self_attn.k_proj", "self_attn.v_proj", "self_attn.o_proj", "mlp.gate_proj", "mlp.down_proj", "mlp.up_proj"], lora_alpha=lora_alpha, lora_dropout=lora_dropout, task_type="CAUSAL_LM"
+            r=r,
+            target_modules=[
+                "self_attn.q_proj",
+                "self_attn.k_proj",
+                "self_attn.v_proj",
+                "self_attn.o_proj",
+                "mlp.gate_proj",
+                "mlp.down_proj",
+                "mlp.up_proj",
+            ],
+            lora_alpha=lora_alpha,
+            lora_dropout=lora_dropout,
+            task_type="CAUSAL_LM",
         )
         self.language_model = get_peft_model(self.language_model, lora_config)
         self.language_model.enable_input_require_grads()
@@ -242,9 +269,14 @@ class InternVLChat(lmms):
         # N, W, H * scale, C // scale --> N, H * scale, W, C // scale
         x = x.permute(0, 2, 1, 3).contiguous()
         # N, H * scale, W, C // scale --> N, H * scale, W * scale, C // (scale ** 2)
-        x = x.view(n, int(h * scale_factor), int(w * scale_factor), int(c / (scale_factor * scale_factor)))
+        x = x.view(
+            n, int(h * scale_factor), int(w * scale_factor), int(c / (scale_factor * scale_factor))
+        )
         if self.ps_version == "v1":
-            warnings.warn("In ps_version 'v1', the height and width have not been swapped back, " "which results in a transposed image.")
+            warnings.warn(
+                "In ps_version 'v1', the height and width have not been swapped back, "
+                "which results in a transposed image."
+            )
         else:
             x = x.permute(0, 2, 1, 3).contiguous()
         return x
@@ -257,9 +289,13 @@ class InternVLChat(lmms):
 
     def extract_feature(self, pixel_values):
         if self.select_layer == -1:
-            vit_embeds = self.vision_model(pixel_values=pixel_values, output_hidden_states=False, return_dict=True).last_hidden_state
+            vit_embeds = self.vision_model(
+                pixel_values=pixel_values, output_hidden_states=False, return_dict=True
+            ).last_hidden_state
         else:
-            vit_embeds = self.vision_model(pixel_values=pixel_values, output_hidden_states=True, return_dict=True).hidden_states[self.select_layer]
+            vit_embeds = self.vision_model(
+                pixel_values=pixel_values, output_hidden_states=True, return_dict=True
+            ).hidden_states[self.select_layer]
         vit_embeds = vit_embeds[:, 1:, :]
 
         if self.training and self.neftune_alpha is not None:
@@ -272,7 +308,19 @@ class InternVLChat(lmms):
         vit_embeds = self.mlp1(vit_embeds)  # .to(pixel_values.device)
         return vit_embeds
 
-    def multi_image_chat(self, tokenizer, pixel_values, image_counts, question, generation_config, history=None, return_history=False, IMG_START_TOKEN="<img>", IMG_END_TOKEN="</img>", IMG_CONTEXT_TOKEN="<IMG_CONTEXT>"):
+    def multi_image_chat(
+        self,
+        tokenizer,
+        pixel_values,
+        image_counts,
+        question,
+        generation_config,
+        history=None,
+        return_history=False,
+        IMG_START_TOKEN="<img>",
+        IMG_END_TOKEN="</img>",
+        IMG_CONTEXT_TOKEN="<IMG_CONTEXT>",
+    ):
         img_context_token_id = tokenizer.convert_tokens_to_ids(IMG_CONTEXT_TOKEN)
         self.img_context_token_id = img_context_token_id
         if tokenizer.convert_tokens_to_ids("<|im_end|>") != 0:
@@ -290,7 +338,12 @@ class InternVLChat(lmms):
             image_bs = pixel_values.shape[0]
             # print(f"dynamic ViT batch size: {image_bs}, image_counts: {image_counts}")
             for idx, image_count in enumerate(image_counts):
-                image_tokens += f"<image {idx+1}> (图{idx+1}):" + IMG_START_TOKEN + IMG_CONTEXT_TOKEN * self.num_image_token * image_count + IMG_END_TOKEN
+                image_tokens += (
+                    f"<image {idx+1}> (图{idx+1}):"
+                    + IMG_START_TOKEN
+                    + IMG_CONTEXT_TOKEN * self.num_image_token * image_count
+                    + IMG_END_TOKEN
+                )
             question = image_tokens + "\n" + question
         else:
             for old_question, old_answer in history:
@@ -304,7 +357,12 @@ class InternVLChat(lmms):
         attention_mask = model_inputs["attention_mask"].cuda()
         generation_config["eos_token_id"] = eos_token_id
 
-        generation_output = self.generate(pixel_values=pixel_values, input_ids=input_ids, attention_mask=attention_mask, **generation_config)
+        generation_output = self.generate(
+            pixel_values=pixel_values,
+            input_ids=input_ids,
+            attention_mask=attention_mask,
+            **generation_config,
+        )
         response = tokenizer.batch_decode(generation_output, skip_special_tokens=True)[0]
         response = response.split("<|im_end|>")[0].strip()  # for InternLM2
         history.append((question, response))
@@ -344,7 +402,9 @@ class InternVLChat(lmms):
     def world_size(self):
         return self._world_size
 
-    def tok_encode(self, string: str, left_truncate_len=None, add_special_tokens=None) -> List[int]:
+    def tok_encode(
+        self, string: str, left_truncate_len=None, add_special_tokens=None
+    ) -> List[int]:
         """ """
         add_special_tokens = False if add_special_tokens is None else add_special_tokens
         encoding = self.tokenizer.encode(string, add_special_tokens=add_special_tokens)
@@ -360,7 +420,12 @@ class InternVLChat(lmms):
             return self.tokenizer.decode([tokens])
 
     def post_processing(self, response):
-        response = response.replace("\n", "").replace("不是", "No").replace("是", "Yes").replace("否", "No")
+        response = (
+            response.replace("\n", "")
+            .replace("不是", "No")
+            .replace("是", "Yes")
+            .replace("否", "No")
+        )
         response = response.lower().replace("true", "yes").replace("false", "no")
         pattern = re.compile(r"[\u4e00-\u9fa5]")
         response = re.sub(pattern, "", response)
@@ -422,7 +487,12 @@ class InternVLChat(lmms):
         image = flattened_visuals[0].convert("RGB")
         transform = build_transform(is_train=False, input_size=input_size)
         if self.dynamic:
-            images = dynamic_preprocess(image, image_size=input_size, use_thumbnail=self.use_thumbnail, max_num=self.max_num)
+            images = dynamic_preprocess(
+                image,
+                image_size=input_size,
+                use_thumbnail=self.use_thumbnail,
+                max_num=self.max_num,
+            )
         else:
             images = [image]
         pixel_values = [transform(image) for image in images]
@@ -447,16 +517,26 @@ class InternVLChat(lmms):
         # in the same batch.
         re_ords = utils.Collator([reg.args for reg in requests], _collate, grouping=True)
         chunks = re_ords.get_batched(n=self.batch_size, batch_fn=None)
-        num_iters = len(requests) // self.batch_size if len(requests) % self.batch_size == 0 else len(requests) // self.batch_size + 1
+        num_iters = (
+            len(requests) // self.batch_size
+            if len(requests) % self.batch_size == 0
+            else len(requests) // self.batch_size + 1
+        )
         pbar = tqdm(total=num_iters, disable=(self.rank != 0), desc="Model Responding")
         for chunk in chunks:
-            contexts, all_gen_kwargs, doc_to_visual, doc_id, task, split = zip(*chunk)
+            contexts, all_gen_kwargs, doc_to_visual, doc_id, task, split = zip(
+                *chunk, strict=False
+            )
             task = task[0]
             split = split[0]
-            batched_visuals = [doc_to_visual[0](self.task_dict[task][split][ids]) for ids in doc_id]  # [B, N]
+            batched_visuals = [
+                doc_to_visual[0](self.task_dict[task][split][ids]) for ids in doc_id
+            ]  # [B, N]
             flattened_visuals = self.flatten(batched_visuals)
             try:
-                pixel_values = self.load_image(flattened_visuals, self.image_size).cuda().to(torch.bfloat16)
+                pixel_values = (
+                    self.load_image(flattened_visuals, self.image_size).cuda().to(torch.bfloat16)
+                )
             except IndexError:
                 pixel_values = None
             gen_kwargs = all_gen_kwargs[0]
@@ -479,7 +559,12 @@ class InternVLChat(lmms):
                 eos_token_id=self.tokenizer.eos_token_id,
             )
             question = contexts[0]
-            response = self.model.chat(tokenizer=self.tokenizer, pixel_values=pixel_values, question=question, generation_config=generation_config)
+            response = self.model.chat(
+                tokenizer=self.tokenizer,
+                pixel_values=pixel_values,
+                question=question,
+                generation_config=generation_config,
+            )
             # TODO(choiszt) try batch_chat for multiple inputs
             response = self.post_processing(response)
             res.append(response)

@@ -1,4 +1,4 @@
 group: synthdog
 task:
-- synthdog_en
-- synthdog_zh
+  - synthdog_en
+  - synthdog_zh

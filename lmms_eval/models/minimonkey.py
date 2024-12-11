@@ -19,9 +19,7 @@ from loguru import logger as eval_logger
 
 @register_model("minimonkey")
 class MiniMonkey(lmms):
-    """
-    MiniMonkey Model
-    """
+    """MiniMonkey Model"""
 
     def __init__(
         self,
@@ -42,14 +40,25 @@ class MiniMonkey(lmms):
         else:
             self._device = device
         self.dtype = dtype
-        self._model = AutoModel.from_pretrained(pretrained, trust_remote_code=trust_remote_code, torch_dtype=dtype, device_map=self._device)
-        self._tokenizer = AutoTokenizer.from_pretrained(pretrained, trust_remote_code=trust_remote_code)
+        self._model = AutoModel.from_pretrained(
+            pretrained,
+            trust_remote_code=trust_remote_code,
+            torch_dtype=dtype,
+            device_map=self._device,
+        )
+        self._tokenizer = AutoTokenizer.from_pretrained(
+            pretrained, trust_remote_code=trust_remote_code
+        )
         self._config = self._model.config
         self.model.eval()
         self.model.tie_weights()
         self.batch_size_per_gpu = int(batch_size)
         if accelerator.num_processes > 1:
-            assert accelerator.distributed_type in [DistributedType.FSDP, DistributedType.MULTI_GPU, DistributedType.DEEPSPEED], "Unsupported distributed type provided. Only DDP and FSDP are supported."
+            assert accelerator.distributed_type in [
+                DistributedType.FSDP,
+                DistributedType.MULTI_GPU,
+                DistributedType.DEEPSPEED,
+            ], "Unsupported distributed type provided. Only DDP and FSDP are supported."
             # If you want to use DistributedType.DEEPSPEED, you have to run accelerate config before using the model
             # Also, you have to select zero stage 0 (equivalent to DDP) in order to make the prepare model works
             # I tried to set different parameters in the kwargs to let default zero 2 stage works, but it didn't work.
@@ -58,15 +67,24 @@ class MiniMonkey(lmms):
                     "train_micro_batch_size_per_gpu": self.batch_size_per_gpu,
                     "train_batch_size": self.batch_size_per_gpu * accelerator.num_processes,
                 }
-                AcceleratorState().deepspeed_plugin.deepspeed_config_process(must_match=True, **kwargs)
-                eval_logger.info("Detected that you are using DistributedType.DEEPSPEED. Make sure you run `accelerate config` and set zero stage to 0")
-            if accelerator.distributed_type == DistributedType.FSDP or accelerator.distributed_type == DistributedType.DEEPSPEED:
+                AcceleratorState().deepspeed_plugin.deepspeed_config_process(
+                    must_match=True, **kwargs
+                )
+                eval_logger.info(
+                    "Detected that you are using DistributedType.DEEPSPEED. Make sure you run `accelerate config` and set zero stage to 0"
+                )
+            if (
+                accelerator.distributed_type == DistributedType.FSDP
+                or accelerator.distributed_type == DistributedType.DEEPSPEED
+            ):
                 self._model = accelerator.prepare(self.model)
             else:
                 self._model = accelerator.prepare_model(self.model, evaluation_mode=True)
             self.accelerator = accelerator
             if self.accelerator.is_local_main_process:
-                eval_logger.info(f"Using {accelerator.num_processes} devices with data parallelism")
+                eval_logger.info(
+                    f"Using {accelerator.num_processes} devices with data parallelism"
+                )
             self._rank = self.accelerator.local_process_index
             self._world_size = self.accelerator.num_processes
         else:
@@ -116,7 +134,9 @@ class MiniMonkey(lmms):
     def world_size(self):
         return self._world_size
 
-    def tok_encode(self, string: str, left_truncate_len=None, add_special_tokens=None) -> List[int]:
+    def tok_encode(
+        self, string: str, left_truncate_len=None, add_special_tokens=None
+    ) -> List[int]:
         """ """
         add_special_tokens = False if add_special_tokens is None else add_special_tokens
         encoding = self.tokenizer.encode(string, add_special_tokens=add_special_tokens)
@@ -157,10 +177,16 @@ class MiniMonkey(lmms):
         # in the same batch.
         re_ords = utils.Collator([reg.args for reg in requests], _collate, grouping=True)
         chunks = re_ords.get_batched(n=self.batch_size, batch_fn=None)
-        num_iters = len(requests) // self.batch_size if len(requests) % self.batch_size == 0 else len(requests) // self.batch_size + 1
+        num_iters = (
+            len(requests) // self.batch_size
+            if len(requests) % self.batch_size == 0
+            else len(requests) // self.batch_size + 1
+        )
         pbar = tqdm(total=num_iters, disable=(self.rank != 0), desc="Model Responding")
         for chunk in chunks:
-            contexts, all_gen_kwargs, doc_to_visual, doc_id, task, split = zip(*chunk)
+            contexts, all_gen_kwargs, doc_to_visual, doc_id, task, split = zip(
+                *chunk, strict=False
+            )
             task = task[0]
             split = split[0]
             visuals = [doc_to_visual[0](self.task_dict[task][split][ids]) for ids in doc_id]
@@ -178,7 +204,9 @@ class MiniMonkey(lmms):
                 if isinstance(until, str):
                     until = [until]
                 elif not isinstance(until, list):
-                    raise ValueError(f"Expected `gen_kwargs['until']` to be of type Union[str,list] but got {type(until)}")
+                    raise ValueError(
+                        f"Expected `gen_kwargs['until']` to be of type Union[str,list] but got {type(until)}"
+                    )
             assert self.batch_size_per_gpu == 1, "Do not support batch_size_per_gpu > 1 for now"
             assert len(visuals) == 1, "MiniMonkey interface does not support bn_image > 1 for now"
             context = contexts[0]
@@ -197,12 +225,29 @@ class MiniMonkey(lmms):
             image, prompt = visuals[0], context
             try:
                 pixel_values, target_aspect_ratio = load_image(image, min_num=4, max_num=12)
-                pixel_values2 = load_image2(image, min_num=3, max_num=7, target_aspect_ratio=target_aspect_ratio)
-                pixel_values = torch.cat([pixel_values2[:-1], pixel_values[:-1], pixel_values2[-1:]], 0).to(self._device).to(self.dtype)
+                pixel_values2 = load_image2(
+                    image, min_num=3, max_num=7, target_aspect_ratio=target_aspect_ratio
+                )
+                pixel_values = (
+                    torch.cat([pixel_values2[:-1], pixel_values[:-1], pixel_values2[-1:]], 0)
+                    .to(self._device)
+                    .to(self.dtype)
+                )
 
-                response, history = self.model.chat(self.tokenizer, pixel_values, target_aspect_ratio, prompt, gen_kwargs, history=None, return_history=True)
+                response, history = self.model.chat(
+                    self.tokenizer,
+                    pixel_values,
+                    target_aspect_ratio,
+                    prompt,
+                    gen_kwargs,
+                    history=None,
+                    return_history=True,
+                )
 
-                context = [{"role": "user", "content": prompt}, {"role": "assistant", "content": response}]
+                context = [
+                    {"role": "user", "content": prompt},
+                    {"role": "assistant", "content": response},
+                ]
             except Exception as e:
                 eval_logger.error(f"Error {e} in generating")
                 cont = ""
@@ -219,9 +264,7 @@ class MiniMonkey(lmms):
         raise NotImplementedError("TODO: Implement multi-round generation")
 
 
-import numpy as np
 import torchvision.transforms as T
-from PIL import Image
 from torchvision.transforms.functional import InterpolationMode
 
 IMAGENET_MEAN = (0.485, 0.456, 0.406)
@@ -230,7 +273,14 @@ IMAGENET_STD = (0.229, 0.224, 0.225)
 
 def build_transform(input_size):
     MEAN, STD = IMAGENET_MEAN, IMAGENET_STD
-    transform = T.Compose([T.Lambda(lambda img: img.convert("RGB") if img.mode != "RGB" else img), T.Resize((input_size, input_size), interpolation=InterpolationMode.BICUBIC), T.ToTensor(), T.Normalize(mean=MEAN, std=STD)])
+    transform = T.Compose(
+        [
+            T.Lambda(lambda img: img.convert("RGB") if img.mode != "RGB" else img),
+            T.Resize((input_size, input_size), interpolation=InterpolationMode.BICUBIC),
+            T.ToTensor(),
+            T.Normalize(mean=MEAN, std=STD),
+        ]
+    )
     return transform
 
 
@@ -255,11 +305,19 @@ def dynamic_preprocess(image, min_num=1, max_num=12, image_size=448, use_thumbna
     aspect_ratio = orig_width / orig_height
 
     # calculate the existing image aspect ratio
-    target_ratios = set((i, j) for n in range(min_num, max_num + 1) for i in range(1, n + 1) for j in range(1, n + 1) if i * j <= max_num and i * j >= min_num)
+    target_ratios = set(
+        (i, j)
+        for n in range(min_num, max_num + 1)
+        for i in range(1, n + 1)
+        for j in range(1, n + 1)
+        if i * j <= max_num and i * j >= min_num
+    )
     target_ratios = sorted(target_ratios, key=lambda x: x[0] * x[1])
 
     # find the closest aspect ratio to the target
-    target_aspect_ratio = find_closest_aspect_ratio(aspect_ratio, target_ratios, orig_width, orig_height, image_size)
+    target_aspect_ratio = find_closest_aspect_ratio(
+        aspect_ratio, target_ratios, orig_width, orig_height, image_size
+    )
 
     # calculate the target width and height
     target_width = image_size * target_aspect_ratio[0]
@@ -270,7 +328,12 @@ def dynamic_preprocess(image, min_num=1, max_num=12, image_size=448, use_thumbna
     resized_img = image.resize((target_width, target_height))
     processed_images = []
     for i in range(blocks):
-        box = ((i % (target_width // image_size)) * image_size, (i // (target_width // image_size)) * image_size, ((i % (target_width // image_size)) + 1) * image_size, ((i // (target_width // image_size)) + 1) * image_size)
+        box = (
+            (i % (target_width // image_size)) * image_size,
+            (i // (target_width // image_size)) * image_size,
+            ((i % (target_width // image_size)) + 1) * image_size,
+            ((i // (target_width // image_size)) + 1) * image_size,
+        )
         # split the image
         split_img = resized_img.crop(box)
         processed_images.append(split_img)
@@ -281,12 +344,20 @@ def dynamic_preprocess(image, min_num=1, max_num=12, image_size=448, use_thumbna
     return processed_images, target_aspect_ratio
 
 
-def dynamic_preprocess2(image, min_num=1, max_num=12, prior_aspect_ratio=None, image_size=448, use_thumbnail=False):
+def dynamic_preprocess2(
+    image, min_num=1, max_num=12, prior_aspect_ratio=None, image_size=448, use_thumbnail=False
+):
     orig_width, orig_height = image.size
     aspect_ratio = orig_width / orig_height
 
     # calculate the existing image aspect ratio
-    target_ratios = set((i, j) for n in range(min_num, max_num + 1) for i in range(1, n + 1) for j in range(1, n + 1) if i * j <= max_num and i * j >= min_num)
+    target_ratios = set(
+        (i, j)
+        for n in range(min_num, max_num + 1)
+        for i in range(1, n + 1)
+        for j in range(1, n + 1)
+        if i * j <= max_num and i * j >= min_num
+    )
     target_ratios = sorted(target_ratios, key=lambda x: x[0] * x[1])
     new_target_ratios = []
     for i in target_ratios:
@@ -295,7 +366,9 @@ def dynamic_preprocess2(image, min_num=1, max_num=12, prior_aspect_ratio=None, i
         else:
             continue
     # find the closest aspect ratio to the target
-    target_aspect_ratio = find_closest_aspect_ratio(aspect_ratio, new_target_ratios, orig_width, orig_height, image_size)
+    target_aspect_ratio = find_closest_aspect_ratio(
+        aspect_ratio, new_target_ratios, orig_width, orig_height, image_size
+    )
     # calculate the target width and height
     target_width = image_size * target_aspect_ratio[0]
     target_height = image_size * target_aspect_ratio[1]
@@ -305,7 +378,12 @@ def dynamic_preprocess2(image, min_num=1, max_num=12, prior_aspect_ratio=None, i
     resized_img = image.resize((target_width, target_height))
     processed_images = []
     for i in range(blocks):
-        box = ((i % (target_width // image_size)) * image_size, (i // (target_width // image_size)) * image_size, ((i % (target_width // image_size)) + 1) * image_size, ((i // (target_width // image_size)) + 1) * image_size)
+        box = (
+            (i % (target_width // image_size)) * image_size,
+            (i // (target_width // image_size)) * image_size,
+            ((i % (target_width // image_size)) + 1) * image_size,
+            ((i // (target_width // image_size)) + 1) * image_size,
+        )
         # split the image
         split_img = resized_img.crop(box)
         processed_images.append(split_img)
@@ -319,7 +397,9 @@ def dynamic_preprocess2(image, min_num=1, max_num=12, prior_aspect_ratio=None, i
 def load_image(image, input_size=448, min_num=1, max_num=12):
     image = image.convert("RGB")
     transform = build_transform(input_size=input_size)
-    images, target_aspect_ratio = dynamic_preprocess(image, image_size=input_size, use_thumbnail=True, min_num=min_num, max_num=max_num)
+    images, target_aspect_ratio = dynamic_preprocess(
+        image, image_size=input_size, use_thumbnail=True, min_num=min_num, max_num=max_num
+    )
     pixel_values = [transform(image) for image in images]
     pixel_values = torch.stack(pixel_values)
     return pixel_values, target_aspect_ratio
@@ -328,7 +408,14 @@ def load_image(image, input_size=448, min_num=1, max_num=12):
 def load_image2(image, input_size=448, min_num=1, max_num=12, target_aspect_ratio=None):
     image = image.convert("RGB")
     transform = build_transform(input_size=input_size)
-    images = dynamic_preprocess2(image, image_size=input_size, use_thumbnail=True, min_num=min_num, max_num=max_num, prior_aspect_ratio=target_aspect_ratio)
+    images = dynamic_preprocess2(
+        image,
+        image_size=input_size,
+        use_thumbnail=True,
+        min_num=min_num,
+        max_num=max_num,
+        prior_aspect_ratio=target_aspect_ratio,
+    )
     pixel_values = [transform(image) for image in images]
     pixel_values = torch.stack(pixel_values)
     return pixel_values

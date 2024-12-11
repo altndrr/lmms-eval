@@ -7,8 +7,10 @@ from loguru import logger as eval_logger
 try:
     from sympy import Eq, Pow, simplify, sympify
     from sympy.parsing.latex import parse_latex
-except ImportError as e:
-    eval_logger.debug("Please install sympy package by running 'pip install sympy' if you want to use OlympiadBenchEvaluator.")
+except ImportError:
+    eval_logger.debug(
+        "Please install sympy package by running 'pip install sympy' if you want to use OlympiadBenchEvaluator."
+    )
 
 # how to use
 # scorer = OlympiadBenchEvaluator()
@@ -151,7 +153,9 @@ class OlympiadBenchEvaluator:
             pass
         # Then check if expressions are mathematically equal
         try:
-            if self.expression_equal(expression1, expression2) and not ("=" in expression1 and "=" in expression2):
+            if self.expression_equal(expression1, expression2) and not (
+                "=" in expression1 and "=" in expression2
+            ):
                 # print("Expression equivalent")
                 return True
         except:
@@ -199,12 +203,18 @@ class OlympiadBenchEvaluator:
             expr1_sym = self.sympy_sub_pi(expr1_sym)
             expr2_sym = self.sympy_sub_pi(expr2_sym)
 
-            if (expr1_sym.has(sp.Symbol) and not expr2_sym.has(sp.Symbol)) or (not expr1_sym.has(sp.Symbol) and expr2_sym.has(sp.Symbol)):
+            if (expr1_sym.has(sp.Symbol) and not expr2_sym.has(sp.Symbol)) or (
+                not expr1_sym.has(sp.Symbol) and expr2_sym.has(sp.Symbol)
+            ):
                 return False
             elif not expr1_sym.has(sp.Symbol) and not expr2_sym.has(sp.Symbol):
                 try:
-                    if not (self.can_compute_power(expr1_sym) and self.can_compute_power(expr2_sym)):
-                        print(f'These two numbers cannot be calculated by the current computer for: "{str(expr1_sym)}" and "{str(expr2_sym)}"')
+                    if not (
+                        self.can_compute_power(expr1_sym) and self.can_compute_power(expr2_sym)
+                    ):
+                        print(
+                            f'These two numbers cannot be calculated by the current computer for: "{str(expr1_sym)}" and "{str(expr2_sym)}"'
+                        )
                         return False
 
                     if abs(expr1_sym.evalf() - expr2_sym.evalf()) <= self.precision * 1.01:
@@ -243,7 +253,9 @@ class OlympiadBenchEvaluator:
         division_result_1 = simplify(expr1_sym / expr2_sym)
         division_result_2 = simplify(expr2_sym / expr1_sym)
 
-        if (division_result_1.is_Integer and division_result_1 != 0) or (division_result_2.is_Integer and division_result_2 != 0):
+        if (division_result_1.is_Integer and division_result_1 != 0) or (
+            division_result_2.is_Integer and division_result_2 != 0
+        ):
             return True
         else:
             return False
@@ -260,7 +272,7 @@ class OlympiadBenchEvaluator:
             items_1 = inter1.split(",")
             items_2 = inter2.split(",")
 
-            for item_1, item_2 in zip(items_1, items_2):
+            for item_1, item_2 in zip(items_1, items_2, strict=False):
                 if not self.expression_equal(item_1, item_2):
                     return False
             return True
@@ -276,7 +288,7 @@ class OlympiadBenchEvaluator:
             if len(inter_list1) != len(inter_list2):
                 return False
             else:
-                for inter1, inter2 in zip(inter_list1, inter_list2):
+                for inter1, inter2 in zip(inter_list1, inter_list2, strict=False):
                     if not compare_two_interval(inter1, inter2):
                         return False
                 return True

@@ -74,7 +74,7 @@ vcr_wiki = ["nltk", "spacy"]
 wild_vision_bench = ["scikit-learn"]
 
 [project.optional-dependencies]
-dev = ["black", "isort", "pre-commit"]
+dev = ["pre-commit", "ruff"]
 
 [tool.setuptools.packages.find]
 include = ["lmms_eval*"]
@@ -119,3 +119,20 @@ lmms-eval = "lmms_eval.__main__:cli_evaluate"
 [project.urls]
 Homepage = "https://lmms-lab.github.io"
 Repository = "https://github.com/EvolvingLMMs-Lab/lmms-eval"
+
+[tool.ruff]
+cache-dir = "~/.cache/ruff"
+include = ["notebooks", "src", "tests", "./*.py"]
+line-length = 99
+indent-width = 4
+target-version = "py310"
+
+[tool.ruff.lint]
+fixable = ["ALL"]
+select = [
+    "I",    # isort
+]
+unfixable = []
+
+[tool.ruff.lint.per-file-ignores]
+"*.ipynb" = ["E501", "I", "ANN", "S", "G004", "T20"]

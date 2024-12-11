@@ -1,4 +1,4 @@
-group : textcaps
+group: textcaps
 task:
   - textcaps_val
   - textcaps_test

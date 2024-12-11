@@ -1,7 +1,6 @@
 import warnings
 from typing import List, Optional, Tuple, Union
 
-import numpy as np
 import PIL
 import torch
 from accelerate import Accelerator, DistributedType
@@ -37,14 +36,13 @@ try:
     from transformers import LlavaOnevisionForConditionalGeneration
 
     model_map["llava_onevision"] = LlavaOnevisionForConditionalGeneration
-except Exception as e:
+except Exception:
     eval_logger.debug("Transformers version does not support llava-onevision. Skipping.")
 
 
 @register_model("llava_hf")
 class LlavaHf(lmms):
-    """
-    Llava Model for Hugging Face Transformers: https://huggingface.co/docs/transformers/v4.39.3/en/model_doc/llava
+    """Llava Model for Hugging Face Transformers: https://huggingface.co/docs/transformers/v4.39.3/en/model_doc/llava
 
     Adapted from the InstructBLIP model in lmms_eval/models/instructblip.py
 
@@ -92,10 +90,19 @@ class LlavaHf(lmms):
         self.max_frames_num = max_frames_num
         model_type = getattr(config, "model_type", "llava")
         model_type = model_map[model_type]
-        self._model = model_type.from_pretrained(pretrained, revision=revision, torch_dtype=dtype, device_map=self.device_map, trust_remote_code=trust_remote_code, attn_implementation=attn_implementation)
+        self._model = model_type.from_pretrained(
+            pretrained,
+            revision=revision,
+            torch_dtype=dtype,
+            device_map=self.device_map,
+            trust_remote_code=trust_remote_code,
+            attn_implementation=attn_implementation,
+        )
 
         self.pretrained = pretrained
-        self._image_processor = AutoProcessor.from_pretrained(pretrained, revision=revision, trust_remote_code=trust_remote_code)
+        self._image_processor = AutoProcessor.from_pretrained(
+            pretrained, revision=revision, trust_remote_code=trust_remote_code
+        )
         # Pad from left for batched generation: https://huggingface.co/docs/transformers/v4.39.3/en/model_doc/llava#usage-tips
         self._image_processor.tokenizer.padding_side = "left"
         self._tokenizer = self._image_processor.tokenizer
@@ -104,7 +111,11 @@ class LlavaHf(lmms):
         self.chat_template = chat_template
         self.use_cache = use_cache
         if accelerator.num_processes > 1 and device_map == "":
-            assert accelerator.distributed_type in [DistributedType.FSDP, DistributedType.MULTI_GPU, DistributedType.DEEPSPEED], "Unsupported distributed type provided. Only DDP and FSDP are supported."
+            assert accelerator.distributed_type in [
+                DistributedType.FSDP,
+                DistributedType.MULTI_GPU,
+                DistributedType.DEEPSPEED,
+            ], "Unsupported distributed type provided. Only DDP and FSDP are supported."
             # If you want to use DistributedType.DEEPSPEED, you have to run accelerate config before using the model
             # Also, you have to select zero stage 0 (equivalent to DDP) in order to make the prepare model works
             # I tried to set different parameters in the kwargs to let default zero 2 stage works, but it didn't work.
@@ -113,19 +124,30 @@ class LlavaHf(lmms):
                     "train_micro_batch_size_per_gpu": self.batch_size_per_gpu,
                     "train_batch_size": self.batch_size_per_gpu * accelerator.num_processes,
                 }
-                AcceleratorState().deepspeed_plugin.deepspeed_config_process(must_match=True, **kwargs)
-                eval_logger.info("Detected that you are using DistributedType.DEEPSPEED. Make sure you run `accelerate config` and set zero stage to 0")
-            if accelerator.distributed_type == DistributedType.FSDP or accelerator.distributed_type == DistributedType.DEEPSPEED:
+                AcceleratorState().deepspeed_plugin.deepspeed_config_process(
+                    must_match=True, **kwargs
+                )
+                eval_logger.info(
+                    "Detected that you are using DistributedType.DEEPSPEED. Make sure you run `accelerate config` and set zero stage to 0"
+                )
+            if (
+                accelerator.distributed_type == DistributedType.FSDP
+                or accelerator.distributed_type == DistributedType.DEEPSPEED
+            ):
                 self._model = accelerator.prepare(self.model)
             else:
                 self._model = accelerator.prepare_model(self.model, evaluation_mode=True)
             self.accelerator = accelerator
             if self.accelerator.is_local_main_process:
-                eval_logger.info(f"Using {accelerator.num_processes} devices with data parallelism")
+                eval_logger.info(
+                    f"Using {accelerator.num_processes} devices with data parallelism"
+                )
             self._rank = self.accelerator.local_process_index
             self._world_size = self.accelerator.num_processes
         elif accelerator.num_processes == 1 and device_map == "auto":
-            eval_logger.info(f"Using {accelerator.num_processes} devices with pipeline parallelism")
+            eval_logger.info(
+                f"Using {accelerator.num_processes} devices with pipeline parallelism"
+            )
             self._rank = 0
             self._word_size = 1
         else:
@@ -177,7 +199,9 @@ class LlavaHf(lmms):
     def world_size(self):
         return self._world_size
 
-    def tok_encode(self, string: str, left_truncate_len=None, add_special_tokens=None) -> List[int]:
+    def tok_encode(
+        self, string: str, left_truncate_len=None, add_special_tokens=None
+    ) -> List[int]:
         """ """
         add_special_tokens = False if add_special_tokens is None else add_special_tokens
         encoding = self.tokenizer.encode(string, add_special_tokens=add_special_tokens)
@@ -193,7 +217,9 @@ class LlavaHf(lmms):
         res = []
         pbar = tqdm(total=len(requests), disable=(self.rank != 0), desc="Model Responding")
 
-        for context, doc_to_target, doc_to_visual, doc_id, task, split in [reg.args for reg in requests]:
+        for context, doc_to_target, doc_to_visual, doc_id, task, split in [
+            reg.args for reg in requests
+        ]:
             # encode, pad, and truncate contexts for this batch
             if type(doc_to_target) == str:
                 continuation = doc_to_target
@@ -206,29 +232,50 @@ class LlavaHf(lmms):
             image_tokens = " ".join(image_tokens)
             context = f"{image_tokens}\n{context}"
             # Apply chat template
-            messages = [{"role": "user", "content": context}, {"role": "assistant", "content": continuation}]
+            messages = [
+                {"role": "user", "content": context},
+                {"role": "assistant", "content": continuation},
+            ]
             if self.chat_template is not None:
                 self.tokenizer.chat_template = self.chat_template
-                prompt = self.tokenizer.apply_chat_template(messages[:-1], tokenize=False, add_generation_prompt=True)
-                prompt_and_continuation = self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=False)
+                prompt = self.tokenizer.apply_chat_template(
+                    messages[:-1], tokenize=False, add_generation_prompt=True
+                )
+                prompt_and_continuation = self.tokenizer.apply_chat_template(
+                    messages, tokenize=False, add_generation_prompt=False
+                )
             elif self.tokenizer.chat_template is not None:
-                prompt = self.tokenizer.apply_chat_template(messages[:-1], tokenize=False, add_generation_prompt=True)
-                prompt_and_continuation = self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=False)
+                prompt = self.tokenizer.apply_chat_template(
+                    messages[:-1], tokenize=False, add_generation_prompt=True
+                )
+                prompt_and_continuation = self.tokenizer.apply_chat_template(
+                    messages, tokenize=False, add_generation_prompt=False
+                )
             else:
                 self.tokenizer.chat_template = VICUNA_CHAT_TEMPLATE
-                prompt = self.tokenizer.apply_chat_template(messages[:-1], tokenize=False, add_generation_prompt=True)
-                prompt_and_continuation = self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=False)
+                prompt = self.tokenizer.apply_chat_template(
+                    messages[:-1], tokenize=False, add_generation_prompt=True
+                )
+                prompt_and_continuation = self.tokenizer.apply_chat_template(
+                    messages, tokenize=False, add_generation_prompt=False
+                )
 
             formatted_contexts = [prompt]
             formatted_continuation = [prompt_and_continuation]
-            model_inputs = self._image_processor(text=formatted_continuation, images=visuals, return_tensors="pt").to(self._device, self.model.dtype)
+            model_inputs = self._image_processor(
+                text=formatted_continuation, images=visuals, return_tensors="pt"
+            ).to(self._device, self.model.dtype)
             labels = model_inputs["input_ids"].clone()
-            contxt_id = self._image_processor(text=formatted_contexts, return_tensors="pt")["input_ids"]
+            contxt_id = self._image_processor(text=formatted_contexts, return_tensors="pt")[
+                "input_ids"
+            ]
             labels[:, : contxt_id.shape[1]] = -100
 
             if self.accelerator.is_main_process and doc_id % 100 == 0:
                 eval_logger.debug(f"Prompt for doc ID {doc_id}:\n\n{formatted_contexts[0]}\n")
-                eval_logger.debug(f"Prompt and continuation for doc ID {doc_id}:\n\n{formatted_continuation[0]}\n")
+                eval_logger.debug(
+                    f"Prompt and continuation for doc ID {doc_id}:\n\n{formatted_continuation[0]}\n"
+                )
 
             with torch.inference_mode():
                 outputs = self.model(**model_inputs, labels=labels)
@@ -236,7 +283,9 @@ class LlavaHf(lmms):
             logits = outputs["logits"]
             greedy_tokens = logits.argmax(dim=-1)
             cont_toks = model_inputs["input_ids"][:, contxt_id.shape[1] :]  # [1, seq]
-            greedy_tokens = greedy_tokens[:, contxt_id.shape[1] : model_inputs["input_ids"].shape[1]]  # [1, seq]
+            greedy_tokens = greedy_tokens[
+                :, contxt_id.shape[1] : model_inputs["input_ids"].shape[1]
+            ]  # [1, seq]
             max_equal = (greedy_tokens == cont_toks).all()
             res.append((float(loss.item()), bool(max_equal)))
             pbar.update(1)
@@ -269,10 +318,16 @@ class LlavaHf(lmms):
         # in the same batch.
         re_ords = utils.Collator([reg.args for reg in requests], _collate, grouping=True)
         chunks = re_ords.get_batched(n=self.batch_size, batch_fn=None)
-        num_iters = len(requests) // self.batch_size if len(requests) % self.batch_size == 0 else len(requests) // self.batch_size + 1
+        num_iters = (
+            len(requests) // self.batch_size
+            if len(requests) % self.batch_size == 0
+            else len(requests) // self.batch_size + 1
+        )
         pbar = tqdm(total=num_iters, disable=(self.rank != 0), desc="Model Responding")
         for chunk in chunks:
-            contexts, all_gen_kwargs, doc_to_visual, doc_id, task, split = zip(*chunk)
+            contexts, all_gen_kwargs, doc_to_visual, doc_id, task, split = zip(
+                *chunk, strict=False
+            )
             task = task[0]
             split = split[0]
             visuals = [doc_to_visual[0](self.task_dict[task][split][ids]) for ids in doc_id]
@@ -294,7 +349,9 @@ class LlavaHf(lmms):
                 if isinstance(until, str):
                     until = [until]
                 elif not isinstance(until, list):
-                    raise ValueError(f"Expected `gen_kwargs['until']` to be of type Union[str,list] but got {type(until)}")
+                    raise ValueError(
+                        f"Expected `gen_kwargs['until']` to be of type Union[str,list] but got {type(until)}"
+                    )
             assert self.batch_size_per_gpu == 1, "Do not support batch_size_per_gpu > 1 for now"
             context = contexts[0]
 
@@ -307,17 +364,25 @@ class LlavaHf(lmms):
             messages = [{"role": "user", "content": context}]
             if self.chat_template is not None:
                 self.tokenizer.chat_template = self.chat_template
-                text = self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+                text = self.tokenizer.apply_chat_template(
+                    messages, tokenize=False, add_generation_prompt=True
+                )
             elif self.tokenizer.chat_template is not None:
-                text = self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+                text = self.tokenizer.apply_chat_template(
+                    messages, tokenize=False, add_generation_prompt=True
+                )
             else:
                 self.tokenizer.chat_template = VICUNA_CHAT_TEMPLATE
-                text = self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+                text = self.tokenizer.apply_chat_template(
+                    messages, tokenize=False, add_generation_prompt=True
+                )
 
             if self.accelerator.is_main_process and doc_id[0] % 100 == 0:
                 eval_logger.debug(f"Prompt for doc ID {doc_id[0]}:\n\n{text}\n")
 
-            inputs = self._image_processor(images=visuals, text=text, return_tensors="pt").to(self._device, self.model.dtype)
+            inputs = self._image_processor(images=visuals, text=text, return_tensors="pt").to(
+                self._device, self.model.dtype
+            )
 
             gen_kwargs["image_sizes"] = [visuals[idx].size for idx in range(len(visuals))]
             if "max_new_tokens" not in gen_kwargs:

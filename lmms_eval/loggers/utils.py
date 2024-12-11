@@ -19,6 +19,7 @@ def remove_none_pattern(input_string: str) -> Tuple[str, bool]:
     Returns:
         Tuple[str, bool]: A tuple containing the modified input_string with the ',none' substring removed
                           and a boolean indicating whether the modification was made (True) or not (False).
+
     """
     # Define the pattern to match ',none' at the end of the string
     pattern = re.compile(r",none$")
@@ -42,6 +43,7 @@ def _handle_non_serializable(o: Any) -> Union[int, str, list]:
         Union[int, str, list]: The converted object. If the object is of type np.int64 or np.int32,
             it will be converted to int. If the object is of type set, it will be converted
             to a list. Otherwise, it will be converted to str.
+
     """
     if isinstance(o, np.int64) or isinstance(o, np.int32):
         return int(o)
@@ -60,20 +62,23 @@ def get_commit_from_path(repo_path: Union[Path, str]) -> Optional[str]:
                 git_folder.read_text(encoding="utf-8").split("\n")[0].split(" ")[-1],
             )
         if Path(git_folder, "HEAD").exists():
-            head_name = Path(git_folder, "HEAD").read_text(encoding="utf-8").split("\n")[0].split(" ")[-1]
+            head_name = (
+                Path(git_folder, "HEAD").read_text(encoding="utf-8").split("\n")[0].split(" ")[-1]
+            )
             head_ref = Path(git_folder, head_name)
             git_hash = head_ref.read_text(encoding="utf-8").replace("\n", "")
         else:
             git_hash = None
     except Exception as err:
-        logger.debug(f"Failed to retrieve a Git commit hash from path: {str(repo_path)}. Error: {err}")
+        logger.debug(
+            f"Failed to retrieve a Git commit hash from path: {str(repo_path)}. Error: {err}"
+        )
         return None
     return git_hash
 
 
 def get_git_commit_hash():
-    """
-    Gets the git commit hash of your current repo (if it exists).
+    """Gets the git commit hash of your current repo (if it exists).
     Source: https://github.com/EleutherAI/gpt-neox/blob/b608043be541602170bfcfb8ec9bf85e8a0799e0/megatron/neox_arguments/neox_args.py#L42
     """
     try:
@@ -91,7 +96,9 @@ def add_env_info(storage: Dict[str, Any]):
     except Exception as err:
         pretty_env_info = str(err)
     transformers_version = trans_version
-    upper_dir_commit = get_commit_from_path(Path(os.getcwd(), ".."))  # git hash of upper repo if exists
+    upper_dir_commit = get_commit_from_path(
+        Path(os.getcwd(), "..")
+    )  # git hash of upper repo if exists
     added_info = {
         "pretty_env_info": pretty_env_info,
         "transformers_version": transformers_version,
@@ -124,4 +131,6 @@ def add_tokenizer_info(storage: Dict[str, Any], lm):
             logger.debug(f"Logging detailed tokenizer info failed with {err}, skipping...")
         # seems gguf and textsynth do not have tokenizer
     else:
-        logger.debug("LM does not have a 'tokenizer' attribute, not logging tokenizer metadata to results.")
+        logger.debug(
+            "LM does not have a 'tokenizer' attribute, not logging tokenizer metadata to results."
+        )

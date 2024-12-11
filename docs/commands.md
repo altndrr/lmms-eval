@@ -1,8 +1,8 @@
 # User Guide
+
 This document details the interface exposed by `lmms_eval` and provides details on what flags are available to users.
 
 ## Command-line Interface
-
 
 Equivalently, running the library can be done via the `lmms_eval` entrypoint at the command line.
 
@@ -45,10 +45,11 @@ This mode supports a number of command-line arguments, the details of which can 
 - `--system_instruction`: Specifies a system instruction string to prepend to the prompt.
 
 - `--apply_chat_template` : This flag specifies whether to apply a chat template to the prompt. It can be used in the following ways:
-	- `--apply_chat_template` : When used without an argument, applies the only available chat template to the prompt. For Hugging Face models, if no dedicated chat template exists, the default chat template will be applied.
-	- `--apply_chat_template template_name` : If the model has multiple chat templates, apply the specified template to the prompt.
 
-    For Hugging Face models, the default chat template can be found in the [`default_chat_template`](https://github.com/huggingface/transformers/blob/fc35907f95459d7a6c5281dfadd680b6f7b620e3/src/transformers/tokenization_utils_base.py#L1912) property of the Transformers Tokenizer.
+  - `--apply_chat_template` : When used without an argument, applies the only available chat template to the prompt. For Hugging Face models, if no dedicated chat template exists, the default chat template will be applied.
+  - `--apply_chat_template template_name` : If the model has multiple chat templates, apply the specified template to the prompt.
+
+  For Hugging Face models, the default chat template can be found in the [`default_chat_template`](https://github.com/huggingface/transformers/blob/fc35907f95459d7a6c5281dfadd680b6f7b620e3/src/transformers/tokenization_utils_base.py#L1912) property of the Transformers Tokenizer.
 
 - `--fewshot_as_multiturn` : If this flag is on, the Fewshot examples are treated as a multi-turn conversation. Questions are provided as user content and answers are provided as assistant responses. Requires `--num_fewshot` to be set to be greater than 0, and `--apply_chat_template` to be on.
 
@@ -56,19 +57,20 @@ This mode supports a number of command-line arguments, the details of which can 
 
 * `--seed`: Set seed for python's random, numpy and torch.  Accepts a comma-separated list of 3 values for python's random, numpy, and torch seeds, respectively, or a single integer to set the same seed for all three.  The values are either an integer or 'None' to not set the seed. Default is `0,1234,1234` (for backward compatibility).  E.g. `--seed 0,None,8` sets `random.seed(0)` and `torch.manual_seed(8)`. Here numpy's seed is not set since the second value is `None`.  E.g, `--seed 42` sets all three seeds to 42.
 
-* `--wandb_args`:  Tracks logging to Weights and Biases for evaluation runs and includes args passed to `wandb.init`, such as `project` and `job_type`. Full list [here](https://docs.wandb.ai/ref/python/init). e.g., ```--wandb_args project=test-project,name=test-run```
+* `--wandb_args`:  Tracks logging to Weights and Biases for evaluation runs and includes args passed to `wandb.init`, such as `project` and `job_type`. Full list [here](https://docs.wandb.ai/ref/python/init). e.g., `--wandb_args project=test-project,name=test-run`
 
 * `--hf_hub_log_args` : Logs evaluation results to Hugging Face Hub. Accepts a string with the arguments separated by commas. Available arguments:
-    * `hub_results_org` - organization name on Hugging Face Hub, e.g., `EleutherAI`. If not provided, the results will be pushed to the owner of the Hugging Face token,
-    * `hub_repo_name` - repository name on Hugging Face Hub (deprecated, `details_repo_name` and `results_repo_name` should be used instead), e.g., `lm-eval-results`,
-    * `details_repo_name` - repository name on Hugging Face Hub to store details, e.g., `lm-eval-results`,
-    * `results_repo_name` - repository name on Hugging Face Hub to store results, e.g., `lm-eval-results`,
-    * `push_results_to_hub` - whether to push results to Hugging Face Hub, can be `True` or `False`,
-    * `push_samples_to_hub` - whether to push samples results to Hugging Face Hub, can be `True` or `False`. Requires `--log_samples` to be set,
-    * `public_repo` - whether the repository is public, can be `True` or `False`,
-    * `leaderboard_url` - URL to the leaderboard, e.g., `https://huggingface.co/spaces/HuggingFaceH4/open_llm_leaderboard`.
-    * `point_of_contact` - Point of contact for the results dataset, e.g., `yourname@example.com`.
-    * `gated` - whether to gate the details dataset, can be `True` or `False`.
+
+  - `hub_results_org` - organization name on Hugging Face Hub, e.g., `EleutherAI`. If not provided, the results will be pushed to the owner of the Hugging Face token,
+  - `hub_repo_name` - repository name on Hugging Face Hub (deprecated, `details_repo_name` and `results_repo_name` should be used instead), e.g., `lm-eval-results`,
+  - `details_repo_name` - repository name on Hugging Face Hub to store details, e.g., `lm-eval-results`,
+  - `results_repo_name` - repository name on Hugging Face Hub to store results, e.g., `lm-eval-results`,
+  - `push_results_to_hub` - whether to push results to Hugging Face Hub, can be `True` or `False`,
+  - `push_samples_to_hub` - whether to push samples results to Hugging Face Hub, can be `True` or `False`. Requires `--log_samples` to be set,
+  - `public_repo` - whether the repository is public, can be `True` or `False`,
+  - `leaderboard_url` - URL to the leaderboard, e.g., `https://huggingface.co/spaces/HuggingFaceH4/open_llm_leaderboard`.
+  - `point_of_contact` - Point of contact for the results dataset, e.g., `yourname@example.com`.
+  - `gated` - whether to gate the details dataset, can be `True` or `False`.
 
 ## External Library Usage
 
@@ -80,9 +82,12 @@ We also support using the library's external API for use within model training l
 
 ```python
 import lmms_eval
+
 ...
 
-my_model = initialize_my_model() # create your model (could be running finetuning with some custom modeling code)
+my_model = (
+    initialize_my_model()
+)  # create your model (could be running finetuning with some custom modeling code)
 ...
 # instantiate an LM subclass that takes your initialized model and can run
 # - `Your_LMM.loglikelihood()`
@@ -97,12 +102,12 @@ task_manager = lmms_eval.tasks.TaskManager()
 # Setting `task_manager` to the one above is optional and should generally be done
 # if you want to include tasks from paths other than ones in `lmms_eval/tasks`.
 # `simple_evaluate` will instantiate its own task_manager if it is set to None here.
-results = lmms_eval.simple_evaluate( # call simple_evaluate
+results = lmms_eval.simple_evaluate(  # call simple_evaluate
     model=lmm_obj,
     tasks=["taskname1", "taskname2"],
     num_fewshot=0,
     task_manager=task_manager,
-    ...
+    ...,
 )
 ```
 
@@ -117,6 +122,7 @@ import lmms_eval
 
 # suppose you've defined a custom lm_eval.api.Task subclass in your own external codebase
 from my_tasks import MyTask1
+
 ...
 
 # create your model (could be running finetuning with some custom modeling code)
@@ -131,35 +137,29 @@ lmm_obj = Your_LMM(model=my_model, batch_size=16)
 
 # optional: the task_manager indexes tasks including ones
 # specified by the user through `include_path`.
-task_manager = lmms_eval.tasks.TaskManager(
-    include_path="/path/to/custom/yaml"
-    )
+task_manager = lmms_eval.tasks.TaskManager(include_path="/path/to/custom/yaml")
 
 # To get a task dict for `evaluate`
 task_dict = lmms_eval.tasks.get_task_dict(
     [
-        "mmlu", # A stock task
-        "my_custom_task", # A custom task
+        "mmlu",  # A stock task
+        "my_custom_task",  # A custom task
         {
-            "task": ..., # A dict that configures a task
+            "task": ...,  # A dict that configures a task
             "doc_to_text": ...,
-            },
-        MyTask1 # A task object from `lm_eval.task.Task`
-        ],
-    task_manager # A task manager that allows lm_eval to
-                 # load the task during evaluation.
-                 # If none is provided, `get_task_dict`
-                 # will instantiate one itself, but this
-                 # only includes the stock tasks so users
-                 # will need to set this if including
-                 # custom paths is required.
-    )
-
-results = evaluate(
-    lm=lmm_obj,
-    task_dict=task_dict,
-    ...
+        },
+        MyTask1,  # A task object from `lm_eval.task.Task`
+    ],
+    task_manager,  # A task manager that allows lm_eval to
+    # load the task during evaluation.
+    # If none is provided, `get_task_dict`
+    # will instantiate one itself, but this
+    # only includes the stock tasks so users
+    # will need to set this if including
+    # custom paths is required.
 )
+
+results = evaluate(lm=lmm_obj, task_dict=task_dict, ...)
 ```
 
 ## Regression Test

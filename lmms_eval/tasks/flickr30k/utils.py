@@ -1,9 +1,8 @@
-import datetime
 import json
 import os
 
 from loguru import logger as eval_logger
-from pycocoevalcap.eval import Bleu, Cider, COCOEvalCap, Meteor, Rouge, Spice
+from pycocoevalcap.eval import Bleu, Cider, COCOEvalCap, Meteor, Rouge
 from pycocoevalcap.tokenizer.ptbtokenizer import PTBTokenizer
 from pycocotools.coco import COCO
 
@@ -11,7 +10,15 @@ from lmms_eval.tasks._task_utils.file_utils import generate_submission_file
 
 dir_name = os.path.dirname(os.path.abspath(__file__))
 
-FLICKR_METRICS = ["Bleu_4", "Bleu_3", "Bleu_2", "Bleu_1", "METEOR", "ROUGE_L", "CIDEr"]  # , "SPICE"]
+FLICKR_METRICS = [
+    "Bleu_4",
+    "Bleu_3",
+    "Bleu_2",
+    "Bleu_1",
+    "METEOR",
+    "ROUGE_L",
+    "CIDEr",
+]  # , "SPICE"]
 
 
 def flickr_doc_to_visual(doc):
@@ -20,16 +27,17 @@ def flickr_doc_to_visual(doc):
 
 def flickr_doc_to_text(doc):
     # question = "Please carefully observe the image and come up with a caption for the image"
-    return f"Provide a one-sentence caption for the provided image."
+    return "Provide a one-sentence caption for the provided image."
 
 
 def flickr_process_result(doc, result):
-    """
-    Args:
+    """Args:
         doc: a instance of the eval dataset
         results: [pred]
+
     Returns:
         a dictionary with key: metric name, value: metric value
+
     """
     pred = result[0] if len(result) > 0 else ""
     image_id = int(doc["img_id"])
@@ -40,7 +48,15 @@ def flickr_process_result(doc, result):
 
 
 def flickr_aggregation_result(results, metric, args):
-    scorers = [(Bleu(4), "Bleu_1"), (Bleu(4), "Bleu_2"), (Bleu(4), "Bleu_3"), (Bleu(4), "Bleu_4"), (Meteor(), "METEOR"), (Rouge(), "ROUGE_L"), (Cider(), "CIDEr")]  # , (Spice(), "SPICE")]
+    scorers = [
+        (Bleu(4), "Bleu_1"),
+        (Bleu(4), "Bleu_2"),
+        (Bleu(4), "Bleu_3"),
+        (Bleu(4), "Bleu_4"),
+        (Meteor(), "METEOR"),
+        (Rouge(), "ROUGE_L"),
+        (Cider(), "CIDEr"),
+    ]  # , (Spice(), "SPICE")]
     scorers_dict = {s[1]: s for s in scorers}
 
     stored_results = []
@@ -54,7 +70,9 @@ def flickr_aggregation_result(results, metric, args):
     for result in results:
         stored_results.append({"image_id": int(result["image_id"]), "caption": result["pred"]})
         for a in result["answer"]:
-            dataset["annotations"].append({"image_id": int(result["image_id"]), "caption": a, "id": idx})
+            dataset["annotations"].append(
+                {"image_id": int(result["image_id"]), "caption": a, "id": idx}
+            )
             idx += 1
         dataset["images"].append({"id": int(result["image_id"])})
 
@@ -128,12 +146,13 @@ def flickr_spice(results, args):
 
 
 def flickr_test_process_result(doc, result):
-    """
-    Args:
+    """Args:
         doc: a instance of the eval dataset
         results: [pred]
+
     Returns:
         a dictionary with key: metric name (in this case flickr_passthrough), value: metric value
+
     """
     # The question id in our dataset is the image file itself
     image_id = doc["img_id"]

@@ -1,19 +1,21 @@
 import math
-import os.path as osp
 import random as rd
 import string
 import time
-from collections import defaultdict
 
-import numpy as np
 import pandas as pd
 import requests
 from loguru import logger as eval_logger
-from tqdm import tqdm
 
 
 class MMBench_Evaluator:
-    def __init__(self, sys_prompt="There are several options:", API_KEY="", API_URL="", model_version="gpt-3.5-turbo-0613"):
+    def __init__(
+        self,
+        sys_prompt="There are several options:",
+        API_KEY="",
+        API_URL="",
+        model_version="gpt-3.5-turbo-0613",
+    ):
         self.sys_prompt = sys_prompt
         self.model_version = model_version
         self.API_KEY = API_KEY
@@ -33,7 +35,7 @@ class MMBench_Evaluator:
     def build_option_str(self, option_list):
         chars = string.ascii_uppercase
         s = "There are several options: \n"
-        for c, opt in zip(chars, option_list):
+        for c, opt in zip(chars, option_list, strict=False):
             if not pd.isna(opt):
                 s += f"{c}. {opt}\n"
             else:
@@ -98,7 +100,20 @@ class MMBench_Evaluator:
                     break
                 if ch in splits:
                     return ch
-        tups = [("", "."), ("", ","), ("", ":"), ("", ")"), ("", ")."), ("(", ")"), ("(", ")."), (":", ""), (":", ","), (":", "."), (":", ")"), (":", ").")]
+        tups = [
+            ("", "."),
+            ("", ","),
+            ("", ":"),
+            ("", ")"),
+            ("", ")."),
+            ("(", ")"),
+            ("(", ")."),
+            (":", ""),
+            (":", ","),
+            (":", "."),
+            (":", ")"),
+            (":", ")."),
+        ]
         for tup in tups:
             if count(splits, choices, prefix=tup[0], suffix=tup[1]) == 1:
                 for ch in choices:
@@ -137,11 +152,19 @@ class MMBench_Evaluator:
         response.raise_for_status()
         return response.json()
 
-    def get_chat_response(self, prompt, temperature=0, max_tokens=256, n=1, patience=5, sleep_time=3):
+    def get_chat_response(
+        self, prompt, temperature=0, max_tokens=256, n=1, patience=5, sleep_time=3
+    ):
         messages = [
             {"role": "user", "content": prompt},
         ]
-        payload = {"model": self.model_version, "messages": messages, "temperature": temperature, "max_tokens": max_tokens, "n": n}
+        payload = {
+            "model": self.model_version,
+            "messages": messages,
+            "temperature": temperature,
+            "max_tokens": max_tokens,
+            "n": n,
+        }
 
         while patience > 0:
             patience -= 1
@@ -152,7 +175,9 @@ class MMBench_Evaluator:
                     if prediction and prediction != "":
                         return prediction
                 else:
-                    prediction = [choice["message"]["content"].strip() for choice in response["choices"]]
+                    prediction = [
+                        choice["message"]["content"].strip() for choice in response["choices"]
+                    ]
                     if prediction and prediction[0] != "":
                         return prediction
 
@@ -261,10 +286,10 @@ class MMBench_Evaluator:
         data_main = data[data["index"] < int(1e6)]
 
         data_main["hit"] = 0
-        cate_map = {i: c for i, c in zip(data["index"], data["category"])}
-        answer_map = {i: c for i, c in zip(data["index"], data["answer"])}
+        cate_map = {i: c for i, c in zip(data["index"], data["category"], strict=False)}
+        answer_map = {i: c for i, c in zip(data["index"], data["answer"], strict=False)}
         if "l2-category" in data.columns:
-            l2_cate_map = {i: c for i, c in zip(data["index"], data["l2-category"])}
+            l2_cate_map = {i: c for i, c in zip(data["index"], data["l2-category"], strict=False)}
 
         lt = len(data_main)
         hit, tot = 0, 0
@@ -293,14 +318,20 @@ class MMBench_Evaluator:
 
         indices = data_main["index"]
         data_main = data_main.set_index("index")
-        data_main["category"] = [cate_map[i] if not math.isnan(i) else "uncategorized" for i in indices]
+        data_main["category"] = [
+            cate_map[i] if not math.isnan(i) else "uncategorized" for i in indices
+        ]
         if "l2-category" in data_main.columns:
-            data_main["l2-category"] = [l2_cate_map[i] if not math.isnan(i) else "uncategorized" for i in indices]
+            data_main["l2-category"] = [
+                l2_cate_map[i] if not math.isnan(i) else "uncategorized" for i in indices
+            ]
 
-        overall_hit_rate, category_hit_rate, l2_category_hit_rate = self.calculate_hit_rates(data_main)
+        overall_hit_rate, category_hit_rate, l2_category_hit_rate = self.calculate_hit_rates(
+            data_main
+        )
 
         if "category" in data_main.columns:
-            print(f"Category Acc. (dev):")
+            print("Category Acc. (dev):")
             for category_key in category_hit_rate:
                 if category_key == "split":
                     continue
@@ -309,7 +340,7 @@ class MMBench_Evaluator:
                 print(f"\t{category_key}: {category_percentage:.3f}")
 
         if "l2-category" in data_main.columns:
-            print(f"L2-category Acc. (dev):")
+            print("L2-category Acc. (dev):")
             for l2_category_key in l2_category_hit_rate:
                 if l2_category_key == "split":
                     continue

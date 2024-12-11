@@ -2,12 +2,8 @@ import logging
 import os
 from typing import List, Tuple
 
-import numpy as np
 import torch
-import torchvision.transforms as T
 from accelerate import Accelerator, DistributedType
-from PIL import Image
-from torchvision.transforms.functional import InterpolationMode
 from tqdm import tqdm
 from transformers import AutoModel, AutoTokenizer
 
@@ -59,12 +55,25 @@ class XComposer2D5(lmms):
             self.device_map = f"cuda:{accelerator.local_process_index}"
 
         self.path = pretrained
-        self._model = AutoModel.from_pretrained(self.path, torch_dtype=torch.bfloat16, trust_remote_code=True, device_map=self.device_map).half().eval()
+        self._model = (
+            AutoModel.from_pretrained(
+                self.path,
+                torch_dtype=torch.bfloat16,
+                trust_remote_code=True,
+                device_map=self.device_map,
+            )
+            .half()
+            .eval()
+        )
         self._tokenizer = AutoTokenizer.from_pretrained(self.path, trust_remote_code=True)
         self._model.tokenizer = self._tokenizer
 
         if accelerator.num_processes > 1:
-            assert accelerator.distributed_type in [DistributedType.FSDP, DistributedType.MULTI_GPU, DistributedType.DEEPSPEED], "Unsupported distributed type provided. Only DDP and FSDP are supported."
+            assert accelerator.distributed_type in [
+                DistributedType.FSDP,
+                DistributedType.MULTI_GPU,
+                DistributedType.DEEPSPEED,
+            ], "Unsupported distributed type provided. Only DDP and FSDP are supported."
             # If you want to use DistributedType.DEEPSPEED, you have to run accelerate config before using the model
             # Also, you have to select zero stage 0 (equivalent to DDP) in order to make the prepare model works
             # I tried to set different parameters in the kwargs to let default zero 2 stage works, but it didn't work.
@@ -73,16 +82,25 @@ class XComposer2D5(lmms):
                     "train_micro_batch_size_per_gpu": self.batch_size_per_gpu,
                     "train_batch_size": self.batch_size_per_gpu * accelerator.num_processes,
                 }
-                AcceleratorState().deepspeed_plugin.deepspeed_config_process(must_match=True, **kwargs)
-                eval_logger.info("Detected that you are using DistributedType.DEEPSPEED. Make sure you run `accelerate config` and set zero stage to 0")
+                AcceleratorState().deepspeed_plugin.deepspeed_config_process(
+                    must_match=True, **kwargs
+                )
+                eval_logger.info(
+                    "Detected that you are using DistributedType.DEEPSPEED. Make sure you run `accelerate config` and set zero stage to 0"
+                )
 
-            if accelerator.distributed_type == DistributedType.FSDP or accelerator.distributed_type == DistributedType.DEEPSPEED:
+            if (
+                accelerator.distributed_type == DistributedType.FSDP
+                or accelerator.distributed_type == DistributedType.DEEPSPEED
+            ):
                 self._model = accelerator.prepare(self.model)
             else:
                 self._model = accelerator.prepare_model(self.model, evaluation_mode=True)
             self.accelerator = accelerator
             if self.accelerator.is_local_main_process:
-                eval_logger.info(f"Using {accelerator.num_processes} devices with data parallelism")
+                eval_logger.info(
+                    f"Using {accelerator.num_processes} devices with data parallelism"
+                )
             self._rank = self.accelerator.local_process_index
             self._world_size = self.accelerator.num_processes
         elif accelerator.num_processes == 1 and device_map == "auto":
@@ -139,14 +157,20 @@ class XComposer2D5(lmms):
         res = []
         pbar = tqdm(total=len(requests), disable=(self.rank != 0), desc="Model Responding")
 
-        for contexts, gen_kwargs, doc_to_visual, doc_id, task, split in [reg.args for reg in requests]:
+        for contexts, gen_kwargs, doc_to_visual, doc_id, task, split in [
+            reg.args for reg in requests
+        ]:
             visuals = [doc_to_visual(self.task_dict[task][split][doc_id])]
             visuals = self.flatten(visuals)
             image = []
 
             for idx, visual in enumerate(visuals):
-                visual.save(os.path.join(self.tmp_folder, f"tmp_{idx}_{self.rank}_{self.world_size}.jpg"))
-                image.append(os.path.join(self.tmp_folder, f"tmp_{idx}_{self.rank}_{self.world_size}.jpg"))
+                visual.save(
+                    os.path.join(self.tmp_folder, f"tmp_{idx}_{self.rank}_{self.world_size}.jpg")
+                )
+                image.append(
+                    os.path.join(self.tmp_folder, f"tmp_{idx}_{self.rank}_{self.world_size}.jpg")
+                )
             if image:
                 image_tokens = [f"Image{i} <ImageHere>; " for i in range(len(visuals))]
                 image_tokens = "".join(image_tokens)
@@ -163,7 +187,15 @@ class XComposer2D5(lmms):
 
             try:
                 with torch.autocast(device_type="cuda", dtype=torch.float16):
-                    response, his = self.model.chat(self.tokenizer, contexts, image, do_sample=False, num_beams=1, use_meta=True, max_new_tokens=gen_kwargs["max_new_tokens"])
+                    response, his = self.model.chat(
+                        self.tokenizer,
+                        contexts,
+                        image,
+                        do_sample=False,
+                        num_beams=1,
+                        use_meta=True,
+                        max_new_tokens=gen_kwargs["max_new_tokens"],
+                    )
             except Exception as e:
                 eval_logger.error(f"Error : {e}")
                 response = ""

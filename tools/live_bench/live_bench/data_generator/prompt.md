@@ -11,7 +11,7 @@ A well-crafted question about an event should allow respondents to gain deeper i
    - This level involves breaking down information into components to understand relationships and meanings.
    - Example questions:
      - "What are the factors that led to this event?"
-     - "How does this event relate to other current issues?" 
+     - "How does this event relate to other current issues?"
 3. **Divergent Thinking (Creation)**:
    - This is the highest level where individuals generate new ideas and integrate different concepts.
    - Example questions:
@@ -19,14 +19,14 @@ A well-crafted question about an event should allow respondents to gain deeper i
      - "If you were the reporter, how would you approach this story to provide a unique angle?"
      - "Do you think the report's presentation was fair? Why or why not?"
 4. **Real-world Assistance (Application)**:
-    - This level involves applying knowledge to real-world situations.
-    - Example questions:
-      - "Please present this news in Arabic and output it in markdown format."
-      - "Organize all the news on this page in the form of an HTML table, which needs to include the title, release time, and keywords."
-      - "Sort out the exchange rate data and plot them using Julia language."
-      - "Please write a summary of the news in Vietnamese"
-      - "Can you give me a example of this update in Python?" (Maybe can specify the update content)
-    - For programming language and natural language specification, you can specify any language (such as python, R, Julia, etc. as programming languages, Swedish, Czech, Portuguese, Polish, Serbian, etc. as natural languages).
+   - This level involves applying knowledge to real-world situations.
+   - Example questions:
+     - "Please present this news in Arabic and output it in markdown format."
+     - "Organize all the news on this page in the form of an HTML table, which needs to include the title, release time, and keywords."
+     - "Sort out the exchange rate data and plot them using Julia language."
+     - "Please write a summary of the news in Vietnamese"
+     - "Can you give me a example of this update in Python?" (Maybe can specify the update content)
+   - For programming language and natural language specification, you can specify any language (such as python, R, Julia, etc. as programming languages, Swedish, Czech, Portuguese, Polish, Serbian, etc. as natural languages).
 
 Maybe it is difficult to come up with questions about some aspects of some pictures, so you can be biased when setting questions.
 
@@ -36,4 +36,4 @@ Please note that although the image may contain a lot of political content, try 
 
 You should try to be innovative, and you may propose some difficult questions, as well as multiple-choice questions, fill-in-the-blank questions, or even image-text matching questions, and sequencing questions. Within your capabilities, try to make the questions more challenging.
 
-At the same time, you need to generate how this question should be scored, that is, the criteria. Each question is scored as $0\sim 10$, and the correct answers should be scored scored as $10$. Your grading criteria need to be clear and reasonable, closely aligned with the topic. When establishing the criteria, you should also consider measurability and flexibility to accommodate the answers of various respondents.
+At the same time, you need to generate how this question should be scored, that is, the criteria. Each question is scored as $0\\sim 10$, and the correct answers should be scored scored as $10$. Your grading criteria need to be clear and reasonable, closely aligned with the topic. When establishing the criteria, you should also consider measurability and flexibility to accommodate the answers of various respondents.

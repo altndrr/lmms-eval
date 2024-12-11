@@ -23,8 +23,8 @@ class kCenterGreedy(SamplingMethod):
             only_new: only calculate distance for newly selected points and update
             min_distances.
             rest_dist: whether to reset min_distances.
-        """
 
+        """
         if reset_dist:
             self.min_distances = None
         if only_new:
@@ -40,8 +40,7 @@ class kCenterGreedy(SamplingMethod):
                 self.min_distances = np.minimum(self.min_distances, dist)
 
     def select_batch(self, N):
-        """
-        Diversity promoting active learning method that greedily forms a batch
+        """Diversity promoting active learning method that greedily forms a batch
         to minimize the maximum distance to a cluster center among all unlabeled
         datapoints.
 
@@ -52,8 +51,8 @@ class kCenterGreedy(SamplingMethod):
 
         Returns:
         indices of points selected to minimize distance to cluster centers
-        """
 
+        """
         print("Using flat_X as features.")
 
         new_batch = []

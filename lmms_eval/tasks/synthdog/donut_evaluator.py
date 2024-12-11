@@ -1,32 +1,23 @@
-import json
-import os
-import random
-from collections import defaultdict
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Union
 
-import torch
-from datasets import load_dataset
 from loguru import logger as eval_logger
 from nltk import edit_distance
-from torch.utils.data import Dataset
-from transformers.modeling_utils import PreTrainedModel
 
 try:
     import zss
     from zss import Node
 except ImportError:
-    eval_logger.debug("Please install zss library. You can install it by running 'pip install zss'")
+    eval_logger.debug(
+        "Please install zss library. You can install it by running 'pip install zss'"
+    )
 
 
 class JSONParseEvaluator:
-    """
-    Calculate n-TED(Normalized Tree Edit Distance) based accuracy and F1 accuracy score
-    """
+    """Calculate n-TED(Normalized Tree Edit Distance) based accuracy and F1 accuracy score"""
 
     @staticmethod
     def flatten(data: dict):
-        """
-        Convert Dictionary into Non-nested Dictionary
+        """Convert Dictionary into Non-nested Dictionary
         Example:
             input(dict)
                 {
@@ -60,11 +51,10 @@ class JSONParseEvaluator:
 
     @staticmethod
     def update_cost(node1: Node, node2: Node):
-        """
-        Update cost for tree edit distance.
+        """Update cost for tree edit distance.
         If both are leaf node, calculate string edit distance between two labels (special token '<leaf>' will be ignored).
         If one of them is leaf node, cost is length of string in leaf node + 1.
-        If neither are leaf node, cost is 0 if label1 is same with label2 othewise 1
+        If neither are leaf node, cost is 0 if label1 is same with label2 otherwise 1
         """
         label1 = node1.label
         label2 = node2.label
@@ -81,8 +71,7 @@ class JSONParseEvaluator:
 
     @staticmethod
     def insert_and_remove_cost(node: Node):
-        """
-        Insert and remove cost for tree edit distance.
+        """Insert and remove cost for tree edit distance.
         If leaf node, cost is length of label name.
         Otherwise, 1
         """
@@ -93,9 +82,7 @@ class JSONParseEvaluator:
             return 1
 
     def normalize_dict(self, data: Union[Dict, List, Any]):
-        """
-        Sort by value, while iterate over element if data is list
-        """
+        """Sort by value, while iterate over element if data is list"""
         if not data:
             return {}
 
@@ -116,19 +103,24 @@ class JSONParseEvaluator:
                     if item:
                         new_data.append(item)
             else:
-                new_data = [str(item).strip() for item in data if type(item) in {str, int, float} and str(item).strip()]
+                new_data = [
+                    str(item).strip()
+                    for item in data
+                    if type(item) in {str, int, float} and str(item).strip()
+                ]
         else:
             new_data = [str(data).strip()]
 
         return new_data
 
     def cal_f1(self, preds: List[dict], answers: List[dict]):
-        """
-        Calculate global F1 accuracy score (field-level, micro-averaged) by counting all true positives, false negatives and false positives
-        """
+        """Calculate global F1 accuracy score (field-level, micro-averaged) by counting all true positives, false negatives and false positives"""
         total_tp, total_fn_or_fp = 0, 0
-        for pred, answer in zip(preds, answers):
-            pred, answer = self.flatten(self.normalize_dict(pred)), self.flatten(self.normalize_dict(answer))
+        for pred, answer in zip(preds, answers, strict=False):
+            pred, answer = (
+                self.flatten(self.normalize_dict(pred)),
+                self.flatten(self.normalize_dict(answer)),
+            )
             for field in pred:
                 if field in answer:
                     total_tp += 1
@@ -139,8 +131,7 @@ class JSONParseEvaluator:
         return total_tp / (total_tp + total_fn_or_fp / 2)
 
     def construct_tree_from_dict(self, data: Union[Dict, List], node_name: str = None):
-        """
-        Convert Dictionary into Tree
+        """Convert Dictionary into Tree
 
         Example:
             input(dict)
@@ -162,7 +153,8 @@ class JSONParseEvaluator:
                          name    count  name    count
                         /         |     |         \
                   <leaf>cake  <leaf>2  <leaf>juice  <leaf>1
-         """
+
+        """
         if node_name is None:
             node_name = "<root>"
 
@@ -188,8 +180,7 @@ class JSONParseEvaluator:
         return node
 
     def cal_acc(self, pred: dict, answer: dict):
-        """
-        Calculate normalized tree edit distance(nTED) based accuracy.
+        """Calculate normalized tree edit distance(nTED) based accuracy.
         1) Construct tree from dict,
         2) Get tree distance with insert/remove/update cost,
         3) Divide distance with GT tree size (i.e., nTED),

@@ -18,11 +18,36 @@ def pope_process_results(doc, results):
     assert gt_ans in ["yes", "no"]
     score = 1.0 if pred == gt_ans else 0.0
     return {
-        "pope_accuracy": {"question_id": doc["question_id"], "score": score, "prediction": pred, "ground_truth": gt_ans},
-        "pope_precision": {"question_id": doc["question_id"], "score": score, "prediction": pred, "ground_truth": gt_ans},
-        "pope_recall": {"question_id": doc["question_id"], "score": score, "prediction": pred, "ground_truth": gt_ans},
-        "pope_f1_score": {"question_id": doc["question_id"], "score": score, "prediction": pred, "ground_truth": gt_ans},
-        "pope_yes_ratio": {"question_id": doc["question_id"], "score": score, "prediction": pred, "ground_truth": gt_ans},
+        "pope_accuracy": {
+            "question_id": doc["question_id"],
+            "score": score,
+            "prediction": pred,
+            "ground_truth": gt_ans,
+        },
+        "pope_precision": {
+            "question_id": doc["question_id"],
+            "score": score,
+            "prediction": pred,
+            "ground_truth": gt_ans,
+        },
+        "pope_recall": {
+            "question_id": doc["question_id"],
+            "score": score,
+            "prediction": pred,
+            "ground_truth": gt_ans,
+        },
+        "pope_f1_score": {
+            "question_id": doc["question_id"],
+            "score": score,
+            "prediction": pred,
+            "ground_truth": gt_ans,
+        },
+        "pope_yes_ratio": {
+            "question_id": doc["question_id"],
+            "score": score,
+            "prediction": pred,
+            "ground_truth": gt_ans,
+        },
     }
 
 
@@ -44,7 +69,11 @@ def pope_aggregate_precision(results):
             true_positives += 1
         elif gt == "no" and pred == "yes":
             false_positives += 1
-    precision = true_positives / (true_positives + false_positives) if (true_positives + false_positives) > 0 else 0
+    precision = (
+        true_positives / (true_positives + false_positives)
+        if (true_positives + false_positives) > 0
+        else 0
+    )
     return precision
 
 
@@ -58,7 +87,11 @@ def pope_aggregate_recall(results):
             true_positives += 1
         elif gt == "yes" and pred == "no":
             false_negatives += 1
-    recall = true_positives / (true_positives + false_negatives) if (true_positives + false_negatives) > 0 else 0
+    recall = (
+        true_positives / (true_positives + false_negatives)
+        if (true_positives + false_negatives) > 0
+        else 0
+    )
     return recall
 
 

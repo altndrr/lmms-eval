@@ -3,9 +3,6 @@ import re
 
 import numpy as np
 
-from lmms_eval.filters.extraction import ExtendedRegexFilter
-from lmms_eval.filters.transformation import MapFilter
-
 eval_logger = logging.getLogger("lmms-eval")
 
 
@@ -42,8 +39,7 @@ def mirb_doc_to_target(doc):
 
 
 def extract_numbers(string):
-    """
-    Exact all forms of numbers from a string with regex.
+    """Exact all forms of numbers from a string with regex.
     https://github.com/MMMU-Benchmark/MMMU/blob/51ce7f3e829c16bb44bc5445782686b4c3508794/eval/eval_utils.py#L100
     """
     # Pattern for numbers with commas
@@ -66,8 +62,7 @@ def extract_numbers(string):
 
 
 def check_is_number(string):
-    """
-    Check if the given string a number.
+    """Check if the given string a number.
     https://github.com/MMMU-Benchmark/MMMU/blob/51ce7f3e829c16bb44bc5445782686b4c3508794/eval/eval_utils.py#L65
     """
     try:
@@ -79,8 +74,7 @@ def check_is_number(string):
 
 
 def normalize_str(string):
-    """
-    Normalize the str to lower case and make them float numbers if possible.
+    """Normalize the str to lower case and make them float numbers if possible.
     https://github.com/MMMU-Benchmark/MMMU/blob/51ce7f3e829c16bb44bc5445782686b4c3508794/eval/eval_utils.py#L76
     """
     # check if characters in the string
@@ -122,8 +116,7 @@ def parse_multi_choice_response(response):
 
 
 def parse_open_response(response):
-    """
-    Parse the prediction from the generated response.
+    """Parse the prediction from the generated response.
     Return a list of predicted strings or numbers.
     https://github.com/MMMU-Benchmark/MMMU/blob/51ce7f3e829c16bb44bc5445782686b4c3508794/eval/eval_utils.py#L122
     """
@@ -201,13 +194,17 @@ def mirb_process_results(doc, results):
     else:
         parsed_pred = parse_open_response(pred)
     task_type = doc["subset"]
-    data_dict = {"question_id": doc["question_id"], "subset": task_type, "pred_answer": parsed_pred, "answers": doc["answers"]}
-    return {f"mirb_score": data_dict}
+    data_dict = {
+        "question_id": doc["question_id"],
+        "subset": task_type,
+        "pred_answer": parsed_pred,
+        "answers": doc["answers"],
+    }
+    return {"mirb_score": data_dict}
 
 
 def eval_multi_choice(gold_i, pred_i):
-    """
-    Evaluate a multiple choice instance.
+    """Evaluate a multiple choice instance.
     https://github.com/MMMU-Benchmark/MMMU/blob/51ce7f3e829c16bb44bc5445782686b4c3508794/eval/eval_utils.py#L175
     """
     correct = False
@@ -224,8 +221,7 @@ def eval_multi_choice(gold_i, pred_i):
 
 
 def eval_open(gold_i, pred_i):
-    """
-    Evaluate an open question instance
+    """Evaluate an open question instance
     https://github.com/MMMU-Benchmark/MMMU/blob/51ce7f3e829c16bb44bc5445782686b4c3508794/eval/eval_utils.py#L191
     """
     correct = False
@@ -281,7 +277,12 @@ def mirb_aggregation(results):
     print("=" * 50)
 
     # print across evaluation dimension
-    groups = {"Knowledge": ["food", "sightseeing"], "Reasoning": ["codeu", "plot_code", "analogy", "3d_scene"], "Perception": ["image_jigsaw", "count", "attribute"], "Multi-Hop": ["visual_chain", "arxiv"]}
+    groups = {
+        "Knowledge": ["food", "sightseeing"],
+        "Reasoning": ["codeu", "plot_code", "analogy", "3d_scene"],
+        "Perception": ["image_jigsaw", "count", "attribute"],
+        "Multi-Hop": ["visual_chain", "arxiv"],
+    }
 
     # Compute the averages for each group
     averages_dict = compute_averages_from_task_scores(task_score, groups)

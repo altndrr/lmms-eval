@@ -34,12 +34,20 @@ class TaskManager:
         self.logger = eval_logger
         self.model_name = model_name
 
-        self._task_index = self.initialize_tasks(include_path=include_path, include_defaults=include_defaults)
+        self._task_index = self.initialize_tasks(
+            include_path=include_path, include_defaults=include_defaults
+        )
         self._all_tasks = sorted(list(self._task_index.keys()))
 
-        self._all_groups = sorted([x for x in self._all_tasks if self._task_index[x]["type"] == "group"])
-        self._all_subtasks = sorted([x for x in self._all_tasks if self._task_index[x]["type"] == "task"])
-        self._all_tags = sorted([x for x in self._all_tasks if self._task_index[x]["type"] == "tag"])
+        self._all_groups = sorted(
+            [x for x in self._all_tasks if self._task_index[x]["type"] == "group"]
+        )
+        self._all_subtasks = sorted(
+            [x for x in self._all_tasks if self._task_index[x]["type"] == "task"]
+        )
+        self._all_tags = sorted(
+            [x for x in self._all_tasks if self._task_index[x]["type"] == "tag"]
+        )
 
         self.task_group_map = collections.defaultdict(list)
 
@@ -134,7 +142,9 @@ class TaskManager:
                 config = utils.load_yaml_config(path, mode="simple")
                 if "output_type" in config:
                     output_type = config["output_type"]
-                elif "include" in config:  # if no output type, check if there is an include with an output type
+                elif (
+                    "include" in config
+                ):  # if no output type, check if there is an include with an output type
                     include_path = path.split("/")[:-1] + config["include"]
                     include_config = utils.load_yaml_config(include_path, mode="simple")
                     if "output_type" in include_config:
@@ -297,11 +307,15 @@ class TaskManager:
                     if self._name_is_tag(name_or_config):
                         fn = partial(
                             self._load_individual_task_or_group,
-                            update_config=name_or_config if isinstance(name_or_config, dict) else None,
+                            update_config=name_or_config
+                            if isinstance(name_or_config, dict)
+                            else None,
                         )
                         return dict(collections.ChainMap(*map(fn, reversed(subtask_list))))
                     else:
-                        group_name = ConfigurableGroup(config={"group": name_or_config, "task": subtask_list})
+                        group_name = ConfigurableGroup(
+                            config={"group": name_or_config, "task": subtask_list}
+                        )
 
         if isinstance(name_or_config, dict):
             if self._config_is_task(name_or_config):
@@ -312,7 +326,9 @@ class TaskManager:
                 if self._name_is_group(name):
                     group_config = self._get_config(name)
 
-                    group_config, update_config = _process_group_config(group_config, name_or_config)
+                    group_config, update_config = _process_group_config(
+                        group_config, name_or_config
+                    )
                     group_name, subtask_list = _get_group_and_subtask_from_config(group_config)
                 elif self._name_is_tag(name):
                     subtask_list = self._get_tasklist(name)
@@ -369,7 +385,9 @@ class TaskManager:
         if isinstance(task_list, str):
             task_list = [task_list]
 
-        all_loaded_tasks = dict(collections.ChainMap(*map(self._load_individual_task_or_group, task_list)))
+        all_loaded_tasks = dict(
+            collections.ChainMap(*map(self._load_individual_task_or_group, task_list))
+        )
         return all_loaded_tasks
 
     def load_config(self, config: Dict):
@@ -455,7 +473,7 @@ class TaskManager:
                                         "`group` and `group_alias` keys in tasks' configs will no longer be used in the next release of lmms-eval. "
                                         "`tag` will be used to allow to call a collection of tasks just like `group`. "
                                         "`group` will be removed in order to not cause confusion with the new ConfigurableGroup "
-                                        "which will be the offical way to create groups with addition of group-wide configuations."
+                                        "which will be the official way to create groups with addition of group-wide configurations."
                                     )
                                     print_info = False
                                     # attr = "tag"
@@ -472,12 +490,17 @@ class TaskManager:
                                             "yaml_path": -1,
                                         }
                                     elif tasks_and_groups[tag]["type"] != "tag":
-                                        self.logger.warning(f"The tag {tag} is already registered as a group, this tag will not be registered. " "This may affect tasks you want to call.")
+                                        self.logger.warning(
+                                            f"The tag {tag} is already registered as a group, this tag will not be registered. "
+                                            "This may affect tasks you want to call."
+                                        )
                                         break
                                     else:
                                         tasks_and_groups[tag]["task"].append(task)
                     else:
-                        self.logger.debug(f"File {f} in {root} could not be loaded as a task or group")
+                        self.logger.debug(
+                            f"File {f} in {root} could not be loaded as a task or group"
+                        )
 
         return tasks_and_groups
 
@@ -497,11 +520,15 @@ def get_task_name_from_object(task_object):
 
     # TODO: scrap this
     # this gives a mechanism for non-registered tasks to have a custom name anyways when reporting
-    return task_object.EVAL_HARNESS_NAME if hasattr(task_object, "EVAL_HARNESS_NAME") else type(task_object).__name__
+    return (
+        task_object.EVAL_HARNESS_NAME
+        if hasattr(task_object, "EVAL_HARNESS_NAME")
+        else type(task_object).__name__
+    )
 
 
 def _check_duplicates(task_dict: dict) -> List[str]:
-    """helper function solely used in validating get_task_dict output.
+    """Helper function solely used in validating get_task_dict output.
     Takes the output of lmms_eval.evaluator_utils.get_subtask_list and
     returns a list of all leaf subtasks contained within, and errors if any such leaf subtasks are
     "oversubscribed" to several disjoint groups.
@@ -510,10 +537,16 @@ def _check_duplicates(task_dict: dict) -> List[str]:
     for key, value in task_dict.items():
         subtask_names.extend(value)
 
-    duplicate_tasks = {task_name for task_name in subtask_names if subtask_names.count(task_name) > 1}
+    duplicate_tasks = {
+        task_name for task_name in subtask_names if subtask_names.count(task_name) > 1
+    }
 
     # locate the potentially problematic groups that seem to 'compete' for constituent subtasks
-    competing_groups = [group for group in task_dict.keys() if len(set(task_dict[group]).intersection(duplicate_tasks)) > 0]
+    competing_groups = [
+        group
+        for group in task_dict
+        if len(set(task_dict[group]).intersection(duplicate_tasks)) > 0
+    ]
 
     if len(duplicate_tasks) > 0:
         raise ValueError(
@@ -538,7 +571,6 @@ def get_task_dict(
     :return
         Dictionary of task objects
     """
-
     task_name_from_string_dict = {}
     task_name_from_config_dict = {}
     task_name_from_object_dict = {}
@@ -547,7 +579,9 @@ def get_task_dict(
         task_name_list = [task_name_list]
     elif isinstance(task_name_list, list):
         if not all([isinstance(task, (str, dict, Task)) for task in task_name_list]):
-            raise TypeError("Expected all list items to be of types 'str', 'dict', or 'Task', but at least one entry did not match.")
+            raise TypeError(
+                "Expected all list items to be of types 'str', 'dict', or 'Task', but at least one entry did not match."
+            )
     else:
         raise TypeError(f"Expected a 'str' or 'list' but received {type(task_name_list)}.")
 
@@ -574,7 +608,9 @@ def get_task_dict(
                 get_task_name_from_object(task_element): task_element,
             }
 
-    if not set(task_name_from_string_dict.keys()).isdisjoint(set(task_name_from_object_dict.keys())):
+    if not set(task_name_from_string_dict.keys()).isdisjoint(
+        set(task_name_from_object_dict.keys())
+    ):
         raise ValueError
 
     final_task_dict = {

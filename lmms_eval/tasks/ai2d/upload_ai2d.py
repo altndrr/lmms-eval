@@ -27,9 +27,9 @@ _DESCRIPTION = "AI2D is a dataset of illustrative diagrams for research on diagr
 def get_builder_config(VERSION):
     builder_config = [
         datasets.BuilderConfig(
-            name=f"ai2d",
+            name="ai2d",
             version=VERSION,
-            description=f"ai2d",
+            description="ai2d",
         )
     ]
     return builder_config
@@ -76,7 +76,11 @@ class AI2D(datasets.GeneratorBasedBuilder):
         return [
             datasets.SplitGenerator(
                 name=datasets.Split.TEST,
-                gen_kwargs={"annotation": annotation_path, "images": image_path, "test_annotation": test_annotation_path},
+                gen_kwargs={
+                    "annotation": annotation_path,
+                    "images": image_path,
+                    "test_annotation": test_annotation_path,
+                },
             ),
         ]
 

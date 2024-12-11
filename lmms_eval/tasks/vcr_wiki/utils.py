@@ -1,6 +1,5 @@
 import datetime
 import json
-import os
 from difflib import SequenceMatcher as SM
 from functools import partial
 from pathlib import Path
@@ -38,7 +37,9 @@ if config["metadata"]["load_package"]:
         nlp_en = spacy.load("en_core_web_sm")
         download("zh_core_web_sm")
         nlp_zh = spacy.load("zh_core_web_sm")
-        eval_logger.debug("Spacy models not loaded due to load_package is False. Please set load_package to True in the config file to load them.")
+        eval_logger.debug(
+            "Spacy models not loaded due to load_package is False. Please set load_package to True in the config file to load them."
+        )
 else:
     nlp = {"en": None, "zh": None}
     rouge = None
@@ -54,15 +55,9 @@ aggregate_results_template = {
 
 
 def fast_filter(answer_text):
-    if "I can't" in answer_text:
+    if "I can't" in answer_text or "I cannot" in answer_text or "sorry" in answer_text.lower():
         return True
-    elif "I cannot" in answer_text:
-        return True
-    elif "sorry" in answer_text.lower():
-        return True
-    if "无法" in answer_text:
-        return True
-    elif "抱歉" in answer_text:
+    if "无法" in answer_text or "抱歉" in answer_text:
         return True
     else:
         return False
@@ -81,15 +76,17 @@ def vcr_doc_to_text(doc, lmms_eval_specific_kwargs=None):
 
 
 def tokenize(text, language):
-    """
-    Tokenize the text and return the tokens.
+    """Tokenize the text and return the tokens.
 
-    Parameters:
+    Parameters
+    ----------
     text (str): The text to tokenize.
     language (str): The language of the text.
 
-    Returns:
+    Returns
+    -------
     list: The list of tokens.
+
     """
     assert language in ["en", "zh"]
     nlp_lang = nlp[language]
@@ -98,14 +95,14 @@ def tokenize(text, language):
 
 
 def vcr_process_results_single(crossed_text, result, language):
-    """
-    Args:
+    """Args:
         doc: an instance of the eval dataset
         results: [pred]
+
     Returns:
         a dictionary with key: metric name (in this case vcr score), value: metric value
-    """
 
+    """
     assert language in ["en", "zh"], f"Language {language} is not supported."
 
     if fast_filter(result):
@@ -129,7 +126,9 @@ def vcr_process_results_single(crossed_text, result, language):
     max_sim_string = ""
     max_sim_ngram = []
     tokens_crossed_text_set = set(tokens_crossed_text)
-    ngrams_hasjoint = [ngram for ngram in ngrams_ if not set(ngram).isdisjoint(tokens_crossed_text_set)]
+    ngrams_hasjoint = [
+        ngram for ngram in ngrams_ if not set(ngram).isdisjoint(tokens_crossed_text_set)
+    ]
 
     for ngram in ngrams_hasjoint:
         result_ngram = splitter.join(ngram)
@@ -187,12 +186,12 @@ def vcr_process_results_single(crossed_text, result, language):
 
 
 def vcr_en_process_results(doc, results):
-    """
-    Args:
+    """Args:
         doc: an instance of the eval dataset
         results: [pred], with length = 1
     Returns:
         a dictionary with key: metric name (in this case vcr score), value: metric value
+
     """
     output = {
         "max_sim_val": [],
@@ -206,7 +205,7 @@ def vcr_en_process_results(doc, results):
     crossed_text = doc["crossed_text"]
     for i in range(len(crossed_text)):
         tmp = vcr_process_results_single(crossed_text[i], results[0], "en")
-        for k in output.keys():
+        for k in output:
             output[k].append(
                 {
                     "score": tmp[k],
@@ -219,12 +218,12 @@ def vcr_en_process_results(doc, results):
 
 
 def vcr_zh_process_results(doc, results):
-    """
-    Args:
+    """Args:
         doc: an instance of the eval dataset
         results: [pred], with length = 1
     Returns:
         a dictionary with key: metric name (in this case vcr score), value: metric value and other info
+
     """
     output = {
         "max_sim_val": [],
@@ -238,7 +237,7 @@ def vcr_zh_process_results(doc, results):
     crossed_text = doc["crossed_text"]
     for i in range(len(crossed_text)):
         tmp = vcr_process_results_single(crossed_text[i], results[0], "zh")
-        for k in output.keys():
+        for k in output:
             output[k].append(
                 {
                     "question_id": doc["question_id"],
@@ -252,13 +251,13 @@ def vcr_zh_process_results(doc, results):
 
 
 def bootstrap_std(data, n_bootstrap=1000, ci=0.95):
-    """
-    Args:
+    """Args:
         data: a list of values
         n_bootstrap: number of bootstrap samples
         ci: confidence interval
     Returns:
         a tuple of mean, lower bound, upper bound
+
     """
     n = len(data)
     means = []
@@ -273,11 +272,11 @@ def bootstrap_std(data, n_bootstrap=1000, ci=0.95):
 
 
 def vcr_aggregate_results(results, args, metric="exact_match"):
-    """
-    Args:
+    """Args:
         results: List[List[Dict]], list of results returned by process_results
     Returns:
         A float value representing the final score of jaccard index or exact match
+
     """
     scores = []
     output_dict_detail_result = {}

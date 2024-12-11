@@ -17,10 +17,9 @@ from lmms_eval.utils import eval_logger, positional_deprecated
 
 
 class TaskOutput:
-    """
-    Wrapper class for Task outputs.It contains various attributes and methods to manage and calculate metrics for the task.
+    """Wrapper class for Task outputs.It contains various attributes and methods to manage and calculate metrics for the task.
 
-        Attributes:
+    Attributes:
             task (object): The task object.
             task_name (str): The name of the task.
             task_config (dict): The configuration of the task.
@@ -35,12 +34,13 @@ class TaskOutput:
             sample_metrics (defaultdict): The dictionary of samples' metrics.
             agg_metrics (defaultdict): The dictionary of aggregate metrics.
 
-        Methods:
+    Methods:
             from_taskdict(cls, task_name: str, task):
                 Creates a TaskOutput instance from a task dictionary.
 
             calculate_aggregate_metric(bootstrap_iters=100000) -> None:
                 Calculates the aggregate metrics for the task.
+
     """
 
     def __init__(
@@ -88,7 +88,9 @@ class TaskOutput:
             if isinstance(meta_config, dict):
                 n_shot = meta_config.get("num_fewshot", 0)
             else:
-                eval_logger.info(f"No metadata found in task config for {task_name}, using default n_shot=0")
+                eval_logger.info(
+                    f"No metadata found in task config for {task_name}, using default n_shot=0"
+                )
                 n_shot = 0
         task_alias = task_config.get("alias")
         group_alias = task_config.get("group_alias")
@@ -116,14 +118,27 @@ class TaskOutput:
                 if isinstance(bootstrap_iters, int):
                     stderr_fn = stderr_for_metric(
                         metric=agg_fn,
-                        bootstrap_iters=min(bootstrap_iters, 100) if metric in ["bleu", "chrf", "ter"] else bootstrap_iters,
+                        bootstrap_iters=min(bootstrap_iters, 100)
+                        if metric in ["bleu", "chrf", "ter"]
+                        else bootstrap_iters,
                     )
-                    self.agg_metrics[f"{metric}_stderr,{filter_key}"] = stderr_fn(items) if (stderr_fn and len(items) > 1) else "N/A"
+                    self.agg_metrics[f"{metric}_stderr,{filter_key}"] = (
+                        stderr_fn(items) if (stderr_fn and len(items) > 1) else "N/A"
+                    )
                 else:
-                    raise ValueError(f"Received bootstrap_iters '{bootstrap_iters}' but expected an integer. Set to 0 to turn off stderr calculations.")
+                    raise ValueError(
+                        f"Received bootstrap_iters '{bootstrap_iters}' but expected an integer. Set to 0 to turn off stderr calculations."
+                    )
 
     def __repr__(self):
-        return f"TaskOutput(task_name={self.task_name}, " f"group_name={self.group_name}, " f"version={self.version}, " f"n_shot={self.n_shot}, " f"task_alias={self.task_alias}, " f"group_alias={self.group_alias})"
+        return (
+            f"TaskOutput(task_name={self.task_name}, "
+            f"group_name={self.group_name}, "
+            f"version={self.version}, "
+            f"n_shot={self.n_shot}, "
+            f"task_alias={self.task_alias}, "
+            f"group_alias={self.group_alias})"
+        )
 
 
 def get_task_list(task_dict: dict) -> List[TaskOutput]:
@@ -150,7 +165,9 @@ def get_subtask_list(task_dict, task_root=None, depth=0):
         if isinstance(task_obj, dict):
             _subtask_list = get_subtask_list(task_obj, task_root=group_name, depth=depth + 1)
             if task_root:
-                subtask_list.setdefault((task_root, depth), []).extend([_task for (_task, _depth) in _subtask_list.keys() if (_depth - 1) == depth])
+                subtask_list.setdefault((task_root, depth), []).extend(
+                    [_task for (_task, _depth) in _subtask_list.keys() if (_depth - 1) == depth]
+                )
 
             subtask_list = {**subtask_list, **_subtask_list}
         else:
@@ -199,8 +216,7 @@ def prepare_print_tasks(
     task_depth=0,
     group_depth=0,
 ) -> Tuple[dict, dict]:
-    """
-    @param task_dict: Dictionary representing the group hierarchy of tasks. Each key is a group name and its
+    """@param task_dict: Dictionary representing the group hierarchy of tasks. Each key is a group name and its
     value is a list of task names.
     @param results: Dictionary containing the results of each task. Each key is a
     group name and its value is a dictionary of task results.
@@ -215,15 +231,15 @@ def prepare_print_tasks(
     """
 
     def _sort_task_dict(task_dict):
-        """
-        Helper utility. Sorts the task dict at the current level of the hierarchy based on alphabetized task name.
+        """Helper utility. Sorts the task dict at the current level of the hierarchy based on alphabetized task name.
         Required so that we end up sorting within each sub-header correctly.
         """
-
         return dict(
             sorted(
                 task_dict.items(),
-                key=lambda item: item[0].group_name if isinstance(item[0], ConfigurableGroup) else item[0],
+                key=lambda item: item[0].group_name
+                if isinstance(item[0], ConfigurableGroup)
+                else item[0],
             )
         )
 
@@ -270,7 +286,9 @@ def prepare_print_tasks(
         if isinstance(task_or_group_obj, dict):
             task_depth += 1
             group_depth += 1
-            _task_agg, _group_agg = prepare_print_tasks(task_or_group_obj, results, task_depth, group_depth)
+            _task_agg, _group_agg = prepare_print_tasks(
+                task_or_group_obj, results, task_depth, group_depth
+            )
             task_agg = {
                 **task_agg,
                 **_task_agg,
@@ -284,8 +302,7 @@ def prepare_print_tasks(
 def consolidate_results(
     eval_tasks: List[TaskOutput],
 ) -> Tuple[dict, dict, dict, dict, dict, dict]:
-    """
-    @param eval_tasks: list(TaskOutput).
+    """@param eval_tasks: list(TaskOutput).
     @return: A tuple containing the consolidated results, samples, configs, versions, and num_fewshot.
 
     Consolidates the results of multiple evaluation tasks into a single structure.
@@ -335,7 +352,9 @@ def consolidate_results(
             metric_key = f"{metric},{filter_key}"
             results[task_output.task_name][metric_key] = task_output.agg_metrics[metric_key]
             results[task_output.task_name]["samples"] = task_output.sample_len
-            results[task_output.task_name][f"{metric}_stderr,{filter_key}"] = task_output.agg_metrics[f"{metric}_stderr,{filter_key}"]
+            results[task_output.task_name][
+                f"{metric}_stderr,{filter_key}"
+            ] = task_output.agg_metrics[f"{metric}_stderr,{filter_key}"]
     return results, samples, configs, versions, num_fewshot, higher_is_better
 
 
@@ -347,8 +366,7 @@ def consolidate_group_results(
     show_group_table=False,
     task_aggregation_list=None,
 ) -> Tuple[dict, dict, bool, Union[None, dict]]:
-    """
-    (Recursively) calculates groups' aggregated metrics and updates the results and versions dictionaries with this info.
+    """(Recursively) calculates groups' aggregated metrics and updates the results and versions dictionaries with this info.
 
     @return: a tuple [results, versions, show_group_table, task_aggregation_list] with formats described below:
 
@@ -378,7 +396,9 @@ def consolidate_group_results(
 
         if isinstance(group_or_task_info, Task):
             if task_root:
-                task_aggregation_list.setdefault(task_root, []).append(group_or_task_info.task_name)
+                task_aggregation_list.setdefault(task_root, []).append(
+                    group_or_task_info.task_name
+                )
         else:
             (
                 results,
@@ -394,7 +414,9 @@ def consolidate_group_results(
                 task_aggregation_list,
             )
             if task_root:
-                task_aggregation_list.setdefault(task_root, []).extend(task_aggregation_list.get(group_or_task, []))
+                task_aggregation_list.setdefault(task_root, []).extend(
+                    task_aggregation_list.get(group_or_task, [])
+                )
 
             if (group_config is None) or (group_config["aggregate_metric_list"] is None):
                 results[group_or_task][" "] = " "
@@ -407,12 +429,21 @@ def consolidate_group_results(
 
             task_list = _task_aggregation_list[group_or_task]
 
-            metric_list = list({key for task in task_list for key in results[task].keys() if "_stderr" not in key and key not in ["task", "alias", "samples"]})
+            metric_list = list(
+                {
+                    key
+                    for task in task_list
+                    for key in results[task].keys()
+                    if "_stderr" not in key and key not in ["task", "alias", "samples"]
+                }
+            )
             for metric in metric_list:
                 stderr = "_stderr,".join(metric.split(","))
 
                 # gather metrics, sizes, and stderrs from subtasks
-                metrics = [results[task][metric] for task in task_list if metric in results[task]]  # TODO: copy?
+                metrics = [
+                    results[task][metric] for task in task_list if metric in results[task]
+                ]  # TODO: copy?
                 stderrs = [results[task][stderr] for task in task_list if stderr in results[task]]
                 sizes = [results[task]["samples"] for task in task_list if metric in results[task]]
 
@@ -427,7 +458,9 @@ def consolidate_group_results(
                         elif callable(metric_config["aggregation"]):
                             aggregate_fn = metric_config["aggregation"]
                         else:
-                            raise ValueError(f"Currently, only 'mean' is supported for automatically aggregating scores across groups' subtasks. Got '{metric_config['aggregation']}' for group '{group_or_task}'")
+                            raise ValueError(
+                                f"Currently, only 'mean' is supported for automatically aggregating scores across groups' subtasks. Got '{metric_config['aggregation']}' for group '{group_or_task}'"
+                            )
 
                         results[group_or_task][metric] = aggregate_fn(
                             metrics,
@@ -451,8 +484,7 @@ def consolidate_group_results(
 
 @positional_deprecated
 def find_test_root(start_path: pathlib.Path) -> pathlib.Path:
-    """
-    Search upward in the directory tree to a maximum of three layers
+    """Search upward in the directory tree to a maximum of three layers
     to find and return the package root (containing the 'tests' folder)
     """
     cur_path = start_path.resolve()
@@ -462,14 +494,14 @@ def find_test_root(start_path: pathlib.Path) -> pathlib.Path:
             return cur_path
         else:
             cur_path = cur_path.parent.resolve()
-    raise FileNotFoundError(f"Unable to find package root within {max_layers} upwards" + f"of {start_path}")
+    raise FileNotFoundError(
+        f"Unable to find package root within {max_layers} upwards" + f"of {start_path}"
+    )
 
 
 @positional_deprecated
 def run_task_tests(task_list: List[str]):
-    """
-    Find the package root and run the tests for the given tasks
-    """
+    """Find the package root and run the tests for the given tasks"""
     import pytest
 
     package_root = find_test_root(start_path=pathlib.Path(__file__))
@@ -483,4 +515,6 @@ def run_task_tests(task_list: List[str]):
     sys.path.append(str(package_root))
     pytest_return_val = pytest.main(args)
     if pytest_return_val:
-        raise ValueError(f"Not all tests for the specified tasks ({task_list}) ran successfully! Error code: {pytest_return_val}")
+        raise ValueError(
+            f"Not all tests for the specified tasks ({task_list}) ran successfully! Error code: {pytest_return_val}"
+        )

@@ -2,7 +2,6 @@ import json
 import os
 from pathlib import Path
 
-import pandas as pd
 import yaml
 from loguru import logger as eval_logger
 
@@ -19,7 +18,10 @@ with open(Path(__file__).parent / "mathverse.yaml", "r") as f:
 
     config = yaml.safe_load("".join(safe_data))
 
-mathverse_evaluator = MathVerseEvaluator(api_key=os.getenv("OPENAI_API_KEY", "YOUR_API_KEY"), gpt_model=config["metadata"]["gpt_eval_model_name"])
+mathverse_evaluator = MathVerseEvaluator(
+    api_key=os.getenv("OPENAI_API_KEY", "YOUR_API_KEY"),
+    gpt_model=config["metadata"]["gpt_eval_model_name"],
+)
 
 
 def mathverse_doc_to_visual(doc):
@@ -38,7 +40,12 @@ def mathverse_doc_to_text(doc, lmms_eval_specific_kwargs=None):
         "problem_version": doc["problem_version"],
     }
     query_prompt = mathverse_evaluator.create_one_query(
-        problem, examples=None, shot_num=0, shot_type=lmms_eval_specific_kwargs["shot_type"], hint=lmms_eval_specific_kwargs.get("hint", None), query_type=lmms_eval_specific_kwargs["query_type"]
+        problem,
+        examples=None,
+        shot_num=0,
+        shot_type=lmms_eval_specific_kwargs["shot_type"],
+        hint=lmms_eval_specific_kwargs.get("hint", None),
+        query_type=lmms_eval_specific_kwargs["query_type"],
     )
     return query_prompt
 
@@ -65,7 +72,9 @@ def mathverse_process_results(doc, results):
     }
 
 
-def mathverse_aggregate_results_submission(results, args, *, calculate_gain=False, random_scores=None):
+def mathverse_aggregate_results_submission(
+    results, args, *, calculate_gain=False, random_scores=None
+):
     # Don't know why but this sometimes yields error so I hardcode it
     try:
         split_flag = results[0]["metadata"]["split"]

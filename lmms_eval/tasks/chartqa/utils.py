@@ -33,7 +33,7 @@ def relaxed_correctness(prediction, target, max_relative_change: float = 0.05) -
     5% of the gold answer. For non-numeric answers, we still need an exact match
     to consider an answer to be correct.”
 
-    This funcion is taken from https://github.com/QwenLM/Qwen-VL/blob/34b4c0ee7b07726371b960911f249fe61b362ca3/eval_mm/evaluate_vqa.py#L113
+    This function is taken from https://github.com/QwenLM/Qwen-VL/blob/34b4c0ee7b07726371b960911f249fe61b362ca3/eval_mm/evaluate_vqa.py#L113
     Args:
       target: List of target string.
       prediction: List of predicted string.
@@ -41,6 +41,7 @@ def relaxed_correctness(prediction, target, max_relative_change: float = 0.05) -
 
     Returns:
       Whether the prediction was correct given the specified tolerance.
+
     """
 
     def _to_float(text: str):

@@ -29,4 +29,3 @@ lmms_eval_specific_kwargs:
 model_specific_generation_kwargs:
   llava:
     image_aspect_ratio: original
-

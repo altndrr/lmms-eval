@@ -1,4 +1,4 @@
 group: multidocvqa
 task:
-- multidocvqa_val
-- multidocvqa_test
+  - multidocvqa_val
+  - multidocvqa_test

@@ -1,4 +1,5 @@
 import datasets
+
 from live_bench.data_generator.qa_generator import QAGenerator
 from live_bench.data_generator.question_finalizer import QuestionFinalizer
 from live_bench.data_generator.utils.extract_information import ImageInfomation
@@ -6,7 +7,13 @@ from live_bench.screen_shoter.screen import ScreenImage
 
 
 class LiveBenchData(object):
-    SUBTASKS = ("Concrete Recognition", "Analytical Questions", "Evaluative Questions", "Divergent Thinking", "Real-world Assistance")
+    SUBTASKS = (
+        "Concrete Recognition",
+        "Analytical Questions",
+        "Evaluative Questions",
+        "Divergent Thinking",
+        "Real-world Assistance",
+    )
 
     features = datasets.Features(
         {
@@ -54,10 +61,16 @@ class LiveBenchData(object):
         self.information = information
         self.checker = None
         if checker:
-            response = checker.check(screen, question, answer, criteria, subtask, information=information)
+            response = checker.check(
+                screen, question, answer, criteria, subtask, information=information
+            )
             if response.success:
                 formatted_response = checker.format_checked_response(response)
-                if formatted_response.question and formatted_response.answer and formatted_response.criteria:
+                if (
+                    formatted_response.question
+                    and formatted_response.answer
+                    and formatted_response.criteria
+                ):
                     self.question = formatted_response.question
                     self.answer = formatted_response.answer
                     self.criteria = formatted_response.criteria
@@ -68,7 +81,9 @@ class LiveBenchData(object):
                     self.checker = checker.get_name()
         if finalizer:
             try:
-                qa = finalizer.finalize_question(self.question, self.answer, self.criteria, self.screen.images)
+                qa = finalizer.finalize_question(
+                    self.question, self.answer, self.criteria, self.screen.images
+                )
             except Exception as e:
                 raise e
             self.question = qa["question"]

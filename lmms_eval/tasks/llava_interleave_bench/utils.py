@@ -1,12 +1,6 @@
 import json
-import os
 import re
-import time
-from collections import defaultdict
-from pathlib import Path
 
-import requests
-import yaml
 from loguru import logger as eval_logger
 from PIL import Image
 from rouge import Rouge
@@ -16,7 +10,12 @@ image_edit_instruct = ["IEdit", "HQ-Edit", "MagicBrush"]
 visual_story_telling = ["AESOP", "FlintstonesSV", "PororoSV", "VIST"]
 visual_cloze = ["COMICS_Dialogue", "RecipeQA_VisualCloze"]
 text_rich_vqa = ["WebQA", "TQA", "OCR-VQA", "DocVQA"]
-multi_image_vqa = ["MIT-States_StateCoherence", "MIT-States_PropertyCoherence", "VISION", "RecipeQA_ImageCoherence"]
+multi_image_vqa = [
+    "MIT-States_StateCoherence",
+    "MIT-States_PropertyCoherence",
+    "VISION",
+    "RecipeQA_ImageCoherence",
+]
 
 puzzle = ["RAVEN"]
 nlrv2 = ["NLVR2_Mantis"]
@@ -107,10 +106,24 @@ def interleave_process_results(doc, results):
 
     if doc["question_type"] == "multi-choice":
         score = mcq_acc(doc["answer"], pred)
-        model_response = {"sample_id": sample_id, "sub_task": doc["sub_task"], "question_type": doc["question_type"], "answer": doc["answer"], "parsed_pred": pred, "score": score}
+        model_response = {
+            "sample_id": sample_id,
+            "sub_task": doc["sub_task"],
+            "question_type": doc["question_type"],
+            "answer": doc["answer"],
+            "parsed_pred": pred,
+            "score": score,
+        }
     elif doc["question_type"] == "open-ended":
         score = oe_rogue(doc["answer"], pred)
-        model_response = {"sample_id": sample_id, "sub_task": doc["sub_task"], "question_type": doc["question_type"], "answer": doc["answer"], "parsed_pred": pred, "score": score}
+        model_response = {
+            "sample_id": sample_id,
+            "sub_task": doc["sub_task"],
+            "question_type": doc["question_type"],
+            "answer": doc["answer"],
+            "parsed_pred": pred,
+            "score": score,
+        }
     else:
         raise ValueError(f"Unknown question type: {doc['question_type']}")
 
@@ -122,7 +135,29 @@ def interleave_process_results(doc, results):
 def mcq_acc(answer, pred):
     periodStrip = re.compile("(?!<=\d)(\.)(?!\d)")
     commaStrip = re.compile("(\d)(\,)(\d)")
-    punct = [";", r"/", "[", "]", '"', "{", "}", "(", ")", "=", "+", "\\", "_", "-", ">", "<", "@", "`", ",", "?", "!"]
+    punct = [
+        ";",
+        r"/",
+        "[",
+        "]",
+        '"',
+        "{",
+        "}",
+        "(",
+        ")",
+        "=",
+        "+",
+        "\\",
+        "_",
+        "-",
+        ">",
+        "<",
+        "@",
+        "`",
+        ",",
+        "?",
+        "!",
+    ]
 
     def processPunctuation(inText):
         outText = inText
@@ -208,7 +243,7 @@ def overall_score(results):
     category_scores = {}
     matched_subtasks = set()
 
-    eval_logger.info(f"Evaluation Sub-Task Results:")
+    eval_logger.info("Evaluation Sub-Task Results:")
     for category, subtasks in categories.items():
         score = 0
         count = 0
@@ -223,7 +258,9 @@ def overall_score(results):
             eval_logger.info(f"{category}: {avg_score:.3f}")
 
     if not matched_subtasks:
-        raise ValueError("No subtasks were matched in the results. Check if the subtask names are correct.")
+        raise ValueError(
+            "No subtasks were matched in the results. Check if the subtask names are correct."
+        )
 
     # Calculate overall score
     total_score = sum(category_scores.values())

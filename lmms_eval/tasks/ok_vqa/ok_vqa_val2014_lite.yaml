@@ -1,5 +1,5 @@
 task: ok_vqa_val2014_lite
-test_split: lite 
+test_split: lite
 dataset_path: lmms-lab/LMMs-Eval-Lite
 dataset_name: ok_vqa_val2014
 output_type: generate_until

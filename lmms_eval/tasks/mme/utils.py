@@ -1,11 +1,7 @@
-import datetime
-import json
 import os
 from collections import defaultdict
 
 from loguru import logger as eval_logger
-
-from lmms_eval.tasks._task_utils.file_utils import generate_submission_file
 
 dir_name = os.path.dirname(os.path.abspath(__file__))
 
@@ -43,7 +39,10 @@ def mme_doc_to_text(doc, lmms_eval_specific_kwargs=None):
     if "pre_prompt" in lmms_eval_specific_kwargs and lmms_eval_specific_kwargs["pre_prompt"] != "":
         question = question.replace(replace_prompt, "")
         question = f"{lmms_eval_specific_kwargs['pre_prompt']}{question}"
-    if "post_prompt" in lmms_eval_specific_kwargs and lmms_eval_specific_kwargs["post_prompt"] != "":
+    if (
+        "post_prompt" in lmms_eval_specific_kwargs
+        and lmms_eval_specific_kwargs["post_prompt"] != ""
+    ):
         question = question.replace(replace_prompt, "")
         question = f"{question}{lmms_eval_specific_kwargs['post_prompt']}"
     return question
@@ -74,12 +73,13 @@ def parse_pred_ans(pred_ans):
 
 
 def mme_process_results(doc, results):
-    """
-    Args:
+    """Args:
         doc: a instance of the eval dataset
         results: [pred]
+
     Returns:
         a dictionary with key: metric name (in this case mme score), value: metric value
+
     """
     pred = results[0]
     pred_ans = parse_pred_ans(pred)
@@ -88,18 +88,22 @@ def mme_process_results(doc, results):
     assert pred_ans in ["yes", "no", "other"]
     score = 1.0 if pred_ans == gt_ans else 0.0
     category = doc["category"]
-    key_name = "mme_perception_score" if category in eval_type_dict["Perception"] else "mme_cognition_score"
+    key_name = (
+        "mme_perception_score"
+        if category in eval_type_dict["Perception"]
+        else "mme_cognition_score"
+    )
     # Note: the key name here is very important. It decides which aggregation function will receive the results
     # We note down the question id/category to help us aggregate the results later
     return {key_name: {"question_id": doc["question_id"], "category": category, "score": score}}
 
 
 def mme_aggregate_results(results):
-    """
-    Args:
+    """Args:
         results: a list of values returned by process_results
     Returns:
         A score
+
     """
     category2score = defaultdict(dict)
     for result in results:

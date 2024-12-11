@@ -1,11 +1,8 @@
-import csv
 import json
 import os
-import threading
 import time
 
 import numpy as np
-import openai
 import requests
 from tqdm import tqdm
 
@@ -19,7 +16,9 @@ if API_TYPE == "openai":
         "Content-Type": "application/json",
     }
 elif API_TYPE == "azure":
-    API_URL = os.getenv("AZURE_ENDPOINT", "https://api.cognitive.microsoft.com/sts/v1.0/issueToken")
+    API_URL = os.getenv(
+        "AZURE_ENDPOINT", "https://api.cognitive.microsoft.com/sts/v1.0/issueToken"
+    )
     API_KEY = os.getenv("AZURE_API_KEY", "YOUR_API_KEY")
     headers = {
         "api-key": API_KEY,
@@ -29,7 +28,15 @@ elif API_TYPE == "azure":
 from loguru import logger as eval_logger
 
 
-def evaluate_by_chatgpt(data, output_entry, correctness_entry, gpt_model="gpt-4", load_json=False, save_json_path="./hallusion_output.json", retries=3):
+def evaluate_by_chatgpt(
+    data,
+    output_entry,
+    correctness_entry,
+    gpt_model="gpt-4",
+    load_json=False,
+    save_json_path="./hallusion_output.json",
+    retries=3,
+):
     if load_json and os.path.exists(save_json_path):
         with open(save_json_path, "r") as f:
             output = json.load(f)
@@ -62,10 +69,14 @@ def evaluate_by_chatgpt(data, output_entry, correctness_entry, gpt_model="gpt-4"
                 break
             except Exception as e:
                 eval_logger.info(f"Attempt {attempt + 1} failed with error: {str(e)}")
-                if attempt < retries - 1:  # If we have retries left, sleep and then continue to next attempt
+                if (
+                    attempt < retries - 1
+                ):  # If we have retries left, sleep and then continue to next attempt
                     time.sleep(5)
                 else:  # If this was the last attempt, log and return empty
-                    eval_logger.error(f"All {retries} attempts failed. Last error message: {str(e)}")
+                    eval_logger.error(
+                        f"All {retries} attempts failed. Last error message: {str(e)}"
+                    )
         try:
             output_text = response["choices"][0]["message"]["content"]
         except Exception as e:
@@ -91,17 +102,33 @@ def evaluate_by_chatgpt(data, output_entry, correctness_entry, gpt_model="gpt-4"
     return output
 
 
-def check_same_by_chatgpt(data, output_entry, gpt_model="gpt-4", load_json=False, save_json_path="./hallusion_output.json", retries=3):
+def check_same_by_chatgpt(
+    data,
+    output_entry,
+    gpt_model="gpt-4",
+    load_json=False,
+    save_json_path="./hallusion_output.json",
+    retries=3,
+):
     orig_response = {}
 
     for r in data:
         if str(r["figure_id"]) == "0":
-            key = "_".join([r["category"], r["subcategory"], str(r["set_id"]), str(r["question_id"])])
+            key = "_".join(
+                [r["category"], r["subcategory"], str(r["set_id"]), str(r["question_id"])]
+            )
             orig_response[key] = r[output_entry]
 
     for sample in tqdm(data, desc="Check same by GPT"):
         if "same" not in sample.keys():
-            key = "_".join([sample["category"], sample["subcategory"], str(sample["set_id"]), str(sample["question_id"])])
+            key = "_".join(
+                [
+                    sample["category"],
+                    sample["subcategory"],
+                    str(sample["set_id"]),
+                    str(sample["question_id"]),
+                ]
+            )
             response2 = orig_response[key]
 
             prompt = "Imagine you are an intelligent teacher. Thoroughly read the two responses to two different questions. Assess the consistency of the information provided within those two responses. "
@@ -134,10 +161,14 @@ def check_same_by_chatgpt(data, output_entry, gpt_model="gpt-4", load_json=False
                     break
                 except Exception as e:
                     eval_logger.info(f"Attempt {attempt + 1} failed with error: {str(e)}")
-                    if attempt < retries - 1:  # If we have retries left, sleep and then continue to next attempt
+                    if (
+                        attempt < retries - 1
+                    ):  # If we have retries left, sleep and then continue to next attempt
                         time.sleep(5)
                     else:  # If this was the last attempt, log and return empty
-                        eval_logger.error(f"All {retries} attempts failed. Last error message: {str(e)}")
+                        eval_logger.error(
+                            f"All {retries} attempts failed. Last error message: {str(e)}"
+                        )
 
             try:
                 output_text = response["choices"][0]["message"]["content"]
@@ -163,9 +194,17 @@ def check_same_by_chatgpt(data, output_entry, gpt_model="gpt-4", load_json=False
 
 def assign_correctness(data_arr, correctness_entry):
     for r in data_arr:
-        assert int(r[correctness_entry]) == 0 or int(r[correctness_entry]) == 1 or int(r[correctness_entry]) == 2
-        if r["category"] == "VS" and int(r["figure_id"]) == 0:  # if there is no visual supplement and the model does not know, count it as correct
-            r["correct"] = 1 if int(r[correctness_entry]) == 1 or int(r[correctness_entry]) == 2 else 0
+        assert (
+            int(r[correctness_entry]) == 0
+            or int(r[correctness_entry]) == 1
+            or int(r[correctness_entry]) == 2
+        )
+        if (
+            r["category"] == "VS" and int(r["figure_id"]) == 0
+        ):  # if there is no visual supplement and the model does not know, count it as correct
+            r["correct"] = (
+                1 if int(r[correctness_entry]) == 1 or int(r[correctness_entry]) == 2 else 0
+            )
         else:
             r["correct"] = 1 if int(r[correctness_entry]) == 1 else 0
     return data_arr
@@ -213,14 +252,25 @@ def get_eval_all(data, model_correctness_entry):  # per question
     eval_all_stat["Mix"] = 0
 
     for r in data:
-        name = "_".join([r["category"], r["subcategory"], str(r["set_id"]), str(r["figure_id"]), str(r["question_id"])])
+        name = "_".join(
+            [
+                r["category"],
+                r["subcategory"],
+                str(r["set_id"]),
+                str(r["figure_id"]),
+                str(r["question_id"]),
+            ]
+        )
         assert name not in eval_all_dict
 
         eval_all_dict[name] = r["correct"]
 
         if str(r["category"]) == "VD":  # VD
             if str(r["figure_id"]) == "0":
-                if str(r[model_correctness_entry]) == "0" or str(r[model_correctness_entry]) == "2":
+                if (
+                    str(r[model_correctness_entry]) == "0"
+                    or str(r[model_correctness_entry]) == "2"
+                ):
                     eval_all_stat["VI"] += 1
             else:
                 if str(r[model_correctness_entry]) == "0":
@@ -254,7 +304,9 @@ def get_eval_pair_all(data, model_correctness_entry):  # per question pair
 
     for r in data:
         if str(r["figure_id"]) == "0":
-            key = "_".join([r["category"], r["subcategory"], str(r["set_id"]), str(r["question_id"])])
+            key = "_".join(
+                [r["category"], r["subcategory"], str(r["set_id"]), str(r["question_id"])]
+            )
             orig_correctness[key] = r[model_correctness_entry]
 
     get_eval_pair_dict = dict()
@@ -296,7 +348,7 @@ def get_eval_pair_all(data, model_correctness_entry):  # per question pair
     #     elif v[1] > 0:
     #         eval_all_pair_stat["VI"] += 1
 
-    for k in get_eval_pair_dict.keys():
+    for k in get_eval_pair_dict:
         v = get_eval_pair_dict[k]
         if v[0] == v[1]:
             eval_all_pair_stat["correct"] += 1

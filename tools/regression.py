@@ -69,7 +69,9 @@ def eval_models(args, branch=None):
             f"--batch_size {batch_size} --output_path {output_path}"
         )
 
-        print(f"{'=' * 80}\nEvaluating {model} on {', '.join(tasks)} at {branch} with:\n\n{command}\n{'=' * 80}")
+        print(
+            f"{'=' * 80}\nEvaluating {model} on {', '.join(tasks)} at {branch} with:\n\n{command}\n{'=' * 80}"
+        )
 
         ret = os.system(command)
         os.chdir(original_dir)
@@ -129,10 +131,18 @@ def main():
 
     args.branches = args.branches.split(",") if isinstance(args.branches, str) else args.branches
     args.models = args.models.split(",") if isinstance(args.models, str) else args.models
-    args.tasks = ALL_TASKS if args.tasks == "all_tasks" else utils.pattern_match(args.tasks.split(","), ALL_TASKS) if isinstance(args.tasks, str) else args.tasks
+    args.tasks = (
+        ALL_TASKS
+        if args.tasks == "all_tasks"
+        else utils.pattern_match(args.tasks.split(","), ALL_TASKS)
+        if isinstance(args.tasks, str)
+        else args.tasks
+    )
 
     global initial_branch
-    initial_branch = subprocess.check_output("git branch --show-current", shell=True).decode("ascii").strip()
+    initial_branch = (
+        subprocess.check_output("git branch --show-current", shell=True).decode("ascii").strip()
+    )
 
     # TODO: implement proper timing for each task
     # TODO: reduce IO by sharing tasks between models?
@@ -150,10 +160,16 @@ def main():
     print(f"|task|{'|'.join(map(lambda model: Path(model).name, args.models))}|")
     print(f"|--|{'--|' * len(args.models)}")
     for task in args.tasks:
-        print(f"|{task} ({initial_branch})|{'|'.join(map(lambda model: format_value(args, results, model, task), args.models))}|")
+        print(
+            f"|{task} ({initial_branch})|{'|'.join(map(lambda model: format_value(args, results, model, task), args.models))}|"
+        )
         for branch, branch_results, branch_runtime in runs:
-            print(f"|{task} ({branch})|{'|'.join(map(lambda model: format_value(args, branch_results, model, task), args.models))}|")
-            print(f"|{task} (diff)|{'|'.join(map(lambda model: format_diff(args, results, branch_results, model, task), args.models))}|")
+            print(
+                f"|{task} ({branch})|{'|'.join(map(lambda model: format_value(args, branch_results, model, task), args.models))}|"
+            )
+            print(
+                f"|{task} (diff)|{'|'.join(map(lambda model: format_diff(args, results, branch_results, model, task), args.models))}|"
+            )
 
     print("")
     print("|branch|runtime|%|")

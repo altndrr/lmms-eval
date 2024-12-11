@@ -1,6 +1,5 @@
 import copy
 import json
-import logging
 from typing import Any, Dict, List, Literal, Tuple
 
 import numpy as np
@@ -31,6 +30,7 @@ class WandbLogger:
             wandb_logger.post_init(results)
             wandb_logger.log_eval_result()
             wandb_logger.log_eval_samples(results["samples"])
+
         """
         try:
             import wandb
@@ -39,7 +39,11 @@ class WandbLogger:
             if Version(wandb.__version__) < Version("0.13.6"):
                 wandb.require("report-editing:v0")
         except Exception as e:
-            logger.warning("To use the wandb reporting functionality please install wandb>=0.13.6.\n" "To install the latest version of wandb run `pip install wandb --upgrade`\n" f"{e}")
+            logger.warning(
+                "To use the wandb reporting functionality please install wandb>=0.13.6.\n"
+                "To install the latest version of wandb run `pip install wandb --upgrade`\n"
+                f"{e}"
+            )
 
         self.wandb_args: Dict[str, Any] = kwargs
 
@@ -121,7 +125,7 @@ class WandbLogger:
             results = copy.deepcopy(self.results)
 
             for k, dic in results.get(key).items():
-                if k in self.group_names and not key == "groups":
+                if k in self.group_names and key != "groups":
                     continue
                 version = results.get("versions").get(k)
                 if version == "N/A":
@@ -157,7 +161,9 @@ class WandbLogger:
         """Log results as JSON artifact to W&B."""
         import wandb
 
-        dumped = json.dumps(self.results, indent=2, default=_handle_non_serializable, ensure_ascii=False)
+        dumped = json.dumps(
+            self.results, indent=2, default=_handle_non_serializable, ensure_ascii=False
+        )
         artifact = wandb.Artifact("results", type="eval_results")
         with artifact.new_file("results.json", mode="w", encoding="utf-8") as f:
             f.write(dumped)
@@ -179,7 +185,9 @@ class WandbLogger:
         # Log the results dict as json to W&B Artifacts
         self._log_results_as_artifact()
 
-    def _generate_dataset(self, data: List[Dict[str, Any]], config: Dict[str, Any]) -> pd.DataFrame:
+    def _generate_dataset(
+        self, data: List[Dict[str, Any]], config: Dict[str, Any]
+    ) -> pd.DataFrame:
         """Generate a dataset from evaluation data.
 
         Args:
@@ -188,6 +196,7 @@ class WandbLogger:
 
         Returns:
             pd.DataFrame: A dataframe that is ready to be uploaded to W&B.
+
         """
         ids = [x["doc_id"] for x in data]
         labels = [x["target"] for x in data]
@@ -212,18 +221,33 @@ class WandbLogger:
         if config["output_type"] == "loglikelihood":
             instance = [x["arguments"][0][0] for x in data]
             labels = [x["arguments"][0][1] for x in data]
-            resps = [f'log probability of continuation is {x["resps"][0][0][0]} ' + "\n\n" + "continuation will {} generated with greedy sampling".format("not be" if not x["resps"][0][0][1] else "be") for x in data]
-            filtered_resps = [f'log probability of continuation is {x["filtered_resps"][0][0]} ' + "\n\n" + "continuation will {} generated with greedy sampling".format("not be" if not x["filtered_resps"][0][1] else "be") for x in data]
+            resps = [
+                f'log probability of continuation is {x["resps"][0][0][0]} '
+                + "\n\n"
+                + "continuation will {} generated with greedy sampling".format(
+                    "not be" if not x["resps"][0][0][1] else "be"
+                )
+                for x in data
+            ]
+            filtered_resps = [
+                f'log probability of continuation is {x["filtered_resps"][0][0]} '
+                + "\n\n"
+                + "continuation will {} generated with greedy sampling".format(
+                    "not be" if not x["filtered_resps"][0][1] else "be"
+                )
+                for x in data
+            ]
         elif config["output_type"] == "multiple_choice":
             instance = [x["arguments"][0][0] for x in data]
-            choices = ["\n".join([f"{idx}. {y[1]}" for idx, y in enumerate(x["arguments"])]) for x in data]
+            choices = [
+                "\n".join([f"{idx}. {y[1]}" for idx, y in enumerate(x["arguments"])]) for x in data
+            ]
             resps = [np.argmax([n[0][0] for n in x["resps"]]) for x in data]
             filtered_resps = [np.argmax([n[0] for n in x["filtered_resps"]]) for x in data]
-        elif config["output_type"] == "loglikelihood_rolling":
-            instance = [x["arguments"][0][0] for x in data]
-            resps = [x["resps"][0][0] for x in data]
-            filtered_resps = [x["filtered_resps"][0] for x in data]
-        elif config["output_type"] == "generate_until":
+        elif (
+            config["output_type"] == "loglikelihood_rolling"
+            or config["output_type"] == "generate_until"
+        ):
             instance = [x["arguments"][0][0] for x in data]
             resps = [x["resps"][0][0] for x in data]
             filtered_resps = [x["filtered_resps"][0] for x in data]
@@ -270,6 +294,7 @@ class WandbLogger:
 
         Args:
             samples (Dict[str, List[Dict[str, Any]]]): Evaluation samples for each task.
+
         """
         task_names: List[str] = [x for x in self.task_names if x not in self.group_names]
 

@@ -29,14 +29,18 @@ if API_TYPE == "openai":
         "Content-Type": "application/json",
     }
 elif API_TYPE == "azure":
-    API_URL = os.getenv("AZURE_ENDPOINT", "https://api.cognitive.microsoft.com/sts/v1.0/issueToken")
+    API_URL = os.getenv(
+        "AZURE_ENDPOINT", "https://api.cognitive.microsoft.com/sts/v1.0/issueToken"
+    )
     API_KEY = os.getenv("AZURE_API_KEY", "YOUR_API_KEY")
     headers = {
         "api-key": API_KEY,
         "Content-Type": "application/json",
     }
 
-mathvista_evaluator = MathVistaEvaluator(api_key=API_KEY, gpt_model=config["metadata"]["gpt_eval_model_name"])
+mathvista_evaluator = MathVistaEvaluator(
+    api_key=API_KEY, gpt_model=config["metadata"]["gpt_eval_model_name"]
+)
 
 
 def mathvista_doc_to_visual(doc):
@@ -75,11 +79,23 @@ def mathvista_process_results(doc, results):
         "answer": doc["answer"] if "answer" in doc else None,
         "precision": doc["precision"] if "precision" in doc else 0,
     }
-    extraction = mathvista_evaluator.extract_answer(prediction, problem, config["metadata"]["quick_extract"])
+    extraction = mathvista_evaluator.extract_answer(
+        prediction, problem, config["metadata"]["quick_extract"]
+    )
 
-    prediction = mathvista_evaluator.normalize_extracted_answer(extraction, problem["choices"], problem["question_type"], problem["answer_type"], problem["precision"])
+    prediction = mathvista_evaluator.normalize_extracted_answer(
+        extraction,
+        problem["choices"],
+        problem["question_type"],
+        problem["answer_type"],
+        problem["precision"],
+    )
     # set test set answer to None
-    true_false = mathvista_evaluator.safe_equal(prediction, problem["answer"]) if problem["answer"] is not None else False
+    true_false = (
+        mathvista_evaluator.safe_equal(prediction, problem["answer"])
+        if problem["answer"] is not None
+        else False
+    )
 
     result = {
         "question_id": doc["pid"],
@@ -114,7 +130,17 @@ def mathvista_aggregate_results(results, args, *, calculate_gain=False, random_s
 
     results_dict = {result["question_id"]: result for result in results}
     df = pd.DataFrame(results_dict).T
-    target_keys = ["question_type", "answer_type", "language", "source", "category", "task", "context", "grade", "skills"]
+    target_keys = [
+        "question_type",
+        "answer_type",
+        "language",
+        "source",
+        "category",
+        "task",
+        "context",
+        "grade",
+        "skills",
+    ]
 
     for key in target_keys:
         values = df[key].explode().unique() if key == "skills" else df[key].unique()
@@ -123,16 +149,24 @@ def mathvista_aggregate_results(results, args, *, calculate_gain=False, random_s
             correct, total, acc = mathvista_evaluator.get_acc_with_contion(df, key, value)
             if total > 0:
                 scores[key][value] = {"accuracy": acc, "correct": correct, "total": total}
-        scores[key] = dict(sorted(scores[key].items(), key=lambda item: float(item[1]["accuracy"]), reverse=True))
+        scores[key] = dict(
+            sorted(scores[key].items(), key=lambda item: float(item[1]["accuracy"]), reverse=True)
+        )
 
     if calculate_gain:
         for key in scores:
             if key == "average":
-                gain = round(float(scores[key]["accuracy"]) - float(random_scores[key]["accuracy"]), 2)
+                gain = round(
+                    float(scores[key]["accuracy"]) - float(random_scores[key]["accuracy"]), 2
+                )
                 scores[key]["acc_gain"] = gain
             else:
                 for sub_key in scores[key]:
-                    gain = round(float(scores[key][sub_key]["accuracy"]) - float(random_scores[key][sub_key]["accuracy"]), 2)
+                    gain = round(
+                        float(scores[key][sub_key]["accuracy"])
+                        - float(random_scores[key][sub_key]["accuracy"]),
+                        2,
+                    )
                     scores[key][sub_key]["acc_gain"] = gain
 
     path = generate_submission_file(f"mathvista_{split_flag}_scores.json", args)

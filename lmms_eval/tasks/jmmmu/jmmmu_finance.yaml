@@ -1,4 +1,3 @@
-
 dataset_name: Finance
 tag: "jmmmu_culture_agnostic"
 task: "jmmmu_finance"

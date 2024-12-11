@@ -1,6 +1,6 @@
 # WebSRC
 
-## Paper 
+## Paper
 
 Title: WebSRC: A Dataset for Web-Based Structural Reading Comprehension
 
@@ -9,7 +9,7 @@ Abstract: https://arxiv.org/abs/2101.09465
 Homepage: https://x-lance.github.io/WebSRC/#
 
 WebSRC is a dataset for web-based structural reading comprehension.
-Its full train/dev/test split contains over 400k questions across 6.4k webpages. 
+Its full train/dev/test split contains over 400k questions across 6.4k webpages.
 This version of the dataset does not contain OCR or original HTML, it simply treats WebSRC as a image-and-text-based multimodal Q&A benchmark on webpage screenshots.
 
 ## Citation
@@ -26,7 +26,7 @@ This version of the dataset does not contain OCR or original HTML, it simply tre
 
 ## Groups & Tasks
 
-### Groups 
+### Groups
 
 - `websrc`: Evaluates `websrc-val` and generates a submission file for `websrc-test`.
 
@@ -37,8 +37,8 @@ This version of the dataset does not contain OCR or original HTML, it simply tre
 
 ## Metrics
 
-This task uses SQUAD-style evaluation metrics, of which F1 score over tokens is used. 
-The orignal paper also uses Exact Match (EM) score, but this is not implemented here as that metric is more conducive for Encoder-only extraction models.
+This task uses SQUAD-style evaluation metrics, of which F1 score over tokens is used.
+The original paper also uses Exact Match (EM) score, but this is not implemented here as that metric is more conducive for Encoder-only extraction models.
 
 ### F1 Score
 
@@ -47,5 +47,5 @@ We calculate precision and recall at the token level, then compute the F1 score 
 
 ### Test Submission
 
-When evaluaing on the test split, a prediction JSON will be compiled instead of metrics computed. 
+When evaluaing on the test split, a prediction JSON will be compiled instead of metrics computed.
 Instructions for submission are available on the [WebSRC homepage](https://x-lance.github.io/WebSRC/#) and in their [Original GitHub Repo](https://github.com/X-LANCE/WebSRC-Baseline#obtain-test-result).

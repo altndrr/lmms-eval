@@ -6,7 +6,7 @@ metric_list:
     aggregation: mean
     higher_is_better: true
 dataset_path: lmms-lab/LMMs-Eval-Lite
-dataset_name: infovqa_val 
+dataset_name: infovqa_val
 dataset_kwargs:
   token: True
 doc_to_target: "answers"
