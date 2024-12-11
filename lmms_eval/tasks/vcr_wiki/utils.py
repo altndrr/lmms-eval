@@ -55,15 +55,9 @@ aggregate_results_template = {
 
 
 def fast_filter(answer_text):
-    if "I can't" in answer_text:
+    if "I can't" in answer_text or "I cannot" in answer_text or "sorry" in answer_text.lower():
         return True
-    elif "I cannot" in answer_text:
-        return True
-    elif "sorry" in answer_text.lower():
-        return True
-    if "无法" in answer_text:
-        return True
-    elif "抱歉" in answer_text:
+    if "无法" in answer_text or "抱歉" in answer_text:
         return True
     else:
         return False
@@ -211,7 +205,7 @@ def vcr_en_process_results(doc, results):
     crossed_text = doc["crossed_text"]
     for i in range(len(crossed_text)):
         tmp = vcr_process_results_single(crossed_text[i], results[0], "en")
-        for k in output.keys():
+        for k in output:
             output[k].append(
                 {
                     "score": tmp[k],
@@ -243,7 +237,7 @@ def vcr_zh_process_results(doc, results):
     crossed_text = doc["crossed_text"]
     for i in range(len(crossed_text)):
         tmp = vcr_process_results_single(crossed_text[i], results[0], "zh")
-        for k in output.keys():
+        for k in output:
             output[k].append(
                 {
                     "question_id": doc["question_id"],

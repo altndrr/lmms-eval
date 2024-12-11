@@ -185,7 +185,7 @@ class WandbLogger:
             model_args = results.get("model_configs").get("model_args")
 
             for k, dic in results.get(key).items():
-                if k in self.group_names and not key == "groups":
+                if k in self.group_names and key != "groups":
                     continue
                 version = results.get("versions").get(k)
                 if version == "N/A":

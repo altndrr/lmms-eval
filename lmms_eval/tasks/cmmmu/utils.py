@@ -101,7 +101,7 @@ def cmmmu_aggregate_results(results):
     for domain, in_domain_cats in DOMAIN_CAT2SUB_CAT.items():
         in_domain_cat_results = {}
         for cat_name in in_domain_cats:
-            if cat_name in evaluation_result.keys():
+            if cat_name in evaluation_result:
                 in_domain_cat_results[cat_name] = evaluation_result[cat_name]
             else:
                 pass

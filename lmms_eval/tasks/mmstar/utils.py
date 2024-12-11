@@ -49,13 +49,15 @@ def exact_match(pred, gt):
     answer = gt.lower().strip().replace("\n", " ")
     predict = pred.lower().strip().replace("\n", " ")
     try:
-        if answer == predict[0]:
-            return 1.0
-        elif predict[0] == "(" and answer == predict[1]:
-            return 1.0
-        elif predict[0:7] == "option " and answer == predict[7]:
-            return 1.0
-        elif predict[0:14] == "the answer is " and answer == predict[14]:
+        if (
+            answer == predict[0]
+            or predict[0] == "("
+            and answer == predict[1]
+            or predict[0:7] == "option "
+            and answer == predict[7]
+            or predict[0:14] == "the answer is "
+            and answer == predict[14]
+        ):
             return 1.0
     except Exception:
         return 0.0

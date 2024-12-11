@@ -544,7 +544,7 @@ def _check_duplicates(task_dict: dict) -> List[str]:
     # locate the potentially problematic groups that seem to 'compete' for constituent subtasks
     competing_groups = [
         group
-        for group in task_dict.keys()
+        for group in task_dict
         if len(set(task_dict[group]).intersection(duplicate_tasks)) > 0
     ]
 

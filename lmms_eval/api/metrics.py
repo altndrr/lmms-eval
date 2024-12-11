@@ -556,7 +556,7 @@ def stderr_for_metric(metric, bootstrap_iters: int):
 
     stderr = {mean: mean_stderr, acc_all: acc_all_stderr}
 
-    return stderr.get(metric, None)
+    return stderr.get(metric)
 
 
 def pooled_sample_stderr(stderrs: List[float], sizes: List[int]):

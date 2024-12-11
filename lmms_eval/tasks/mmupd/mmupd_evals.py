@@ -269,29 +269,7 @@ class MMUPD_Evaluator:
         return s, valid_option, answer_option
 
     def build_prompt(self, question, options, prediction, upd_type):
-        if upd_type == "aad":
-            tmpl = (
-                "You are an AI assistant who will help me to match an answer "
-                "with several options of a single-choice question. "
-                "You are provided with a question, several options, and an answer, "
-                "and you need to find which option is most similar to the answer. "
-                "If the meaning of all options are significantly different "
-                "from the answer, output H. "
-                "Your should output a single uppercase character in A, B, C, D, E, F, G "
-                "(if they are valid options), and H. \n"
-                "Example 1: \n"
-                "Question: What is the main object in image?\nOptions: A. teddy bear "
-                "B. rabbit C. cat D. dog E. no answer \nAnswer: a cute teddy bear\nYour output: A\n"
-                "Example 2: \n"
-                "Question: What is the main object in image?\nOptions: A. teddy bear "
-                "B. rabbit C. cat D. dog E. None of the above  \nAnswer: no answer \nYour output: E\n"
-                "Example 3: \n"
-                "Question: What is the main object in image?\nOptions: A. teddy bear "
-                "B. rabbit C. cat D. dog E. None of the above \nAnswer: fish \nYour output: H\n"
-                "Example 4: \n"
-                "Question: {}?\nOptions: {}\nAnswer: {}\nYour output: "
-            )
-        elif upd_type == "iasd":
+        if upd_type == "aad" or upd_type == "iasd":
             tmpl = (
                 "You are an AI assistant who will help me to match an answer "
                 "with several options of a single-choice question. "

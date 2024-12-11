@@ -563,13 +563,12 @@ class MathVistaEvaluator:
         # prompt
         if shot_type == "solution":
             prompt = "Solution: "
-        elif shot_type == "format-prompt":
-            prompt = ""
-        elif shot_type == "step-by-step":
-            prompt = ""
-        elif shot_type == "reason-first":
-            prompt = ""
-        elif shot_type == "direct":
+        elif (
+            shot_type == "format-prompt"
+            or shot_type == "step-by-step"
+            or shot_type == "reason-first"
+            or shot_type == "direct"
+        ):
             prompt = ""
         else:
             assert shot_type == "code"

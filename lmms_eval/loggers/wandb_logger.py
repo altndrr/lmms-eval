@@ -125,7 +125,7 @@ class WandbLogger:
             results = copy.deepcopy(self.results)
 
             for k, dic in results.get(key).items():
-                if k in self.group_names and not key == "groups":
+                if k in self.group_names and key != "groups":
                     continue
                 version = results.get("versions").get(k)
                 if version == "N/A":
@@ -244,11 +244,10 @@ class WandbLogger:
             ]
             resps = [np.argmax([n[0][0] for n in x["resps"]]) for x in data]
             filtered_resps = [np.argmax([n[0] for n in x["filtered_resps"]]) for x in data]
-        elif config["output_type"] == "loglikelihood_rolling":
-            instance = [x["arguments"][0][0] for x in data]
-            resps = [x["resps"][0][0] for x in data]
-            filtered_resps = [x["filtered_resps"][0] for x in data]
-        elif config["output_type"] == "generate_until":
+        elif (
+            config["output_type"] == "loglikelihood_rolling"
+            or config["output_type"] == "generate_until"
+        ):
             instance = [x["arguments"][0][0] for x in data]
             resps = [x["resps"][0][0] for x in data]
             filtered_resps = [x["filtered_resps"][0] for x in data]

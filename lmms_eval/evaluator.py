@@ -616,7 +616,7 @@ def evaluate(
             if len(task_list) != 0:  # subtask list will list "task_name": [] for solo tasks
                 for task in task_list:
                     for m, h in higher_is_better[task].items():
-                        if m not in _higher_is_better.keys():
+                        if m not in _higher_is_better:
                             _higher_is_better[m] = h
 
                         if (

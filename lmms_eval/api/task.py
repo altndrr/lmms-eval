@@ -273,10 +273,10 @@ class Task(abc.ABC):
             features = self.dataset_no_image[doc_name].features
             # If it is an Image instance or a Sequence of Image instance. Remove it
             for feature in features:
-                if isinstance(features[feature], Image):
-                    remove_cols.append(feature)
-                elif isinstance(features[feature], Sequence) and isinstance(
-                    features[feature].feature, Image
+                if (
+                    isinstance(features[feature], Image)
+                    or isinstance(features[feature], Sequence)
+                    and isinstance(features[feature].feature, Image)
                 ):
                     remove_cols.append(feature)
             for remove_col in remove_cols:
@@ -994,10 +994,10 @@ class ConfigurableTask(Task):
             features = self.dataset_no_image[doc_name].features
             # If it is an Image instance or a Sequence of Image instance. Remove it
             for feature in features:
-                if isinstance(features[feature], Image):
-                    remove_cols.append(feature)
-                elif isinstance(features[feature], Sequence) and isinstance(
-                    features[feature].feature, Image
+                if (
+                    isinstance(features[feature], Image)
+                    or isinstance(features[feature], Sequence)
+                    and isinstance(features[feature].feature, Image)
                 ):
                     remove_cols.append(feature)
             for remove_col in remove_cols:

@@ -56,9 +56,7 @@ def extract_option_labels(text, options=None):
             for i, option in enumerate(options, start=1):
                 label = chr(64 + i)
                 option_stripped = option.strip()
-                if option_stripped in text:
-                    counter[label] += 1
-                elif text in option:
+                if option_stripped in text or text in option:
                     counter[label] += 1
             if counter:
                 most_common = counter.most_common()

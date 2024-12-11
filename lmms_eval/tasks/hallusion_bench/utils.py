@@ -348,7 +348,7 @@ def get_eval_pair_all(data, model_correctness_entry):  # per question pair
     #     elif v[1] > 0:
     #         eval_all_pair_stat["VI"] += 1
 
-    for k in get_eval_pair_dict.keys():
+    for k in get_eval_pair_dict:
         v = get_eval_pair_dict[k]
         if v[0] == v[1]:
             eval_all_pair_stat["correct"] += 1
