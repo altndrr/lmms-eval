@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # install lmms_eval without building dependencies
-cd lmms_eval;
+cd lmms_eval || exit
 pip install --no-deps -U -e .
 
 # install LLaVA without building dependencies
-cd LLaVA
+cd LLaVA || exit
 pip install --no-deps -U -e .
 
 # install all the requirements that require for reproduce llava results

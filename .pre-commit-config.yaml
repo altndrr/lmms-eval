@@ -50,3 +50,9 @@ repos:
           - mdformat_frontmatter
           - mdformat-toc
           - mdformat-black
+
+  # shell scripts linter
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.9.0.6
+    hooks:
+      - id: shellcheck
