@@ -277,7 +277,7 @@ class Aria(lmms):
                     """
                     keywords = [
                         "Answer:",
-                        "answer is:", "choice is:", "option is:", 
+                        "answer is:", "choice is:", "option is:",
                         "Answer is:", "Choice is:", "Option is:",
                         "answer is", "choice is", "option is",
                         "Answer is", "Choice is", "Option is"

@@ -29,7 +29,7 @@ Dataset configuration options:
 - **process_docs** (`Callable`, *optional*) — Optionally define a function to apply to each HF dataset split, to preprocess all documents before being fed into prompt template rendering or other evaluation steps. Can be used to rename dataset columns, or to process documents into a format closer to the expected format expected by a prompt template.
 
 Prompting / in-context formatting options:
-- **doc_to_text** (`Union[Callable, str]`, *optional*) — Column name or function to process a sample into the appropriate input for the model. 
+- **doc_to_text** (`Union[Callable, str]`, *optional*) — Column name or function to process a sample into the appropriate input for the model.
 
   For multi-round generation, (e.g., MMSearch), the function accepts additional parameters about the round index, previous round information and previous model output. It should return the input image for the next round, input text for the next round, a boolean indicating if round inference should terminate, model outputs from all rounds, and extra information from previous rounds.
 - **doc_to_target** (`Union[Callable, str]`, *optional*) — Column name or or function to process a sample into the appropriate target output for the model. For multiple choice tasks, this should return an index into
@@ -37,9 +37,9 @@ Prompting / in-context formatting options:
 
 Runtime configuration options:
 - **num_fewshot** (`int`, *optional*, defaults to 0) — Number of few-shot examples before the input. **This function is not well tested so far**
-- **batch_size** (`int`, *optional*, defaults to 1) — Batch size. 
+- **batch_size** (`int`, *optional*, defaults to 1) — Batch size.
 
-**So far some models (such as qwen) may not support batch size > 1. Some models (such as llava) will generate different scores for different batch sizes. We recommend setting batch size to 1 for final benchmarking runs.** 
+**So far some models (such as qwen) may not support batch size > 1. Some models (such as llava) will generate different scores for different batch sizes. We recommend setting batch size to 1 for final benchmarking runs.**
 
 Scoring details:
 - **metric_list** (`str`, *optional*, defaults to None) — A list of metrics to use for evaluation.
@@ -51,7 +51,7 @@ Other:
 
 ## Using Yaml Configurations to Define Tasks
 
-We recomment to browse existing tasks in the `lmms_eval/tasks` folder to get a sense of the different options available. 
+We recomment to browse existing tasks in the `lmms_eval/tasks` folder to get a sense of the different options available.
 
 Here we will provide some explainations on the existing tasks and how to define new tasks. Here we use MME as an example.
 
@@ -62,7 +62,7 @@ dataset_kwargs:
 task: "mme" # The name of the task, this should be registered in the task manager. If successful, you can call lmms_eval with this task name by setting `--tasks mme`.
 test_split: test # The split of the dataset to use as the test split.
 output_type: generate_until # The type of model output for the given task. Options are `generate_until`, `loglikelihood`, and `multiple_choice`.
-doc_to_visual: !function utils.mme_doc_to_visual # The function to process a sample into the appropriate input for the model. 
+doc_to_visual: !function utils.mme_doc_to_visual # The function to process a sample into the appropriate input for the model.
 doc_to_text: !function utils.mme_doc_to_text # The function to process a sample into the appropriate target output for the model.
 doc_to_target: "answer" # The function to process a sample into a list of possible string choices for `multiple_choice` tasks.
 generation_kwargs: # Auxiliary arguments for the `generate` function from HF transformers library. This would be used in different models files.
@@ -74,7 +74,7 @@ generation_kwargs: # Auxiliary arguments for the `generate` function from HF tra
 # The return value of process_results will be used by metrics
 process_results: !function utils.mme_process_results
 # Note that the metric name can be either a registed metric function (such as the case for GQA) or a key name returned by process_results
-# e.g. Following metrics `mme_perception_score` is custom defined. 
+# e.g. Following metrics `mme_perception_score` is custom defined.
 # So `mme_process_results` function should return the dict `{"mme_perception_score": {sub_k:sub_v, ..., } }`
 # And the `mme_aggregate_results` function could get the dict `{sub_k:sub_v, ..., }`, and use the information to gather the final accuracy.
 metric_list:
@@ -88,7 +88,7 @@ lmms_eval_specific_kwargs:
   default:
     pre_prompt: ""
     post_prompt: "\nAnswer the question using a single word or phrase."
-  qwen_vl:  
+  qwen_vl:
     pre_prompt: ""
     post_prompt: " Answer:"
 metadata:
@@ -103,7 +103,7 @@ As above example shown, you can use python functions for certain arguments by us
 3. `doc_to_choice`
 4. `aggregation` for a `metric` in `metric_list`
 
-You can base a YAML on another YAML file as a template. This can be handy when you need to just change the prompt for `doc_to_text` but keep the rest the same or change `filters` to compare which is better. Simply use `include` in the YAML file and write the name of the template you want to base from. This assumes that the base temeplate is in the same directory. 
+You can base a YAML on another YAML file as a template. This can be handy when you need to just change the prompt for `doc_to_text` but keep the rest the same or change `filters` to compare which is better. Simply use `include` in the YAML file and write the name of the template you want to base from. This assumes that the base temeplate is in the same directory.
 
 Otherwise, You will need to define the full path.
 
@@ -231,7 +231,7 @@ generation_kwargs:
 # The return value of process_results will be used by metrics
 process_results: !function utils.mme_process_results
 # Note that the metric name can be either a registed metric function (such as the case for GQA) or a key name returned by process_results
-# e.g. Following metrics `mme_perception_score` is custom defined. 
+# e.g. Following metrics `mme_perception_score` is custom defined.
 # So `mme_process_results` function should return the dict `{"mme_perception_score": {sub_k:sub_v, ..., } }`
 # And the `mme_aggregate_results` function could get the dict `{sub_k:sub_v, ..., }`, and use the information to gather the final accuracy.
 metric_list:
@@ -245,7 +245,7 @@ lmms_eval_specific_kwargs:
   default:
     pre_prompt: ""
     post_prompt: "\nAnswer the question using a single word or phrase."
-  qwen_vl:  
+  qwen_vl:
     pre_prompt: ""
     post_prompt: " Answer:"
 metadata:

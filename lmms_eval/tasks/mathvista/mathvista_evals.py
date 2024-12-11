@@ -29,7 +29,7 @@ print(ans)
         "choices": ["hong kong", "osaka", "shanghai", "tokyo"],
         "caption": 'The image shows a large passenger jet parked on a tarmac at an airport. The jet is white with red trim and has a red tail. It is sitting on top of a tarmac next to a building. The jet is being loaded with passengers and cargo. The text on the image says "Japan. Endless Discovery".',
         "solution": """
-The caption mentions that the text on the image says "Japan. Endless Discovery". This indicates that the plane is headquartered in Japan. 
+The caption mentions that the text on the image says "Japan. Endless Discovery". This indicates that the plane is headquartered in Japan.
 
 Among the Japanese cities, Tokyo is the largest city.
 
@@ -84,7 +84,7 @@ Thus, the answer is D.
 def is_valid_triangle(a, b, perimeter):
     # Given a and b, find the third side
     third_side = perimeter - a - b
-    
+
     # Check triangle inequality
     if (a + b > third_side) and (a + third_side > b) and (b + third_side > a):
         return True

@@ -31,7 +31,7 @@ metric_list:
     higher_is_better: true
     ignore_case: true
     ignore_punctuation: true
-      
+
 lmms_eval_specific_kwargs:
   default:
     pre_prompt: ""

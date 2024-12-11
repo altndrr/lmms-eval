@@ -1,5 +1,5 @@
 task: "mmbench_en_dev_lite"
-test_split: lite 
+test_split: lite
 dataset_path: lmms-lab/LMMs-Eval-Lite
 dataset_name: mmbench_en_dev
 dataset_kwargs:

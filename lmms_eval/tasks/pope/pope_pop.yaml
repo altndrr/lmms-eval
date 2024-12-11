@@ -3,7 +3,7 @@ dataset_name: Full
 dataset_kwargs:
   token: True
 task: "pope_pop"
-test_split: popular 
+test_split: popular
 output_type: generate_until
 doc_to_visual: !function utils.pope_doc_to_visual
 doc_to_text: !function utils.pope_doc_to_text

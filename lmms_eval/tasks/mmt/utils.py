@@ -8,42 +8,41 @@ from loguru import logger as eval_logger
 from lmms_eval.tasks._task_utils.file_utils import generate_submission_file
 
 # All abbreviations for the categories
-"""
-MMT_abbrs = {
-    'visual_recognition': 'VR',
-    'localization': 'Loc',
-    'ocr': 'OCR',
-    'counting': 'Count',
-    'hallucination': 'HLN',
-    'image_retrieval': 'IR',
-    'threed': '3D',
-    'visual_captioning': 'VC',
-    'visual_grounding': 'VG',
-    'doc_understanding': 'DU',
-    'action_recognition': 'AR',
-    'pixel_level_perception': 'PLP',
-    'image-to-image_translation': 'I2IT',
-    'relation_reasoning': 'RR',
-    'intelligence_quotient_test': 'IQT',
-    'emotion': 'Emo',
-    'visual_illusion': 'VI',
-    'meme_understanding': 'MemU',
-    'visual_prompt_understanding': 'VPU',
-    'anomaly_detection': 'AND',
-    'keypoint_detection': 'KD',
-    'visual_commonsense_reasoning': 'VCR',
-    'image_evaluation_judgement': 'IEJ',
-    'multiple_image_analysis': 'MIA',
-    'cross_image_matching': 'CIM',
-    'temporal_understanding': 'TU',
-    'visual_code': 'VP',
-    'medical_understanding': 'MedU',
-    'autonomous_driving': 'AUD',
-    'discipline_knowledge_reasoning': 'DKR',
-    'embodied_ai': 'EA',
-    'gui_navigation': 'GN'
-}
-"""
+# MMT_abbrs = {
+#     'visual_recognition': 'VR',
+#     'localization': 'Loc',
+#     'ocr': 'OCR',
+#     'counting': 'Count',
+#     'hallucination': 'HLN',
+#     'image_retrieval': 'IR',
+#     'threed': '3D',
+#     'visual_captioning': 'VC',
+#     'visual_grounding': 'VG',
+#     'doc_understanding': 'DU',
+#     'action_recognition': 'AR',
+#     'pixel_level_perception': 'PLP',
+#     'image-to-image_translation': 'I2IT',
+#     'relation_reasoning': 'RR',
+#     'intelligence_quotient_test': 'IQT',
+#     'emotion': 'Emo',
+#     'visual_illusion': 'VI',
+#     'meme_understanding': 'MemU',
+#     'visual_prompt_understanding': 'VPU',
+#     'anomaly_detection': 'AND',
+#     'keypoint_detection': 'KD',
+#     'visual_commonsense_reasoning': 'VCR',
+#     'image_evaluation_judgement': 'IEJ',
+#     'multiple_image_analysis': 'MIA',
+#     'cross_image_matching': 'CIM',
+#     'temporal_understanding': 'TU',
+#     'visual_code': 'VP',
+#     'medical_understanding': 'MedU',
+#     'autonomous_driving': 'AUD',
+#     'discipline_knowledge_reasoning': 'DKR',
+#     'embodied_ai': 'EA',
+#     'gui_navigation': 'GN'
+# }
+
 # ============================
 # Visual Processing Functions
 # ============================

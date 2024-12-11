@@ -7,10 +7,10 @@ Before running experiments and evaluations, we recommend you to export following
 
 ```bash
 export OPENAI_API_KEY="<YOUR_API_KEY>"
-export HF_HOME="<Path to HF cache>" 
+export HF_HOME="<Path to HF cache>"
 export HF_TOKEN="<YOUR_API_KEY>"
 export HF_HUB_ENABLE_HF_TRANSFER="1"
-# Other possible environment variables include 
+# Other possible environment variables include
 # ANTHROPIC_API_KEY,DASHSCOPE_API_KEY etc.
 ```
 
@@ -81,7 +81,7 @@ accelerate launch --num_processes 8 --main_process_port 12345 -m lmms_eval \
     --batch_size 1 \
     --log_samples \
     --log_samples_suffix $TASK_SUFFIX \
-    --output_path ./logs/ 
+    --output_path ./logs/
 ```
 
 ### InternVL2
@@ -108,7 +108,7 @@ accelerate launch --num_processes 8 --main_process_port 12380 -m lmms_eval \
     --batch_size 1 \
     --log_samples \
     --log_samples_suffix $TASK_SUFFIX \
-    --output_path ./logs/ 
+    --output_path ./logs/
 ```
 
 
@@ -137,7 +137,7 @@ accelerate launch --num_processes 8 --main_process_port 12345 -m lmms_eval \
     --batch_size 1 \
     --log_samples \
     --log_samples_suffix $TASK_SUFFIX \
-    --output_path ./logs/ 
+    --output_path ./logs/
 
 ```
 
@@ -167,7 +167,7 @@ accelerate launch --num_processes 8 --main_process_port 10000 -m lmms_eval \
     --batch_size 1 \
     --log_samples \
     --log_samples_suffix $TASK_SUFFIX \
-    --output_path ./logs/ 
+    --output_path ./logs/
 
 # For Xcomposer-4kHD
 accelerate launch --num_processes 8 --main_process_port 12345 -m lmms_eval \
@@ -202,6 +202,6 @@ accelerate launch --num_processes 8 --main_process_port 12345 -m lmms_eval \
     --batch_size 1 \
     --log_samples \
     --log_samples_suffix instructblip \
-    --output_path ./logs/ 
+    --output_path ./logs/
 
 ```

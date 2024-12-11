@@ -1,5 +1,5 @@
 task: vizwiz_vqa_val_lite
-test_split: lite 
+test_split: lite
 dataset_path: lmms-lab/LMMs-Eval-Lite
 dataset_name: vizwiz_vqa_val
 output_type: generate_until

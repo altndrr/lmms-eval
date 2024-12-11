@@ -9,7 +9,7 @@ doc_to_visual: !function utils.mirb_doc_to_visual
 doc_to_text: !function utils.mirb_doc_to_text
 doc_to_target: !function utils.mirb_doc_to_target
 process_results: !function utils.mirb_process_results
-  
+
 lmms_eval_specific_kwargs:
   default:
     pre_prompt: ""
@@ -23,7 +23,7 @@ generation_kwargs:
 
 metric_list:
   - metric: mirb_score
-    aggregation: !function utils.mirb_aggregation 
+    aggregation: !function utils.mirb_aggregation
     higher_is_better: true
 
 metadata:

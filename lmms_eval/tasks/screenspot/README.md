@@ -16,7 +16,7 @@ ScreenSpot is an evaluation benchmark for GUI grounding, comprising over 1200 in
 ### REC Metrics
 
 REC/Grounding requires that a model outputs a bounding box for the target element in the image. The evaluation metrics are:
-- `IoU`: Intersection over Union (IoU) between the predicted bounding box and the ground truth bounding box. 
+- `IoU`: Intersection over Union (IoU) between the predicted bounding box and the ground truth bounding box.
 - `ACC@IoIU`: We use `IoU` to create `ACC@IoU` metrics at different IoU thresholds where an output with an IoU above the threshold is considered correct.
 - `CENTER ACC`: The predicted bounding box is considered correct if the center of the predicted bounding box is within the ground truth bounding box. This is what's reported in the paper.
 
@@ -37,14 +37,14 @@ As a Baseline, here is how LLaVA-v1.5-7b performs on the ScreenSpot dataset:
 - `CENTER ACC`: 0.097
 - `CIDEr`: 0.097
 
-## References 
+## References
 
 - ArXiv: [SeeClick: Harnessing GUI Grounding for Advanced Visual GUI Agents](https://arxiv.org/abs/2401.10935)
 - GitHub: [njucckevin/SeeClick](https://github.com/njucckevin/SeeClick)
 
 ```bibtex
 @misc{cheng2024seeclick,
-      title={SeeClick: Harnessing GUI Grounding for Advanced Visual GUI Agents}, 
+      title={SeeClick: Harnessing GUI Grounding for Advanced Visual GUI Agents},
       author={Kanzhi Cheng and Qiushi Sun and Yougang Chu and Fangzhi Xu and Yantao Li and Jianbing Zhang and Zhiyong Wu},
       year={2024},
       eprint={2401.10935},

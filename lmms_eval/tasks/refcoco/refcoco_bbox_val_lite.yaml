@@ -11,7 +11,7 @@ generation_kwargs:
     - "ASSISTANT:"
 process_results: !function utils.refcoco_process_result
 metric_list:
-  - metric: refcoco_Bleu_4 
+  - metric: refcoco_Bleu_4
     aggregation : !function utils.refcoco_bleu4
     higher_is_better : true
   - metric: refcoco_Bleu_3

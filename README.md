@@ -2,7 +2,7 @@
 <img src="https://i.postimg.cc/g0QRgMVv/WX20240228-113337-2x.png"  width="100%" height="70%">
 </p>
 
-# The Evaluation Suite of Large Multimodal Models 
+# The Evaluation Suite of Large Multimodal Models
 
 [![PyPI](https://img.shields.io/pypi/v/lmms-eval)](https://pypi.org/project/lmms-eval)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/lmms-eval)
@@ -70,7 +70,7 @@ If you want to test on caption dataset such as `coco`, `refcoco`, and `nocaps`, 
 ```
 conda install openjdk=8
 ```
-you can then check your java version by `java -version` 
+you can then check your java version by `java -version`
 
 
 <details>
@@ -196,7 +196,7 @@ Please refer to our [documentation](docs/README.md).
 
 ## Acknowledgement
 
-lmms_eval is a fork of [lm-eval-harness](https://github.com/EleutherAI/lm-evaluation-harness). We recommend you to read through the [docs of lm-eval-harness](https://github.com/EleutherAI/lm-evaluation-harness/tree/main/docs) for relevant information. 
+lmms_eval is a fork of [lm-eval-harness](https://github.com/EleutherAI/lm-evaluation-harness). We recommend you to read through the [docs of lm-eval-harness](https://github.com/EleutherAI/lm-evaluation-harness/tree/main/docs) for relevant information.
 
 ---
 
@@ -216,13 +216,13 @@ During the initial stage of our project, we thank:
 
 ```shell
 @misc{zhang2024lmmsevalrealitycheckevaluation,
-      title={LMMs-Eval: Reality Check on the Evaluation of Large Multimodal Models}, 
+      title={LMMs-Eval: Reality Check on the Evaluation of Large Multimodal Models},
       author={Kaichen Zhang and Bo Li and Peiyuan Zhang and Fanyi Pu and Joshua Adrian Cahyono and Kairui Hu and Shuai Liu and Yuanhan Zhang and Jingkang Yang and Chunyuan Li and Ziwei Liu},
       year={2024},
       eprint={2407.12772},
       archivePrefix={arXiv},
       primaryClass={cs.CL},
-      url={https://arxiv.org/abs/2407.12772}, 
+      url={https://arxiv.org/abs/2407.12772},
 }
 
 @misc{lmms_eval2024,

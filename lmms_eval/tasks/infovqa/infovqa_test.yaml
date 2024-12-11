@@ -7,4 +7,3 @@ metric_list:
     aggregation: !function utils.infovqa_test_aggregate_results
     higher_is_better: true
 include: _default_template_infovqa_yaml
-  

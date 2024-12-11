@@ -11,7 +11,7 @@ A well-crafted question about an event should allow respondents to gain deeper i
    - This level involves breaking down information into components to understand relationships and meanings.
    - Example questions:
      - "What are the factors that led to this event?"
-     - "How does this event relate to other current issues?" 
+     - "How does this event relate to other current issues?"
 3. **Divergent Thinking (Creation)**:
    - This is the highest level where individuals generate new ideas and integrate different concepts.
    - Example questions:

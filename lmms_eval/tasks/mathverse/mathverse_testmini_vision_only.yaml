@@ -24,7 +24,7 @@ metric_list:
   - metric: submission
     aggregation: !function utils.mathverse_aggregate_results_submission
     higher_is_better: true
-  
+
 lmms_eval_specific_kwargs:
   default:
     shot_type: "format-prompt" # can also be "custom-prompt"

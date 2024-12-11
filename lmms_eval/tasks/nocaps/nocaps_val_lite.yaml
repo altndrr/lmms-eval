@@ -17,7 +17,7 @@ generation_kwargs:
 process_results: !function utils.nocaps_process_result
 # Note that the metric name can be either a registed metric function (such as the case for GQA) or a key name returned by process_results
 metric_list:
-  - metric: nocaps_Bleu_4 
+  - metric: nocaps_Bleu_4
     aggregation : !function utils.nocaps_bleu4
     higher_is_better : true
   - metric: nocaps_Bleu_3
