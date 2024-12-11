@@ -13,12 +13,14 @@ Tasks are configured via the `TaskConfig` object. Below, we describe all fields 
 ### Parameters
 
 Task naming + registration:
+
 - **task** (`str`, defaults to None) — name of the task.
 - **group** (`str`, *optional*) — name of the task group(s) a task belongs to. Enables one to run all tasks with a specified tag or group name at once. This would be deprecated in the future, and we recommend using `tag` to replace it.
 - **task_alias** (`str`, defaults to None) - Alias of the task name that will be printed in the final table results.
 - **tag** (`str`, *optional*) — name of the task tags(s) a task belongs to. Enables one to run all tasks with a specified tag name at once. This is a improved naming rule over `group`.
 
 Dataset configuration options:
+
 - **dataset_path** (`str`) — The name of the dataset as listed by HF in the datasets Hub.
 - **dataset_name**  (`str`, *optional*, defaults to None) — The name of what HF calls a `config` or `subset` of the benchmark. If your task does not contain any data instances, just leave this to default to None. (If you're familiar with the HF `datasets.load_dataset` function, these are just the first 2 arguments to it.)
 - **dataset_kwargs** (`dict`, *optional*) — Auxiliary arguments that `datasets.load_dataset` accepts. This can be used to specify arguments such as `data_files` or `data_dir` if you want to use local datafiles such as json or csv.
@@ -29,24 +31,30 @@ Dataset configuration options:
 - **process_docs** (`Callable`, *optional*) — Optionally define a function to apply to each HF dataset split, to preprocess all documents before being fed into prompt template rendering or other evaluation steps. Can be used to rename dataset columns, or to process documents into a format closer to the expected format expected by a prompt template.
 
 Prompting / in-context formatting options:
+
 - **doc_to_text** (`Union[Callable, str]`, *optional*) — Column name or function to process a sample into the appropriate input for the model.
 
   For multi-round generation, (e.g., MMSearch), the function accepts additional parameters about the round index, previous round information and previous model output. It should return the input image for the next round, input text for the next round, a boolean indicating if round inference should terminate, model outputs from all rounds, and extra information from previous rounds.
+
 - **doc_to_target** (`Union[Callable, str]`, *optional*) — Column name or or function to process a sample into the appropriate target output for the model. For multiple choice tasks, this should return an index into
+
 - **doc_to_choice** (`Union[Callable, str]`, *optional*) — Column name or or function to process a sample into a list of possible string choices for `multiple_choice` tasks. Left undefined for `generate_until` tasks.
 
 Runtime configuration options:
+
 - **num_fewshot** (`int`, *optional*, defaults to 0) — Number of few-shot examples before the input. **This function is not well tested so far**
 - **batch_size** (`int`, *optional*, defaults to 1) — Batch size.
 
 **So far some models (such as qwen) may not support batch size > 1. Some models (such as llava) will generate different scores for different batch sizes. We recommend setting batch size to 1 for final benchmarking runs.**
 
 Scoring details:
+
 - **metric_list** (`str`, *optional*, defaults to None) — A list of metrics to use for evaluation.
 - **output_type** (`str`, *optional*, defaults to "generate_until") — Selects the type of model output for the given task. Options are `generate_until`, `loglikelihood`, and `multiple_choice`.
 - **generation_kwargs** (`dict`, *optional*) — Auxiliary arguments for the `generate` function from HF transformers library. Advanced keyword arguments may not be supported for non-HF LM classes.
 
 Other:
+
 - **metadata** (`dict`, *optional*) — An optional field where arbitrary metadata can be passed. Most tasks should include a `version` key in this field that is used to denote the version of the yaml config. Other special metadata keys are: `num_fewshot`, to override the printed `n-shot` table column for a task.
 
 ## Using Yaml Configurations to Define Tasks
@@ -98,6 +106,7 @@ metadata:
 ### Embedded Python Code
 
 As above example shown, you can use python functions for certain arguments by using the `!function` operator after the argument name followed by `<filename>.<pythonfunctionname>`. This feature can be used for the following arguments:
+
 1. `doc_to_text`
 2. `doc_to_target`
 3. `doc_to_choice`
@@ -134,30 +143,32 @@ metric_list:
 Here we list all metrics currently supported natively in `lmms_eval`:
 
 Metrics:
-* `acc` (accuracy)
-* `acc_norm` (length-normalized accuracy)
-* `acc_all` (accuracy metric where all answers must be correct for each question)
-* `anls` (average Normalized Levenshtein Similarity, used for evaluating text similarity)
-* `acc_mutual_info` (baseline loglikelihood - normalized accuracy)
-* `by_pass` (by-pass score, dont calculate anything, just return the model output as the result)
-* `exact_match` (exact match score, bind to `output_type: generate_until` and `aggregation: mean`)
-* `perplexity`
-* `word_perplexity` (perplexity per word)
-* `byte_perplexity` (perplexity per byte)
-* `bits_per_byte`
-* `brier_score` (a scoring rule for probabilistic predictions)
-* `matthews_corrcoef` (Matthews correlation coefficient)
-* `f1` (F1 score)
-* `bleu`
-* `chrf`
-* `ter`
+
+- `acc` (accuracy)
+- `acc_norm` (length-normalized accuracy)
+- `acc_all` (accuracy metric where all answers must be correct for each question)
+- `anls` (average Normalized Levenshtein Similarity, used for evaluating text similarity)
+- `acc_mutual_info` (baseline loglikelihood - normalized accuracy)
+- `by_pass` (by-pass score, dont calculate anything, just return the model output as the result)
+- `exact_match` (exact match score, bind to `output_type: generate_until` and `aggregation: mean`)
+- `perplexity`
+- `word_perplexity` (perplexity per word)
+- `byte_perplexity` (perplexity per byte)
+- `bits_per_byte`
+- `brier_score` (a scoring rule for probabilistic predictions)
+- `matthews_corrcoef` (Matthews correlation coefficient)
+- `f1` (F1 score)
+- `bleu`
+- `chrf`
+- `ter`
 
 Aggregation functions:
-* `mean`
-* `median`
-* `perplexity`
-* `weighted_perplexity`
-* `bits_per_byte`
+
+- `mean`
+- `median`
+- `perplexity`
+- `weighted_perplexity`
+- `bits_per_byte`
 
 ### Adding a Multiple Choice Metric
 
@@ -179,27 +190,30 @@ The default metric and aggregation functions are in `lm_eval/api/metrics.py`, an
     def mcc_fn(items):  # This is a passthrough function
         return items
 ```
+
 Note that many of these are passthrough functions, and for multiple choice (at least) this function is never actually called.
 
 Aggregation functions are defined towards the top of the file, here's an example:
 
-    @register_aggregation("matthews_corrcoef")
-    def matthews_corrcoef(items):
-        unzipped_list = list(zip(*items))
-        golds = unzipped_list[0]
-        preds = unzipped_list[1]
-        return sklearn.metrics.matthews_corrcoef(golds, preds)
+```
+@register_aggregation("matthews_corrcoef")
+def matthews_corrcoef(items):
+    unzipped_list = list(zip(*items))
+    golds = unzipped_list[0]
+    preds = unzipped_list[1]
+    return sklearn.metrics.matthews_corrcoef(golds, preds)
+```
 
 This function returns a single numeric value. The input is defined in `Task.process_results` in `lm_eval/api/task.py`. There's a section that looks like this:
 
 ```python
-    result_dict = {
-        **({"acc": acc} if "acc" in use_metric else {}),
-        **({"f1": (gold, pred)} if "f1" in use_metric else {}),
-        **({"mcc": (gold, pred)} if "mcc" in use_metric else {}),
-        **({"acc_norm": acc_norm} if "acc_norm" in use_metric else {}),
-        **({"exact_match": exact_match} if "exact_match" in use_metric else {}),
-    }
+result_dict = {
+    **({"acc": acc} if "acc" in use_metric else {}),
+    **({"f1": (gold, pred)} if "f1" in use_metric else {}),
+    **({"mcc": (gold, pred)} if "mcc" in use_metric else {}),
+    **({"acc_norm": acc_norm} if "acc_norm" in use_metric else {}),
+    **({"exact_match": exact_match} if "exact_match" in use_metric else {}),
+}
 ```
 
 The value here determines the input to the aggregation function, though the name used matches the metric function. These metrics all have simple needs and just need the accuracy or gold and predicted values, but immediately below this there are examples of metrics with more complicated needs you can use as reference.
@@ -253,6 +267,7 @@ metadata:
 ```
 
 And other tasks can be:
+
 - MMBench (`lmms_eval/tasks/mmbench/mmbench.yaml`) (Group: `mmbench`)
 
 **Notes:**

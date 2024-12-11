@@ -16,7 +16,7 @@
 
 📖 [Supported Tasks (90+)](https://github.com/EvolvingLMMs-Lab/lmms-eval/blob/main/docs/current_tasks.md) | 🌟 [Supported Models (30+)](https://github.com/EvolvingLMMs-Lab/lmms-eval/tree/main/lmms_eval/models) | 📚 [Documentation](docs/README.md)
 
----
+______________________________________________________________________
 
 ## Why `lmms-eval`?
 
@@ -35,11 +35,13 @@ We humbly obsorbed the exquisite and efficient design of [lm-evaluation-harness]
 ## Installation
 
 For formal usage, you can install the package from PyPI by running the following command:
+
 ```bash
 pip install lmms-eval
 ```
 
 For development, you can install the package by cloning the repository and running the following command:
+
 ```bash
 git clone https://github.com/EvolvingLMMs-Lab/lmms-eval
 cd lmms-eval
@@ -47,6 +49,7 @@ pip install -e .
 ```
 
 If you want to test LLaVA, you will have to clone their repo from [LLaVA](https://github.com/haotian-liu/LLaVA) and
+
 ```bash
 # for llava 1.5
 # git clone https://github.com/haotian-liu/LLaVA
@@ -67,11 +70,12 @@ You can check the [environment install script](miscs/repr_scripts.sh) and [torch
 </details>
 
 If you want to test on caption dataset such as `coco`, `refcoco`, and `nocaps`, you will need to have `java==1.8.0` to let pycocoeval api to work. If you don't have it, you can install by using conda
+
 ```
 conda install openjdk=8
 ```
-you can then check your java version by `java -version`
 
+you can then check your java version by `java -version`
 
 <details>
 <summary>Comprehensive Evaluation Results of LLaVA Family Models</summary>
@@ -198,19 +202,21 @@ Please refer to our [documentation](docs/README.md).
 
 lmms_eval is a fork of [lm-eval-harness](https://github.com/EleutherAI/lm-evaluation-harness). We recommend you to read through the [docs of lm-eval-harness](https://github.com/EleutherAI/lm-evaluation-harness/tree/main/docs) for relevant information.
 
----
+______________________________________________________________________
 
 Below are the changes we made to the original API:
+
 - Build context now only pass in idx and process image and doc during the model responding phase. This is due to the fact that dataset now contains lots of images and we can't store them in the doc like the original lm-eval-harness other wise the cpu memory would explode.
 - Instance.args (lmms_eval/api/instance.py) now contains a list of images to be inputted to lmms.
 - lm-eval-harness supports all HF language models as single model class. Currently this is not possible of lmms because the input/output format of lmms in HF are not yet unified. Thererfore, we have to create a new class for each lmms model. This is not ideal and we will try to unify them in the future.
 
----
+______________________________________________________________________
 
 During the initial stage of our project, we thank:
+
 - [Xiang Yue](https://xiangyue9607.github.io/), [Jingkang Yang](https://jingkang50.github.io/), [Dong Guo](https://www.linkedin.com/in/dongguoset/) and [Sheng Shen](https://sincerass.github.io/) for early discussion and testing.
 
----
+______________________________________________________________________
 
 ## Citations
 

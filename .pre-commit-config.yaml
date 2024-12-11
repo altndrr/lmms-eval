@@ -37,3 +37,16 @@ repos:
         args:
           - --skip=libs/**,logs/**,*.bib,*.ipynb,*.js,**/vqa_eval_metric.py
           - --ignore-words-list=ans,nd,ned,nin,hart,rouge,vist
+
+  # md formatting
+  - repo: https://github.com/executablebooks/mdformat
+    rev: 0.7.16
+    hooks:
+      - id: mdformat
+        args: ["--number"]
+        additional_dependencies:
+          - mdformat-gfm
+          - mdformat-tables
+          - mdformat_frontmatter
+          - mdformat-toc
+          - mdformat-black
