@@ -1,6 +1,5 @@
 import ast
 import json
-import os
 import random
 import re
 from collections import defaultdict
@@ -37,7 +36,9 @@ def replace_images_tokens(input_string):
 
 def parse_options(options):
     option_letters = [chr(ord("A") + i) for i in range(len(options))]
-    choices_str = "\n".join([f"{option_letter}. {option}" for option_letter, option in zip(option_letters, options)])
+    choices_str = "\n".join(
+        [f"{option_letter}. {option}" for option_letter, option in zip(option_letters, options)]
+    )
     return choices_str
 
 
@@ -64,7 +65,9 @@ def mmmu_doc_to_visual(doc):
     prompt = construct_prompt(doc)
     image_tokens = re.findall(r"<image \d+>", prompt)
     # Remove <> and  swap space as _
-    image_tokens = sorted(list(set([image_token.strip("<>").replace(" ", "_") for image_token in image_tokens])))
+    image_tokens = sorted(
+        list(set([image_token.strip("<>").replace(" ", "_") for image_token in image_tokens]))
+    )
     visual = [doc[image_token].convert("RGB") for image_token in image_tokens]
     return visual
 
@@ -77,7 +80,13 @@ def mmmu_process_results(doc, results):
     else:
         parsed_pred = parse_open_response(pred)
     id = doc["id"]
-    mmmu_acc = {"id": id, "subdomain": extract_subset_name(doc["id"]), "question_type": doc["question_type"], "answer": doc["answer"], "parsed_pred": parsed_pred}
+    mmmu_acc = {
+        "id": id,
+        "subdomain": extract_subset_name(doc["id"]),
+        "question_type": doc["question_type"],
+        "answer": doc["answer"],
+        "parsed_pred": parsed_pred,
+    }
     return {
         "mmmu_acc": mmmu_acc,
         "submission": {
@@ -123,7 +132,9 @@ def mmmu_aggregate_results(results):
             else:
                 pass
         in_domain_ins_acc = calculate_ins_level_acc(in_domain_cat_results)
-        in_domain_data_num = sum([cat_results["num_example"] for cat_results in in_domain_cat_results.values()])
+        in_domain_data_num = sum(
+            [cat_results["num_example"] for cat_results in in_domain_cat_results.values()]
+        )
         printable_results["Overall-" + domain] = {
             "num": int(in_domain_data_num),
             "acc": round(in_domain_ins_acc, 5),

@@ -1,6 +1,4 @@
 import ast
-import json
-import os
 import random
 import re
 from collections import defaultdict
@@ -8,11 +6,10 @@ from pathlib import Path
 
 import numpy as np
 import yaml
-from loguru import logger as eval_logger
 
-from lmms_eval.tasks._task_utils.file_utils import generate_submission_file
-
-MULTI_CHOICE_PROMPT = "与えられた選択肢の中から最も適切な回答のアルファベットを直接記入してください。"
+MULTI_CHOICE_PROMPT = (
+    "与えられた選択肢の中から最も適切な回答のアルファベットを直接記入してください。"
+)
 OPEN_ENDED_PROMPT = "質問に対する回答を単語や短いフレーズで記入してください。"
 
 
@@ -38,7 +35,9 @@ def replace_images_tokens(input_string):
 
 def parse_options(options):
     option_letters = [chr(ord("A") + i) for i in range(len(options))]
-    choices_str = "\n".join([f"{option_letter}. {option}" for option_letter, option in zip(option_letters, options)])
+    choices_str = "\n".join(
+        [f"{option_letter}. {option}" for option_letter, option in zip(option_letters, options)]
+    )
     return choices_str
 
 
@@ -67,7 +66,9 @@ def jmmmu_doc_to_visual(doc):
 
     image_tokens = re.findall(r"<image \d+>", prompt)
     # Remove <> and  swap space as _
-    image_tokens = sorted(list(set([image_token.strip("<>").replace(" ", "_") for image_token in image_tokens])))
+    image_tokens = sorted(
+        list(set([image_token.strip("<>").replace(" ", "_") for image_token in image_tokens]))
+    )
     visual = [doc[image_token].convert("RGB") for image_token in image_tokens]
     return visual
 
@@ -80,7 +81,13 @@ def jmmmu_process_results(doc, results):
     else:
         parsed_pred = parse_open_response(pred)
     id = doc["id"]
-    jmmmu_acc = {"id": id, "subdomain": extract_subset_name(doc["id"]), "question_type": doc["question_type"], "answer": doc["answer"], "parsed_pred": parsed_pred}
+    jmmmu_acc = {
+        "id": id,
+        "subdomain": extract_subset_name(doc["id"]),
+        "question_type": doc["question_type"],
+        "answer": doc["answer"],
+        "parsed_pred": parsed_pred,
+    }
     return {
         "jmmmu_acc": jmmmu_acc,
         "submission": {
@@ -118,7 +125,9 @@ def jmmmu_aggregate_results(results):
             else:
                 pass
         in_domain_ins_acc = calculate_ins_level_acc(in_domain_cat_results)
-        in_domain_data_num = sum([cat_results["num_example"] for cat_results in in_domain_cat_results.values()])
+        in_domain_data_num = sum(
+            [cat_results["num_example"] for cat_results in in_domain_cat_results.values()]
+        )
         printable_results["Overall-" + domain] = {
             "num": int(in_domain_data_num),
             "acc": round(in_domain_ins_acc, 5),
@@ -403,7 +412,17 @@ def parse_open_response(response):
         response = response.strip().strip("。")
         sub_responses = re.split(r"[。！？.]\s*|\n", response)
 
-        indicators_of_keys = ["よって", "よって、", "答えは", "答えは、", "最終的に", "最終的に、", "解答は", "解答は、" "回答は", "回答は、"]
+        indicators_of_keys = [
+            "よって",
+            "よって、",
+            "答えは",
+            "答えは、",
+            "最終的に",
+            "最終的に、",
+            "解答は",
+            "解答は、" "回答は",
+            "回答は、",
+        ]
         key_responses = []
         for index, resp in enumerate(sub_responses):
             # if last one, accept it's an equation (the entire response can be just one sentence with equation)
@@ -421,7 +440,21 @@ def parse_open_response(response):
 
             if shortest_key_response:
                 # and it's not trivial
-                if shortest_key_response.strip() not in [",", ".", "!", "?", ";", ":", "'", "、", "。", "！", "？", "；", "："]:
+                if shortest_key_response.strip() not in [
+                    ",",
+                    ".",
+                    "!",
+                    "?",
+                    ";",
+                    ":",
+                    "'",
+                    "、",
+                    "。",
+                    "！",
+                    "？",
+                    "；",
+                    "：",
+                ]:
                     key_responses.append(shortest_key_response)
         if len(key_responses) == 0:  # did not found any
             return [response]

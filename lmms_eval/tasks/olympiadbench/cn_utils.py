@@ -2,8 +2,6 @@ import datetime
 import json
 import os
 
-from loguru import logger as eval_logger
-
 from lmms_eval.tasks._task_utils.file_utils import generate_submission_file
 from lmms_eval.tasks.olympiadbench.olympiadbench_evals import OlympiadBenchEvaluator
 
@@ -57,7 +55,9 @@ def olympiadbench_process_results(doc, results):
         return {"submission": prediction}
     else:
         prediction = prediction.split("所以最终答案是")[-1]
-        prediction = prediction.replace('"', "").replace("\n", "").replace(" ", "").strip(".").strip("。")
+        prediction = (
+            prediction.replace('"', "").replace("\n", "").replace(" ", "").strip(".").strip("。")
+        )
         accuracy = olympiadbench_evaluator.judge(prediction, doc["final_answer"][0], precision)
         accuracy = int(accuracy)
         return {"exact_match": accuracy}

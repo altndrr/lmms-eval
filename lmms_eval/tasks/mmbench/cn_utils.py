@@ -26,14 +26,21 @@ if API_TYPE == "openai":
     API_URL = os.getenv("OPENAI_API_URL", "https://api.openai.com/v1/chat/completions")
     API_KEY = os.getenv("OPENAI_API_KEY", "YOUR_API_KEY")
 elif API_TYPE == "azure":
-    API_URL = os.getenv("AZURE_ENDPOINT", "https://api.cognitive.microsoft.com/sts/v1.0/issueToken")
+    API_URL = os.getenv(
+        "AZURE_ENDPOINT", "https://api.cognitive.microsoft.com/sts/v1.0/issueToken"
+    )
     API_KEY = os.getenv("AZURE_API_KEY", "YOUR_API_KEY")
 else:
     API_URL = "YOUR_API_URL"
     API_KEY = "YOUR_API_KEY"
 
 
-mmbench_evaluator = MMBench_Evaluator(sys_prompt=config["metadata"]["sys_prompt"], API_KEY=API_KEY, API_URL=API_URL, model_version=GPT_EVAL_MODEL_NAME)
+mmbench_evaluator = MMBench_Evaluator(
+    sys_prompt=config["metadata"]["sys_prompt"],
+    API_KEY=API_KEY,
+    API_URL=API_URL,
+    model_version=GPT_EVAL_MODEL_NAME,
+)
 
 
 def mmbench_doc_to_visual(doc):
@@ -58,7 +65,11 @@ def mmbench_doc_to_text(doc, lmms_eval_specific_kwargs=None):
         "split": doc["split"],
     }
 
-    query_prompt = f"{data['hint']} {data['question']} {data['options']}" if pd.notna(data["hint"]) else f"{data['question']} {data['options']}"
+    query_prompt = (
+        f"{data['hint']} {data['question']} {data['options']}"
+        if pd.notna(data["hint"])
+        else f"{data['question']} {data['options']}"
+    )
 
     if lmms_eval_specific_kwargs:
         query_prompt = f"{query_prompt}\n{lmms_eval_specific_kwargs['post_prompt']}"
@@ -100,8 +111,10 @@ def mmbench_process_results(doc, results):
 
 
 def mmbench_aggregate_dev_results_eval(results, args):
-    print(f"============= MMBench-CN(Dev) Detailed Results =============")
-    overall_acc, category_acc, l2_category_acc = mmbench_evaluator.eval_result(results, eval_method="openai")
+    print("============= MMBench-CN(Dev) Detailed Results =============")
+    overall_acc, category_acc, l2_category_acc = mmbench_evaluator.eval_result(
+        results, eval_method="openai"
+    )
     file = generate_submission_file("mmbench_cn_dev_results.json", args)
     details_info = {
         "overall_acc": overall_acc,

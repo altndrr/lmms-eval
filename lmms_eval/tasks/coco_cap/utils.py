@@ -2,7 +2,7 @@ import json
 import os
 
 from loguru import logger as eval_logger
-from pycocoevalcap.eval import Bleu, Cider, COCOEvalCap, Meteor, Rouge, Spice
+from pycocoevalcap.eval import Bleu, Cider, COCOEvalCap, Meteor, Rouge
 from pycocoevalcap.tokenizer.ptbtokenizer import PTBTokenizer
 from pycocotools.coco import COCO
 
@@ -18,7 +18,7 @@ def coco_doc_to_visual(doc):
 
 
 def coco_doc_to_text(doc):
-    return f"Provide a one-sentence caption for the provided image."
+    return "Provide a one-sentence caption for the provided image."
 
 
 def coco_process_result(doc, result):
@@ -41,7 +41,15 @@ def coco_process_result(doc, result):
 
 
 def coco_aggregation_result(results, metric, args):
-    scorers = [(Bleu(4), "Bleu_1"), (Bleu(4), "Bleu_2"), (Bleu(4), "Bleu_3"), (Bleu(4), "Bleu_4"), (Meteor(), "METEOR"), (Rouge(), "ROUGE_L"), (Cider(), "CIDEr")]  # , (Spice(), "SPICE")]
+    scorers = [
+        (Bleu(4), "Bleu_1"),
+        (Bleu(4), "Bleu_2"),
+        (Bleu(4), "Bleu_3"),
+        (Bleu(4), "Bleu_4"),
+        (Meteor(), "METEOR"),
+        (Rouge(), "ROUGE_L"),
+        (Cider(), "CIDEr"),
+    ]  # , (Spice(), "SPICE")]
     scorers_dict = {s[1]: s for s in scorers}
 
     stored_results = []
@@ -55,7 +63,9 @@ def coco_aggregation_result(results, metric, args):
     for result in results:
         stored_results.append({"image_id": int(result["image_id"]), "caption": result["pred"]})
         for a in result["answer"]:
-            dataset["annotations"].append({"image_id": int(result["image_id"]), "caption": a, "id": idx})
+            dataset["annotations"].append(
+                {"image_id": int(result["image_id"]), "caption": a, "id": idx}
+            )
             idx += 1
         dataset["images"].append({"id": result["image_id"]})
 
@@ -152,4 +162,6 @@ def coco_test_aggregation_result(results, args):
     with open(path, "w") as f:
         json.dump(stored_results, f, indent=4)
 
-    eval_logger.info(f"Your test result has been stored in to {path}. Make sure you also have the val result stored to submit to the server on https://codalab.lisn.upsaclay.fr/competitions/7404#participate.")
+    eval_logger.info(
+        f"Your test result has been stored in to {path}. Make sure you also have the val result stored to submit to the server on https://codalab.lisn.upsaclay.fr/competitions/7404#participate."
+    )

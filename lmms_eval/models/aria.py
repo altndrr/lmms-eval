@@ -1,13 +1,10 @@
 import warnings
 from typing import List, Optional, Tuple, Union
 
-import numpy as np
 import PIL
-import requests
 import torch
 from accelerate import Accelerator, DistributedType
 from accelerate.state import AcceleratorState
-from PIL import Image
 from tqdm import tqdm
 from transformers import AutoModelForCausalLM, AutoProcessor
 
@@ -71,10 +68,19 @@ class Aria(lmms):
             dtype = getattr(torch, dtype)
 
         self.max_frames_num = max_frames_num
-        self._model = AutoModelForCausalLM.from_pretrained(pretrained, revision=revision, device_map=self.device_map, torch_dtype=torch.bfloat16, trust_remote_code=True, attn_implementation=attn_implementation)
+        self._model = AutoModelForCausalLM.from_pretrained(
+            pretrained,
+            revision=revision,
+            device_map=self.device_map,
+            torch_dtype=torch.bfloat16,
+            trust_remote_code=True,
+            attn_implementation=attn_implementation,
+        )
 
         self.pretrained = pretrained
-        self._image_processor = AutoProcessor.from_pretrained(pretrained, revision=revision, trust_remote_code=True)
+        self._image_processor = AutoProcessor.from_pretrained(
+            pretrained, revision=revision, trust_remote_code=True
+        )
         self._tokenizer = self._image_processor.tokenizer
 
         self._config = self._model.config
@@ -82,7 +88,11 @@ class Aria(lmms):
         self.chat_template = chat_template
         self.specified_eot_token_id = specified_eot_token_id
         if accelerator.num_processes > 1 and device_map == "":
-            assert accelerator.distributed_type in [DistributedType.FSDP, DistributedType.MULTI_GPU, DistributedType.DEEPSPEED], "Unsupported distributed type provided. Only DDP and FSDP are supported."
+            assert accelerator.distributed_type in [
+                DistributedType.FSDP,
+                DistributedType.MULTI_GPU,
+                DistributedType.DEEPSPEED,
+            ], "Unsupported distributed type provided. Only DDP and FSDP are supported."
             # If you want to use DistributedType.DEEPSPEED, you have to run accelerate config before using the model
             # Also, you have to select zero stage 0 (equivalent to DDP) in order to make the prepare model works
             # I tried to set different parameters in the kwargs to let default zero 2 stage works, but it didn't work.
@@ -91,19 +101,30 @@ class Aria(lmms):
                     "train_micro_batch_size_per_gpu": self.batch_size_per_gpu,
                     "train_batch_size": self.batch_size_per_gpu * accelerator.num_processes,
                 }
-                AcceleratorState().deepspeed_plugin.deepspeed_config_process(must_match=True, **kwargs)
-                eval_logger.info("Detected that you are using DistributedType.DEEPSPEED. Make sure you run `accelerate config` and set zero stage to 0")
-            if accelerator.distributed_type == DistributedType.FSDP or accelerator.distributed_type == DistributedType.DEEPSPEED:
+                AcceleratorState().deepspeed_plugin.deepspeed_config_process(
+                    must_match=True, **kwargs
+                )
+                eval_logger.info(
+                    "Detected that you are using DistributedType.DEEPSPEED. Make sure you run `accelerate config` and set zero stage to 0"
+                )
+            if (
+                accelerator.distributed_type == DistributedType.FSDP
+                or accelerator.distributed_type == DistributedType.DEEPSPEED
+            ):
                 self._model = accelerator.prepare(self.model)
             else:
                 self._model = accelerator.prepare_model(self.model, evaluation_mode=True)
             self.accelerator = accelerator
             if self.accelerator.is_local_main_process:
-                eval_logger.info(f"Using {accelerator.num_processes} devices with data parallelism")
+                eval_logger.info(
+                    f"Using {accelerator.num_processes} devices with data parallelism"
+                )
             self._rank = self.accelerator.local_process_index
             self._world_size = self.accelerator.num_processes
         elif accelerator.num_processes == 1 and device_map == "auto":
-            eval_logger.info(f"Using {accelerator.num_processes} devices with pipeline parallelism")
+            eval_logger.info(
+                f"Using {accelerator.num_processes} devices with pipeline parallelism"
+            )
             self._rank = 0
             self._word_size = 1
         else:
@@ -155,7 +176,9 @@ class Aria(lmms):
     def world_size(self):
         return self._world_size
 
-    def tok_encode(self, string: str, left_truncate_len=None, add_special_tokens=None) -> List[int]:
+    def tok_encode(
+        self, string: str, left_truncate_len=None, add_special_tokens=None
+    ) -> List[int]:
         """ """
         add_special_tokens = False if add_special_tokens is None else add_special_tokens
         encoding = self.tokenizer.encode(string, add_special_tokens=add_special_tokens)
@@ -195,7 +218,11 @@ class Aria(lmms):
         # in the same batch.
         re_ords = utils.Collator([reg.args for reg in requests], _collate, grouping=True)
         chunks = re_ords.get_batched(n=self.batch_size, batch_fn=None)
-        num_iters = len(requests) // self.batch_size if len(requests) % self.batch_size == 0 else len(requests) // self.batch_size + 1
+        num_iters = (
+            len(requests) // self.batch_size
+            if len(requests) % self.batch_size == 0
+            else len(requests) // self.batch_size + 1
+        )
         pbar = tqdm(total=num_iters, disable=(self.rank != 0), desc="Model Responding")
         for chunk in chunks:
             contexts, all_gen_kwargs, doc_to_visual, doc_id, task, split = zip(*chunk)
@@ -242,7 +269,9 @@ class Aria(lmms):
             if self.accelerator.is_main_process and doc_id[0] % 100 == 0:
                 eval_logger.debug(f"Prompt for doc ID {doc_id[0]}:\n\n{text}\n")
 
-            inputs = self._image_processor(images=visuals, text=text, return_tensors="pt", max_image_size=980)
+            inputs = self._image_processor(
+                images=visuals, text=text, return_tensors="pt", max_image_size=980
+            )
 
             inputs["pixel_values"] = inputs["pixel_values"].to(self.model.dtype)
             inputs = {k: v.to(self._device) for k, v in inputs.items()}
@@ -271,7 +300,9 @@ class Aria(lmms):
                         **gen_kwargs,
                     )
                     output_ids = output[0][inputs["input_ids"].shape[1] :]
-                    text_outputs = self._image_processor.decode(output_ids, skip_special_tokens=True).replace("<|im_end|>", "")
+                    text_outputs = self._image_processor.decode(
+                        output_ids, skip_special_tokens=True
+                    ).replace("<|im_end|>", "")
 
                     ### Basic Model-wise Parsing for CoT-alike Outputs
                     """

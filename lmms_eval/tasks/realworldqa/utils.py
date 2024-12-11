@@ -3,7 +3,9 @@ import re
 from lmms_eval.filters.extraction import ExtendedRegexFilter
 from lmms_eval.filters.transformation import MapFilter
 
-REPLACE_PROMPT = "Please answer directly with only the letter of the correct option and nothing else."
+REPLACE_PROMPT = (
+    "Please answer directly with only the letter of the correct option and nothing else."
+)
 
 
 def realworldqa_doc_to_visual(doc):
@@ -45,7 +47,19 @@ def realworldqa_process_results(doc, results):
 
 class NumberWordsToDigitsFilter(MapFilter):
     def __init__(self) -> None:
-        mapping_dict = {"zero": "0", "one": "1", "two": "2", "three": "3", "four": "4", "five": "5", "six": "6", "seven": "7", "eight": "8", "nine": "9", "ten": "10"}
+        mapping_dict = {
+            "zero": "0",
+            "one": "1",
+            "two": "2",
+            "three": "3",
+            "four": "4",
+            "five": "5",
+            "six": "6",
+            "seven": "7",
+            "eight": "8",
+            "nine": "9",
+            "ten": "10",
+        }
         super().__init__(mapping_dict, default_value=None)
 
     def apply(self, resps, docs):

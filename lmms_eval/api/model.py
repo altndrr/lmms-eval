@@ -2,7 +2,7 @@ import abc
 import hashlib
 import json
 import os
-from typing import List, Optional, Tuple, Type, TypeVar, Union
+from typing import List, Optional, Tuple, Type, TypeVar
 
 from loguru import logger as eval_logger
 from sqlitedict import SqliteDict
@@ -93,7 +93,9 @@ class lmms(abc.ABC):
         pass
 
     @classmethod
-    def create_from_arg_string(cls: Type[T], arg_string: str, additional_config: Optional[dict] = None) -> T:
+    def create_from_arg_string(
+        cls: Type[T], arg_string: str, additional_config: Optional[dict] = None
+    ) -> T:
         """
         Creates an instance of the LMM class using the given argument string and additional config.
 
@@ -176,14 +178,20 @@ class CachingLMM:
             remaining_reqs = []
             warned = False
             # figure out which ones are cached and which ones are new
-            eval_logger.info(f"Loading '{attr}' responses from cache '{self.cache_db}' where possible...")
+            eval_logger.info(
+                f"Loading '{attr}' responses from cache '{self.cache_db}' where possible..."
+            )
             for req in tqdm(requests):
                 hsh = hash_args(attr, req.args)
-                if attr in ["generate_until", "generate_until_multi_round"] and req.args[1].get("do_sample", False):
+                if attr in ["generate_until", "generate_until_multi_round"] and req.args[1].get(
+                    "do_sample", False
+                ):
                     # when we are doing non-greedy generation, don't use the cache
                     # (else every "randomly sampled" generation would be identical for repeats > 1).
                     if not warned:
-                        eval_logger.warning(f"Arguments to lm.generate_until() '{req.args[1]}' include non-deterministic sampling. Caching will not be performed for such requests.")
+                        eval_logger.warning(
+                            f"Arguments to lm.generate_until() '{req.args[1]}' include non-deterministic sampling. Caching will not be performed for such requests."
+                        )
                         warned = True
                     res.append(None)
                     remaining_reqs.append(req)

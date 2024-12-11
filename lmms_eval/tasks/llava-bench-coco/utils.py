@@ -5,17 +5,17 @@ from copy import deepcopy
 from pathlib import Path
 
 import numpy as np
-import openai
 import requests
 import yaml
 from loguru import logger as eval_logger
-from openai import OpenAI
 
 NUM_SECONDS_TO_SLEEP = 0.5
 
 LLAVA_W_METRICS = ["gpt_eval_llava_conv", "gpt_eval_llava_detail", "gpt_eval_llava_complex"]
 
-rule_dict = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "rule.json"), "r"))
+rule_dict = json.load(
+    open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "rule.json"), "r")
+)
 
 with open(Path(__file__).parent / "llava-bench-coco.yaml", "r") as f:
     raw_data = f.readlines()
@@ -41,7 +41,9 @@ if API_TYPE == "openai":
         "Content-Type": "application/json",
     }
 elif API_TYPE == "azure":
-    API_URL = os.getenv("AZURE_ENDPOINT", "https://api.cognitive.microsoft.com/sts/v1.0/issueToken")
+    API_URL = os.getenv(
+        "AZURE_ENDPOINT", "https://api.cognitive.microsoft.com/sts/v1.0/issueToken"
+    )
     API_KEY = os.getenv("AZURE_API_KEY", "YOUR_API_KEY")
     headers = {
         "api-key": API_KEY,
@@ -80,7 +82,9 @@ def get_eval(content: str, max_tokens: int, retries: int = 3):
 
         except Exception as e:
             eval_logger.info(f"Attempt {attempt + 1} failed with error: {str(e)}")
-            if attempt < retries - 1:  # If we have retries left, sleep and then continue to next attempt
+            if (
+                attempt < retries - 1
+            ):  # If we have retries left, sleep and then continue to next attempt
                 time.sleep(NUM_SECONDS_TO_SLEEP)
             else:  # If this was the last attempt, log and return empty
                 eval_logger.error(f"All {retries} attempts failed. Last error message: {str(e)}")
@@ -134,7 +138,13 @@ def llava_process_results(doc, result):
         rule = rule_dict.get(category, {})
         prompt = rule.get("prompt", "")
         role = rule.get("role", "user")
-        content = f"[Context]\n{context}\n\n" f"[Question]\n{question}\n\n" f"[{role} 1]\n{ans1}\n\n[End of {role} 1]\n\n" f"[{role} 2]\n{ans2}\n\n[End of {role} 2]\n\n" f"[System]\n{prompt}\n\n"
+        content = (
+            f"[Context]\n{context}\n\n"
+            f"[Question]\n{question}\n\n"
+            f"[{role} 1]\n{ans1}\n\n[End of {role} 1]\n\n"
+            f"[{role} 2]\n{ans2}\n\n[End of {role} 2]\n\n"
+            f"[System]\n{prompt}\n\n"
+        )
 
         review, model_name = get_eval(content, 1024)
         scores = parse_score(review)
@@ -145,7 +155,17 @@ def llava_process_results(doc, result):
         scores = [-1, -1]
 
     metric = f"gpt_eval_llava_{doc.get('category', 'unknown')}"
-    category_review_dict = {"question": question, "ans1": ans1, "ans2": ans2, "context": context, "category": category, "review": review, "scores": scores, "eval_model": model_name, "content": content}
+    category_review_dict = {
+        "question": question,
+        "ans1": ans1,
+        "ans2": ans2,
+        "context": context,
+        "category": category,
+        "review": review,
+        "scores": scores,
+        "eval_model": model_name,
+        "content": content,
+    }
 
     non_category_review_dict = deepcopy(category_review_dict)
     non_category_review_dict["scores"] = [-999, -999]

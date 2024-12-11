@@ -1,16 +1,14 @@
-import datetime
-import json
 import os
 import re
-from collections import defaultdict
 
 from loguru import logger as eval_logger
 
-from lmms_eval.tasks._task_utils.file_utils import generate_submission_file
-
 dir_name = os.path.dirname(os.path.abspath(__file__))
 
-SUFFIX_FOR_VQA = {"yes_no": "Please answer Yes or No.", "multiple_choice": "Please output the letter corresponding to the correct option."}
+SUFFIX_FOR_VQA = {
+    "yes_no": "Please answer Yes or No.",
+    "multiple_choice": "Please output the letter corresponding to the correct option.",
+}
 
 
 def get_scores(scores):
@@ -105,7 +103,12 @@ def get_scores(scores):
             binary_score += calculate_binary_score(result)
             group += calculate_group(result)
 
-    results = {"question_score": question_score / float(num_samples * 2), "image_score": image_score / float(num_samples * 2), "binary_score": binary_score / float(num_samples * 4), "group_score": group / num_samples}
+    results = {
+        "question_score": question_score / float(num_samples * 2),
+        "image_score": image_score / float(num_samples * 2),
+        "binary_score": binary_score / float(num_samples * 4),
+        "group_score": group / num_samples,
+    }
 
     return results
 
@@ -194,7 +197,12 @@ def naturalbench_aggregate_results(results):
         assert int(results[i * 4 + 1]["id"]) == i * 4 + 1
         assert int(results[i * 4 + 2]["id"]) == i * 4 + 2
         assert int(results[i * 4 + 3]["id"]) == i * 4 + 3
-        answers[i] = {"q0_i0": results[i * 4]["score"], "q0_i1": results[i * 4 + 1]["score"], "q1_i0": results[i * 4 + 2]["score"], "q1_i1": results[i * 4 + 3]["score"]}
+        answers[i] = {
+            "q0_i0": results[i * 4]["score"],
+            "q0_i1": results[i * 4 + 1]["score"],
+            "q1_i0": results[i * 4 + 2]["score"],
+            "q1_i1": results[i * 4 + 3]["score"],
+        }
 
     scores = get_scores(answers)
 

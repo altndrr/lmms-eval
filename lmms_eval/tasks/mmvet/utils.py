@@ -27,7 +27,9 @@ if API_TYPE == "openai":
         "Content-Type": "application/json",
     }
 elif API_TYPE == "azure":
-    API_URL = os.getenv("AZURE_ENDPOINT", "https://api.cognitive.microsoft.com/sts/v1.0/issueToken")
+    API_URL = os.getenv(
+        "AZURE_ENDPOINT", "https://api.cognitive.microsoft.com/sts/v1.0/issueToken"
+    )
     API_KEY = os.getenv("AZURE_API_KEY", "YOUR_API_KEY")
     headers = {
         "api-key": API_KEY,
@@ -48,7 +50,9 @@ Can you explain this meme? | This meme is poking fun at the fact that the names 
 """
 
 
-def get_chat_response(prompt, model=GPT_EVAL_MODEL_NAME, temperature=0.0, max_tokens=128, patience=3, sleep_time=5):
+def get_chat_response(
+    prompt, model=GPT_EVAL_MODEL_NAME, temperature=0.0, max_tokens=128, patience=3, sleep_time=5
+):
     headers = {
         "Authorization": f"Bearer {API_KEY}",
         "Content-Type": "application/json",
@@ -123,7 +127,9 @@ def mmvet_process_results(doc, results):
             except ValueError:
                 time.sleep(5)
                 temperature += 0.5
-                eval_logger.info(f"Sleep 5 secs, {doc['question_id']} try again with increased temperature {temperature}.")
+                eval_logger.info(
+                    f"Sleep 5 secs, {doc['question_id']} try again with increased temperature {temperature}."
+                )
                 content, model_name = get_chat_response(
                     gpt_query_prompt,
                     temperature=temperature,
@@ -131,14 +137,16 @@ def mmvet_process_results(doc, results):
                 if temperature >= 2:  # Assuming a max temperature threshold
                     score = 0.0
                     grade_sample_run_complete = True
-                    eval_logger.info(f"Reach to max trials, {doc['question_id']} failed to get a score.")
+                    eval_logger.info(
+                        f"Reach to max trials, {doc['question_id']} failed to get a score."
+                    )
         else:
             score = 0.0
             grade_sample_run_complete = True
             eval_logger.info(f"{doc['question_id']} failed to get a score.")
 
     return {
-        f"gpt_eval_score": {
+        "gpt_eval_score": {
             "question_id": doc["question_id"],
             "question": doc["question"],
             "gt_answer": doc["answer"],
@@ -214,7 +222,9 @@ def mmvet_aggregate_results(results):
     # Calculate the average score for each detailed capability
     for detail in cap_details_scores:
         if cap_details_counts[detail] > 0:
-            cap_details_scores[detail] = cap_details_scores[detail] / cap_details_counts[detail] * 100
+            cap_details_scores[detail] = (
+                cap_details_scores[detail] / cap_details_counts[detail] * 100
+            )
         eval_logger.info(f"Score for {detail}: {cap_details_scores[detail]:.2f}")
 
     return overall_score

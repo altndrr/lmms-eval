@@ -1,21 +1,15 @@
-import json
-import os
-import random
-from collections import defaultdict
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Union
 
-import torch
-from datasets import load_dataset
 from loguru import logger as eval_logger
 from nltk import edit_distance
-from torch.utils.data import Dataset
-from transformers.modeling_utils import PreTrainedModel
 
 try:
     import zss
     from zss import Node
 except ImportError:
-    eval_logger.debug("Please install zss library. You can install it by running 'pip install zss'")
+    eval_logger.debug(
+        "Please install zss library. You can install it by running 'pip install zss'"
+    )
 
 
 class JSONParseEvaluator:
@@ -116,7 +110,11 @@ class JSONParseEvaluator:
                     if item:
                         new_data.append(item)
             else:
-                new_data = [str(item).strip() for item in data if type(item) in {str, int, float} and str(item).strip()]
+                new_data = [
+                    str(item).strip()
+                    for item in data
+                    if type(item) in {str, int, float} and str(item).strip()
+                ]
         else:
             new_data = [str(data).strip()]
 
@@ -128,7 +126,10 @@ class JSONParseEvaluator:
         """
         total_tp, total_fn_or_fp = 0, 0
         for pred, answer in zip(preds, answers):
-            pred, answer = self.flatten(self.normalize_dict(pred)), self.flatten(self.normalize_dict(answer))
+            pred, answer = (
+                self.flatten(self.normalize_dict(pred)),
+                self.flatten(self.normalize_dict(answer)),
+            )
             for field in pred:
                 if field in answer:
                     total_tp += 1

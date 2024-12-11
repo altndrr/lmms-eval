@@ -33,7 +33,9 @@ def dump(data, f):
     def dump_tsv(data, f):
         data.to_csv(f, sep="\t", index=False)
 
-    handlers = dict(pkl=dump_pkl, json=dump_json, jsonl=dump_jsonl, xlsx=dump_xlsx, csv=dump_csv, tsv=dump_tsv)
+    handlers = dict(
+        pkl=dump_pkl, json=dump_json, jsonl=dump_jsonl, xlsx=dump_xlsx, csv=dump_csv, tsv=dump_tsv
+    )
     suffix = f.split(".")[-1]
     return handlers[suffix](data, f)
 
@@ -75,13 +77,21 @@ def load(f):
     def load_tsv(f):
         return pd.read_csv(f, sep="\t")
 
-    handlers = dict(pkl=load_pkl, json=load_json, jsonl=load_jsonl, xlsx=load_xlsx, csv=load_csv, tsv=load_tsv)
+    handlers = dict(
+        pkl=load_pkl, json=load_json, jsonl=load_jsonl, xlsx=load_xlsx, csv=load_csv, tsv=load_tsv
+    )
     suffix = f.split(".")[-1]
     return handlers[suffix](f)
 
 
 class MMUPD_Evaluator:
-    def __init__(self, sys_prompt="There are several options:", API_KEY="", API_URL="", model_version="gpt-3.5-turbo-0613"):
+    def __init__(
+        self,
+        sys_prompt="There are several options:",
+        API_KEY="",
+        API_URL="",
+        model_version="gpt-3.5-turbo-0613",
+    ):
         self.sys_prompt = sys_prompt
         self.model_version = model_version
         self.API_KEY = API_KEY
@@ -167,7 +177,7 @@ class MMUPD_Evaluator:
                 valid_option.append(none_option)
                 answer_option = [gt_option, none_option]
                 if question_type == "inst":
-                    s += f"F. None of the above\n"
+                    s += "F. None of the above\n"
                     valid_option.append("F")
                     answer_option = [gt_option, none_option, "F"]
 
@@ -196,7 +206,7 @@ class MMUPD_Evaluator:
 
                 if question_type == "inst":
                     if gt_option == "E":
-                        s += f"F. None of the above\n"
+                        s += "F. None of the above\n"
                         valid_option.append("F")
                         s += "G. The correct answer is No answer, None of the above, all provided options are irrelevant or incorrect, or I cannot answer.\n"
                         valid_option.append("G")
@@ -206,7 +216,7 @@ class MMUPD_Evaluator:
                         none_option = none_option_mapping[gt_option]
                         s += f"{none_option}. The correct answer is No answer, None of the above, all provided options are irrelevant or incorrect, or I cannot answer.\n"
                         valid_option.append(none_option)
-                        s += f"F. None of the above\n"
+                        s += "F. None of the above\n"
                         valid_option.append("F")
                         answer_option = [gt_option, none_option, "F"]
                 else:
@@ -226,7 +236,7 @@ class MMUPD_Evaluator:
                     all provided options are irrelevant or incorrect, or I cannot answer.\n"
                 valid_option.append(none_option)
                 if question_type == "inst":
-                    s += f"F. None of the above\n"
+                    s += "F. None of the above\n"
                     valid_option.append("F")
         elif upd_type == "ivqd":
             if eval_type == "ivqd":
@@ -239,7 +249,7 @@ class MMUPD_Evaluator:
                 valid_option.append(none_option)
                 answer_option = [none_option]
                 if question_type == "inst":
-                    s += f"F. The image and question are irrelevant.\n"
+                    s += "F. The image and question are irrelevant.\n"
                     valid_option.append("F")
                     answer_option = [none_option, "F"]
 
@@ -252,7 +262,7 @@ class MMUPD_Evaluator:
                 s += f"{none_option}. The correct answer is that The image is incompatible with the question, or I cannot answer.\n"
                 valid_option.append(none_option)
                 if question_type == "inst":
-                    s += f"F. The image and question are irrelevant.\n"
+                    s += "F. The image and question are irrelevant.\n"
                     valid_option.append("F")
         return s, valid_option, answer_option
 
@@ -344,44 +354,65 @@ class MMUPD_Evaluator:
             characters = ["B", "C", "D", "E", "F", "G"]
             combinations = [char + punct for char in characters for punct in punctuations]
             start_patterns = ["A)", "A.", "A,", "(A)"]
-            if answer == "A" or (any(answer.startswith(pattern) for pattern in start_patterns) and all(x not in answer for x in combinations)):
+            if answer == "A" or (
+                any(answer.startswith(pattern) for pattern in start_patterns)
+                and all(x not in answer for x in combinations)
+            ):
                 ch_cand_list.append("A")
         if "B" in valid_option:
             characters = ["A", "C", "D", "E", "F", "G"]
             combinations = [char + punct for char in characters for punct in punctuations]
             start_patterns = ["B)", "B.", "B,", "(B)"]
-            if answer == "B" or (any(answer.startswith(pattern) for pattern in start_patterns) and all(x not in answer for x in combinations)):
+            if answer == "B" or (
+                any(answer.startswith(pattern) for pattern in start_patterns)
+                and all(x not in answer for x in combinations)
+            ):
                 ch_cand_list.append("B")
         if "C" in valid_option:
             characters = ["A", "B", "D", "E", "F", "G"]
             combinations = [char + punct for char in characters for punct in punctuations]
             start_patterns = ["C)", "C.", "C,", "(C)"]
-            if answer == "C" or (any(answer.startswith(pattern) for pattern in start_patterns) and all(x not in answer for x in combinations)):
+            if answer == "C" or (
+                any(answer.startswith(pattern) for pattern in start_patterns)
+                and all(x not in answer for x in combinations)
+            ):
                 ch_cand_list.append("C")
         if "D" in valid_option:
             characters = ["A", "B", "C", "E", "F", "G"]
             combinations = [char + punct for char in characters for punct in punctuations]
             start_patterns = ["D)", "D.", "D,", "(D)"]
-            if answer == "D" or (any(answer.startswith(pattern) for pattern in start_patterns) and all(x not in answer for x in combinations)):
+            if answer == "D" or (
+                any(answer.startswith(pattern) for pattern in start_patterns)
+                and all(x not in answer for x in combinations)
+            ):
                 ch_cand_list.append("D")
         if "E" in valid_option:
             characters = ["A", "B", "C", "D", "F", "G"]
             combinations = [char + punct for char in characters for punct in punctuations]
             start_patterns = ["E)", "E.", "E,", "(E)"]
-            if answer == "E" or (any(answer.startswith(pattern) for pattern in start_patterns) and all(x not in answer for x in combinations)):
+            if answer == "E" or (
+                any(answer.startswith(pattern) for pattern in start_patterns)
+                and all(x not in answer for x in combinations)
+            ):
                 ch_cand_list.append("E")
         if "F" in valid_option:
             characters = ["A", "B", "C", "D", "E", "G"]
             combinations = [char + punct for char in characters for punct in punctuations]
             start_patterns = ["F)", "F.", "F,", "(F)"]
-            if answer == "F" or (any(answer.startswith(pattern) for pattern in start_patterns) and all(x not in answer for x in combinations)):
+            if answer == "F" or (
+                any(answer.startswith(pattern) for pattern in start_patterns)
+                and all(x not in answer for x in combinations)
+            ):
                 ch_cand_list.append("F")
         if "G" in valid_option:
             characters = ["A", "B", "C", "D", "E", "F"]
             combinations = [char + punct for char in characters for punct in punctuations]
 
             start_patterns = ["G)", "G.", "G,", "(G)"]
-            if answer == "G" or (any(answer.startswith(pattern) for pattern in start_patterns) and all(x not in answer for x in combinations)):
+            if answer == "G" or (
+                any(answer.startswith(pattern) for pattern in start_patterns)
+                and all(x not in answer for x in combinations)
+            ):
                 ch_cand_list.append("G")
 
         if len(ch_cand_list) == 1:
@@ -406,11 +437,19 @@ class MMUPD_Evaluator:
         response.raise_for_status()
         return response.json()
 
-    def get_chat_response(self, prompt, temperature=0, max_tokens=256, n=1, patience=5, sleep_time=3):
+    def get_chat_response(
+        self, prompt, temperature=0, max_tokens=256, n=1, patience=5, sleep_time=3
+    ):
         messages = [
             {"role": "user", "content": prompt},
         ]
-        payload = {"model": self.model_version, "messages": messages, "temperature": temperature, "max_tokens": max_tokens, "n": n}
+        payload = {
+            "model": self.model_version,
+            "messages": messages,
+            "temperature": temperature,
+            "max_tokens": max_tokens,
+            "n": n,
+        }
 
         while patience > 0:
             patience -= 1
@@ -421,7 +460,9 @@ class MMUPD_Evaluator:
                     if prediction and prediction != "":
                         return prediction
                 else:
-                    prediction = [choice["message"]["content"].strip() for choice in response["choices"]]
+                    prediction = [
+                        choice["message"]["content"].strip() for choice in response["choices"]
+                    ]
                     if prediction and prediction[0] != "":
                         return prediction
 
@@ -434,9 +475,13 @@ class MMUPD_Evaluator:
 
     def extract_answer_from_item(self, item, gt_text, eval_type, question_type, upd_type):
         options = self.extract_options(item)
-        option_str, valid_option, answer_option = self.build_option_str_w_gt(options, gt_text, eval_type, question_type=question_type, upd_type=upd_type)
+        option_str, valid_option, answer_option = self.build_option_str_w_gt(
+            options, gt_text, eval_type, question_type=question_type, upd_type=upd_type
+        )
 
-        prompt = self.build_prompt(item["question"], option_str, item["prediction"], upd_type=upd_type)
+        prompt = self.build_prompt(
+            item["question"], option_str, item["prediction"], upd_type=upd_type
+        )
         retry = 3
         choices = self.build_choices(item)
 
@@ -455,7 +500,9 @@ class MMUPD_Evaluator:
                 if ret:
                     return ret, ans, answer_option
                 else:
-                    eval_logger.info(f'GPT output includes 0 / >1 letter in "{valid_option}": {ans}')
+                    eval_logger.info(
+                        f'GPT output includes 0 / >1 letter in "{valid_option}": {ans}'
+                    )
                     retry -= 1
 
             if retry == 0:
@@ -480,7 +527,13 @@ class MMUPD_Evaluator:
                 item = sub_data.iloc[i]
                 idx = item["index"]
                 gt_text = gt_text_map[idx] if gt_text_map is not None else None
-                ret, _, answer_option = self.extract_answer_from_item(sub_data.iloc[i], gt_text, eval_type, question_type=question_type, upd_type=upd_type)
+                ret, _, answer_option = self.extract_answer_from_item(
+                    sub_data.iloc[i],
+                    gt_text,
+                    eval_type,
+                    question_type=question_type,
+                    upd_type=upd_type,
+                )
                 PRED[i] = ret
                 if eval_type == "standard":
                     if PRED[i] != GT[i]:
@@ -560,7 +613,14 @@ class MMUPD_Evaluator:
 
             sub_data = data[data["index"] % int(1e6) == idx]
 
-            ret = self.eval_sub_data(sub_data, answer_map, gt_text_map, question_type=question_type, eval_type=eval_type, upd_type=upd_type)
+            ret = self.eval_sub_data(
+                sub_data,
+                answer_map,
+                gt_text_map,
+                question_type=question_type,
+                eval_type=eval_type,
+                upd_type=upd_type,
+            )
             result[idx] = ret
             hit += ret
             tot += 1
@@ -569,7 +629,9 @@ class MMUPD_Evaluator:
 
         indices = data_main["index"]
 
-        data_main["category"] = [cate_map[i] if not math.isnan(i) else "uncategorized" for i in indices]
+        data_main["category"] = [
+            cate_map[i] if not math.isnan(i) else "uncategorized" for i in indices
+        ]
 
         overall_hit_rate, category_hit_rate = self.calculate_hit_rates(data_main)
 
@@ -600,7 +662,9 @@ class MMUPD_Evaluator:
     def calculate_dual_acc(self, standard_df, upd_df):
         # dual results
         dual_df = pd.merge(standard_df, upd_df, on="index", suffixes=("_standard", "_upd"))
-        dual_df["hit"] = dual_df.apply(lambda row: 1 if row["hit_standard"] == 1 and row["hit_upd"] == 1 else 0, axis=1)
+        dual_df["hit"] = dual_df.apply(
+            lambda row: 1 if row["hit_standard"] == 1 and row["hit_upd"] == 1 else 0, axis=1
+        )
         dual_df["split"] = dual_df["split_standard"]
         dual_df["category"] = dual_df["category_standard"]
 

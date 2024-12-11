@@ -35,7 +35,9 @@ Score:
 Explanation:"""
 
 
-def get_chat_response(prompt, model=GPT_EVAL_MODEL_NAME, max_tokens=512, patience=3, sleep_time=15):
+def get_chat_response(
+    prompt, model=GPT_EVAL_MODEL_NAME, max_tokens=512, patience=3, sleep_time=15
+):
     headers = {
         "Authorization": f"Bearer {API_KEY}",
         "Content-Type": "application/json",
@@ -89,7 +91,9 @@ def process_results(doc, results):
     pred = results[0]
     question = doc["question"]
     answer = doc["annotation"]
-    gpt_query_prompt = EVALUATION_PROMPT_TEMPLATE_SIMPLE_V2.format(prompt=pred, ground_truth=answer)
+    gpt_query_prompt = EVALUATION_PROMPT_TEMPLATE_SIMPLE_V2.format(
+        prompt=pred, ground_truth=answer
+    )
     grade_sample_run_complete = False
     while not grade_sample_run_complete:
         try:
@@ -97,7 +101,7 @@ def process_results(doc, results):
             grade_sample_run_complete = True
         except Exception as e:
             eval_logger.info(f"Error in response: {e}")
-            eval_logger.info(f"Retrying...")
+            eval_logger.info("Retrying...")
 
     try:
         score = int(re.findall(r"Score:\s*(\d)", response)[0])
@@ -105,7 +109,14 @@ def process_results(doc, results):
         score = 0  # Assign score 0 if the score wasn't parsed correctly
 
     return {
-        "gpt_eval_info": {"question_id": doc["question_id"], "prediction": pred, "ground_truth": answer, "eval_model": model_name, "prompt": gpt_query_prompt, "response": response},
+        "gpt_eval_info": {
+            "question_id": doc["question_id"],
+            "prediction": pred,
+            "ground_truth": answer,
+            "eval_model": model_name,
+            "prompt": gpt_query_prompt,
+            "response": response,
+        },
         "gpt_eval_avg_score": {
             "score": score,
         },

@@ -3,9 +3,6 @@ import re
 
 import numpy as np
 
-from lmms_eval.filters.extraction import ExtendedRegexFilter
-from lmms_eval.filters.transformation import MapFilter
-
 eval_logger = logging.getLogger("lmms-eval")
 
 
@@ -201,8 +198,13 @@ def mirb_process_results(doc, results):
     else:
         parsed_pred = parse_open_response(pred)
     task_type = doc["subset"]
-    data_dict = {"question_id": doc["question_id"], "subset": task_type, "pred_answer": parsed_pred, "answers": doc["answers"]}
-    return {f"mirb_score": data_dict}
+    data_dict = {
+        "question_id": doc["question_id"],
+        "subset": task_type,
+        "pred_answer": parsed_pred,
+        "answers": doc["answers"],
+    }
+    return {"mirb_score": data_dict}
 
 
 def eval_multi_choice(gold_i, pred_i):
@@ -281,7 +283,12 @@ def mirb_aggregation(results):
     print("=" * 50)
 
     # print across evaluation dimension
-    groups = {"Knowledge": ["food", "sightseeing"], "Reasoning": ["codeu", "plot_code", "analogy", "3d_scene"], "Perception": ["image_jigsaw", "count", "attribute"], "Multi-Hop": ["visual_chain", "arxiv"]}
+    groups = {
+        "Knowledge": ["food", "sightseeing"],
+        "Reasoning": ["codeu", "plot_code", "analogy", "3d_scene"],
+        "Perception": ["image_jigsaw", "count", "attribute"],
+        "Multi-Hop": ["visual_chain", "arxiv"],
+    }
 
     # Compute the averages for each group
     averages_dict = compute_averages_from_task_scores(task_score, groups)

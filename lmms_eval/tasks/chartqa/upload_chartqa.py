@@ -44,9 +44,9 @@ _DESCRIPTION = "A largescale benchmark covering 9.6K human-written questions as 
 def get_builder_config(VERSION):
     builder_config = [
         datasets.BuilderConfig(
-            name=f"ChartQA",
+            name="ChartQA",
             version=VERSION,
-            description=f"ChartQA",
+            description="ChartQA",
         )
     ]
     return builder_config
@@ -88,7 +88,9 @@ class ChartQA(datasets.GeneratorBasedBuilder):
         # By default the archives will be extracted and a path to a cached folder where they are extracted is returned instead of the archive
         image_path = "/home/yhzhang/ChartQA/ChartQA Dataset/test/png/"
         human_annotation_path = "/home/yhzhang/ChartQA/ChartQA Dataset/test/test_human.json"
-        augmented_annotation_path = "/home/yhzhang/ChartQA/ChartQA Dataset/test/test_augmented.json"
+        augmented_annotation_path = (
+            "/home/yhzhang/ChartQA/ChartQA Dataset/test/test_augmented.json"
+        )
         return [
             datasets.SplitGenerator(
                 name=datasets.Split.TEST,

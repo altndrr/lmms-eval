@@ -3,7 +3,6 @@ import torch
 torch.backends.cuda.matmul.allow_tf32 = True
 
 
-import copy
 import warnings
 from datetime import timedelta
 from typing import List, Optional, Tuple, Union
@@ -11,14 +10,12 @@ from typing import List, Optional, Tuple, Union
 from accelerate import Accelerator, DistributedType, InitProcessGroupKwargs
 from accelerate.state import AcceleratorState
 from loguru import logger as eval_logger
-from packaging import version
 from tqdm import tqdm
 
 from lmms_eval import utils
 from lmms_eval.api.instance import Instance
 from lmms_eval.api.model import lmms
 from lmms_eval.api.registry import register_model
-from lmms_eval.utils import stop_sequences_criteria
 
 warnings.filterwarnings("ignore")
 
@@ -29,7 +26,9 @@ try:
     from mantis.models.mllava import LlavaForConditionalGeneration, MLlavaProcessor
 
 except Exception as e:
-    eval_logger.debug("Mantis is not installed. Please install Mantis to use this model.\nError: %s" % e)
+    eval_logger.debug(
+        "Mantis is not installed. Please install Mantis to use this model.\nError: %s" % e
+    )
 
 try:
     from transformers import AutoModelForVision2Seq, AutoProcessor
@@ -94,14 +93,26 @@ class Mantis(lmms):
         if not self._is_idefics:
             if "fuyu" in pretrained.lower():
                 self._processor = MFuyuProcessor.from_pretrained(pretrained)
-                self._model = MFuyuForCausalLM.from_pretrained(pretrained, device_map=self.device_map, attn_implementation=attn_implementation, torch_dtype=dtype)
+                self._model = MFuyuForCausalLM.from_pretrained(
+                    pretrained,
+                    device_map=self.device_map,
+                    attn_implementation=attn_implementation,
+                    torch_dtype=dtype,
+                )
             else:
                 self._processor = MLlavaProcessor.from_pretrained(pretrained)
-                self._model = LlavaForConditionalGeneration.from_pretrained(pretrained, device_map=self.device_map, attn_implementation=attn_implementation, torch_dtype=dtype)
+                self._model = LlavaForConditionalGeneration.from_pretrained(
+                    pretrained,
+                    device_map=self.device_map,
+                    attn_implementation=attn_implementation,
+                    torch_dtype=dtype,
+                )
 
         else:
             self._processor = AutoProcessor.from_pretrained(pretrained)
-            self._model = AutoModelForVision2Seq.from_pretrained(pretrained, device_map=self.device_map, torch_dtype=dtype)
+            self._model = AutoModelForVision2Seq.from_pretrained(
+                pretrained, device_map=self.device_map, torch_dtype=dtype
+            )
         eval_logger.info(f"Using {type(self._model)} to instantiate the Mantis model.")
 
         self._tokenizer = self._processor.tokenizer
@@ -115,7 +126,11 @@ class Mantis(lmms):
         self.truncate_context = truncate_context
 
         if accelerator.num_processes > 1:
-            assert accelerator.distributed_type in [DistributedType.FSDP, DistributedType.MULTI_GPU, DistributedType.DEEPSPEED], "Unsupported distributed type provided. Only DDP and FSDP are supported."
+            assert accelerator.distributed_type in [
+                DistributedType.FSDP,
+                DistributedType.MULTI_GPU,
+                DistributedType.DEEPSPEED,
+            ], "Unsupported distributed type provided. Only DDP and FSDP are supported."
             # If you want to use DistributedType.DEEPSPEED, you have to run accelerate config before using the model
             # Also, you have to select zero stage 0 (equivalent to DDP) in order to make the prepare model works
             # I tried to set different parameters in the kwargs to let default zero 2 stage works, but it didn't work.
@@ -124,16 +139,25 @@ class Mantis(lmms):
                     "train_micro_batch_size_per_gpu": self.batch_size_per_gpu,
                     "train_batch_size": self.batch_size_per_gpu * accelerator.num_processes,
                 }
-                AcceleratorState().deepspeed_plugin.deepspeed_config_process(must_match=True, **kwargs)
-                eval_logger.info("Detected that you are using DistributedType.DEEPSPEED. Make sure you run `accelerate config` and set zero stage to 0")
+                AcceleratorState().deepspeed_plugin.deepspeed_config_process(
+                    must_match=True, **kwargs
+                )
+                eval_logger.info(
+                    "Detected that you are using DistributedType.DEEPSPEED. Make sure you run `accelerate config` and set zero stage to 0"
+                )
 
-            if accelerator.distributed_type == DistributedType.FSDP or accelerator.distributed_type == DistributedType.DEEPSPEED:
+            if (
+                accelerator.distributed_type == DistributedType.FSDP
+                or accelerator.distributed_type == DistributedType.DEEPSPEED
+            ):
                 self._model = accelerator.prepare(self.model)
             else:
                 self._model = accelerator.prepare_model(self.model, evaluation_mode=True)
             self.accelerator = accelerator
             if self.accelerator.is_local_main_process:
-                eval_logger.info(f"Using {accelerator.num_processes} devices with data parallelism")
+                eval_logger.info(
+                    f"Using {accelerator.num_processes} devices with data parallelism"
+                )
             self._rank = self.accelerator.local_process_index
             self._world_size = self.accelerator.num_processes
         elif accelerator.num_processes == 1 and device_map == "auto":
@@ -175,7 +199,9 @@ class Mantis(lmms):
     def pad_sequence(self, input_ids, batch_first, padding_value):
         if self.tokenizer.padding_side == "left":
             input_ids = [torch.flip(_input_ids, [0]) for _input_ids in input_ids]
-        input_ids = torch.nn.utils.rnn.pad_sequence(input_ids, batch_first=batch_first, padding_value=padding_value)
+        input_ids = torch.nn.utils.rnn.pad_sequence(
+            input_ids, batch_first=batch_first, padding_value=padding_value
+        )
         if self.tokenizer.padding_side == "left":
             input_ids = torch.flip(input_ids, [1])
         return input_ids
@@ -196,7 +222,9 @@ class Mantis(lmms):
     def world_size(self):
         return self._world_size
 
-    def tok_encode(self, string: str, left_truncate_len=None, add_special_tokens=None) -> List[int]:
+    def tok_encode(
+        self, string: str, left_truncate_len=None, add_special_tokens=None
+    ) -> List[int]:
         """ """
         add_special_tokens = False if add_special_tokens is None else add_special_tokens
         encoding = self.tokenizer.encode(string, add_special_tokens=add_special_tokens)
@@ -239,11 +267,18 @@ class Mantis(lmms):
         # in the same batch.
         re_ords = utils.Collator([reg.args for reg in requests], _collate, grouping=True)
         chunks = re_ords.get_batched(n=self.batch_size, batch_fn=None)
-        num_iters = len(requests) // self.batch_size if len(requests) % self.batch_size == 0 else len(requests) // self.batch_size + 1
+        num_iters = (
+            len(requests) // self.batch_size
+            if len(requests) % self.batch_size == 0
+            else len(requests) // self.batch_size + 1
+        )
         pbar = tqdm(total=num_iters, disable=(self.rank != 0), desc="Model Responding")
         for chunk in chunks:
             contexts, all_gen_kwargs, doc_to_visuals, doc_id, tasks, splits = zip(*chunk)
-            visuals = [doc_to_visual(self.task_dict[task][split][ids]) for ids, task, split, doc_to_visual in zip(doc_id, tasks, splits, doc_to_visuals)]
+            visuals = [
+                doc_to_visual(self.task_dict[task][split][ids])
+                for ids, task, split, doc_to_visual in zip(doc_id, tasks, splits, doc_to_visuals)
+            ]
 
             # we assume all gen kwargs in the batch are the same
             # this is safe to assume because the `grouper` object ensures it.
@@ -269,14 +304,19 @@ class Mantis(lmms):
                             content.append({"type": "image"})
                     content.append({"type": "text", "text": context})
                     message = [{"role": "user", "content": content}]
-                    prompt = self._processor.apply_chat_template(message, add_generation_prompt=True)
+                    prompt = self._processor.apply_chat_template(
+                        message, add_generation_prompt=True
+                    )
                     prompts.append(prompt)
                 else:
                     # We follow the Mantis code base: https://github.com/TIGER-AI-Lab/Mantis/blob/main/mantis/models/mllava/utils.py#L33 to make sure they are consistent
                     # Users don't need to define chat template as it is done here
                     if "llama-3" in self._model.language_model.name_or_path.lower():
                         conv = conv_templates["llama_3"]
-                        terminators = [self._processor.tokenizer.eos_token_id, self._processor.tokenizer.convert_tokens_to_ids("<|eot_id|>")]
+                        terminators = [
+                            self._processor.tokenizer.eos_token_id,
+                            self._processor.tokenizer.convert_tokens_to_ids("<|eot_id|>"),
+                        ]
                     else:
                         conv = default_conv
                         terminators = None
@@ -288,9 +328,15 @@ class Mantis(lmms):
                     conv.append_message(conv.roles[1], "")
                     prompt = conv.get_prompt()
                     prompts.append(prompt)
-            inputs = self._processor(images=visuals, text=prompts, return_tensors="pt", truncation=True)
+            inputs = self._processor(
+                images=visuals, text=prompts, return_tensors="pt", truncation=True
+            )
             if "image_patches" in inputs.keys():
-                inputs["image_patches"] = inputs["image_patches"][0]  # FIXME: Fuyu model would return a list instead of a pytorch tensor. This weird behavior needs fixing.
+                inputs["image_patches"] = inputs[
+                    "image_patches"
+                ][
+                    0
+                ]  # FIXME: Fuyu model would return a list instead of a pytorch tensor. This weird behavior needs fixing.
             inputs = {k: v.to(self.device) for k, v in inputs.items()}
 
             output_ids = self.model.generate(**inputs, **gen_kwargs)

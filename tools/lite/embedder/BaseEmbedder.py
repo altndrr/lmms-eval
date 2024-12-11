@@ -1,14 +1,11 @@
 import os
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Union
+from typing import List, Union
 
 import torch.distributed as dist
 
-from lmms_eval.api.registry import ALL_TASKS
 from lmms_eval.tasks import (
-    ConfigurableTask,
     get_task_dict,
-    include_path,
     initialize_tasks,
 )
 
@@ -50,8 +47,14 @@ class BaseEmbedder(ABC):
             DATASET_NAME = task_obj.DATASET_NAME
 
         docs = task_obj.test_docs() if task_obj.has_test_docs() else task_obj.validation_docs()
-        split = task_obj.config.test_split if task_obj.has_test_docs() else task_obj.config.validation_split
-        rank0_print(f"\nTask : {task_obj.config.task}\n - #num : {len(task_obj.test_docs()) if task_obj.has_test_docs() else task_obj.validation_docs()}")
+        split = (
+            task_obj.config.test_split
+            if task_obj.has_test_docs()
+            else task_obj.config.validation_split
+        )
+        rank0_print(
+            f"\nTask : {task_obj.config.task}\n - #num : {len(task_obj.test_docs()) if task_obj.has_test_docs() else task_obj.validation_docs()}"
+        )
         task_obj.build_all_requests()
         requests = []
         for instance in task_obj.instances:

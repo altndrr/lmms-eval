@@ -12,7 +12,12 @@ if __name__ == "__main__":
             #     yield item
             #     continue
             try:
-                res = finalizer.finalize_question(question=item["question"], answer=item["answer"], criteria=item["criteria"], images=item["images"])
+                res = finalizer.finalize_question(
+                    question=item["question"],
+                    answer=item["answer"],
+                    criteria=item["criteria"],
+                    images=item["images"],
+                )
                 final_answer = item.copy()
                 final_answer["question"] = res["question"]
                 final_answer["answer"] = res["answer"]

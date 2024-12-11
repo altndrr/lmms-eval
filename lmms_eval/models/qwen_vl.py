@@ -45,8 +45,12 @@ class Qwen_VL(lmms):
             self._device = torch.device(f"cuda:{accelerator.local_process_index}")
         else:
             self._device = device
-        self._model = AutoModelForCausalLM.from_pretrained(pretrained, device_map=self._device, trust_remote_code=trust_remote_code).eval()
-        self._tokenizer = AutoTokenizer.from_pretrained(pretrained, trust_remote_code=trust_remote_code)
+        self._model = AutoModelForCausalLM.from_pretrained(
+            pretrained, device_map=self._device, trust_remote_code=trust_remote_code
+        ).eval()
+        self._tokenizer = AutoTokenizer.from_pretrained(
+            pretrained, trust_remote_code=trust_remote_code
+        )
         self.tokenizer.padding_side = "left"
         self.tokenizer.pad_token_id = self.tokenizer.eod_id
         self.prompt = "<img>{}</img>{}"
@@ -65,7 +69,9 @@ class Qwen_VL(lmms):
                 self._model = accelerator.prepare_model(self.model, evaluation_mode=True)
             self.accelerator = accelerator
             if self.accelerator.is_local_main_process:
-                eval_logger.info(f"Using {accelerator.num_processes} devices with data parallelism")
+                eval_logger.info(
+                    f"Using {accelerator.num_processes} devices with data parallelism"
+                )
             self._rank = self.accelerator.local_process_index
             self._world_size = self.accelerator.num_processes
         else:
@@ -124,7 +130,9 @@ class Qwen_VL(lmms):
         res = []
         pbar = tqdm(total=len(requests), disable=(self.rank != 0), desc="Model Responding")
 
-        for contexts, doc_to_target, doc_to_visual, doc_id, task, split in [reg.args for reg in requests]:
+        for contexts, doc_to_target, doc_to_visual, doc_id, task, split in [
+            reg.args for reg in requests
+        ]:
             # encode, pad, and truncate contexts for this batch
             if type(doc_to_target) == str:
                 continuation = doc_to_target
@@ -149,24 +157,38 @@ class Qwen_VL(lmms):
             query = self.tokenizer.from_list_format(query)
 
             raw_contxt_text, context_tokens = make_context(
-                self.tokenizer, context_query, history=None, system="You are a helpful assistant", max_window_size=self.model.generation_config.max_window_size, chat_format=self.model.generation_config.chat_format
+                self.tokenizer,
+                context_query,
+                history=None,
+                system="You are a helpful assistant",
+                max_window_size=self.model.generation_config.max_window_size,
+                chat_format=self.model.generation_config.chat_format,
             )
             context_tokens = torch.tensor([context_tokens])
 
             raw_continuation_text, continuation_tokens = make_context(
-                self.tokenizer, query, history=None, system="You are a helpful assistant", max_window_size=self.model.generation_config.max_window_size, chat_format=self.model.generation_config.chat_format
+                self.tokenizer,
+                query,
+                history=None,
+                system="You are a helpful assistant",
+                max_window_size=self.model.generation_config.max_window_size,
+                chat_format=self.model.generation_config.chat_format,
             )
             continuation_tokens = torch.tensor([continuation_tokens]).to(self.model.device)
             attn_mask = torch.ones_like(continuation_tokens).to(self.model.device)
             labels = continuation_tokens.clone().to(self.model.device)
             labels[:, : context_tokens.shape[1]] = -100
             with torch.inference_mode():
-                outputs = self.model(input_ids=continuation_tokens, labels=labels, attention_mask=attn_mask)
+                outputs = self.model(
+                    input_ids=continuation_tokens, labels=labels, attention_mask=attn_mask
+                )
             loss = outputs.loss
             logits = outputs["logits"]
             greedy_tokens = logits.argmax(dim=-1)
             cont_toks = continuation_tokens[:, context_tokens.shape[1] :]
-            greedy_tokens = greedy_tokens[:, context_tokens.shape[1] : continuation_tokens.shape[1]]  # [1, seq]
+            greedy_tokens = greedy_tokens[
+                :, context_tokens.shape[1] : continuation_tokens.shape[1]
+            ]  # [1, seq]
             max_equal = (greedy_tokens == cont_toks).all()
             res.append((float(loss.item()), bool(max_equal)))
             pbar.update(1)
@@ -227,7 +249,9 @@ class Qwen_VL(lmms):
                 if isinstance(until, str):
                     until = [until]
                 elif not isinstance(until, list):
-                    raise ValueError(f"Expected `gen_kwargs['until']` to be of type Union[str,list] but got {type(until)}")
+                    raise ValueError(
+                        f"Expected `gen_kwargs['until']` to be of type Union[str,list] but got {type(until)}"
+                    )
 
             if isinstance(contexts, tuple):
                 contexts = list(contexts)
@@ -265,7 +289,11 @@ class Qwen_VL(lmms):
             if "num_beams" not in gen_kwargs:
                 gen_kwargs["num_beams"] = 1
 
-            pad_token_id = self.tokenizer.pad_token_id if self.tokenizer.pad_token_id is not None else self.tokenizer.eod_id
+            pad_token_id = (
+                self.tokenizer.pad_token_id
+                if self.tokenizer.pad_token_id is not None
+                else self.tokenizer.eod_id
+            )
 
             cont = self.model.generate(
                 input_ids.input_ids.to(self.device),

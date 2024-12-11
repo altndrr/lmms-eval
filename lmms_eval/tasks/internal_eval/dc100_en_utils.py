@@ -103,7 +103,15 @@ def process_results(doc, results):
         score = 0
 
     return {
-        "gpt_eval_info": {"question_id": question_id, "question": doc["question"], "model_caption": prediction, "explanation": response, "eval_model": GPT_EVAL_MODEL_NAME, "score": score, "prompt": prompt},
+        "gpt_eval_info": {
+            "question_id": question_id,
+            "question": doc["question"],
+            "model_caption": prediction,
+            "explanation": response,
+            "eval_model": GPT_EVAL_MODEL_NAME,
+            "score": score,
+            "prompt": prompt,
+        },
         "gpt_eval_avg_score": {
             "score": score,
         },

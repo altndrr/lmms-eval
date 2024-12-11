@@ -14,7 +14,9 @@ class AggMetricConfig(dict):
 
     def __post_init__(self):
         if self.aggregation != "mean" and not callable(self.aggregation):
-            raise ValueError(f"Currently, 'mean' is the only pre-defined aggregation across groups' subtasks. Got '{self.aggregation}'.")
+            raise ValueError(
+                f"Currently, 'mean' is the only pre-defined aggregation across groups' subtasks. Got '{self.aggregation}'."
+            )
 
         if isinstance(self.filter_list, str):
             self.filter_list = [self.filter_list]
@@ -26,7 +28,9 @@ class GroupConfig(dict):
     group_alias: Optional[str] = None
     task: Optional[Union[str, list]] = None
     aggregate_metric_list: Optional[Union[List[AggMetricConfig], AggMetricConfig, dict]] = None
-    metadata: Optional[dict] = None  # by default, not used in the code. allows for users to pass arbitrary info to tasks
+    metadata: Optional[
+        dict
+    ] = None  # by default, not used in the code. allows for users to pass arbitrary info to tasks
 
     def __getitem__(self, item):
         return getattr(self, item)
@@ -39,7 +43,10 @@ class GroupConfig(dict):
             if isinstance(self.aggregate_metric_list, dict):
                 self.aggregate_metric_list = [self.aggregate_metric_list]
 
-            self.aggregate_metric_list = [AggMetricConfig(**item) if isinstance(item, dict) else item for item in self.aggregate_metric_list]
+            self.aggregate_metric_list = [
+                AggMetricConfig(**item) if isinstance(item, dict) else item
+                for item in self.aggregate_metric_list
+            ]
 
     def to_dict(self, keep_callable: bool = False) -> dict:
         """dumps the current config as a dictionary object, as a printable format.
@@ -58,7 +65,9 @@ class GroupConfig(dict):
                 cfg_dict[k] = self.serialize_function(v, keep_callable=keep_callable)
         return cfg_dict
 
-    def serialize_function(self, value: Union[Callable, str], keep_callable=False) -> Union[Callable, str]:
+    def serialize_function(
+        self, value: Union[Callable, str], keep_callable=False
+    ) -> Union[Callable, str]:
         """Serializes a given function or string.
 
         If 'keep_callable' is True, the original callable is returned.

@@ -2,9 +2,9 @@ import logging
 import os
 
 import anthropic
-import openai
 import requests
 from bs4 import BeautifulSoup
+
 from live_bench.data_generator.response import Response
 from live_bench.data_generator.utils.claude import (
     claude_generate_response,
@@ -66,7 +66,9 @@ class ImageInfomation(object):
 
 
 class InfomationExtractor(object):
-    def __init__(self, model="claude-3-5-sonnet-20240620", openai_api_key=None, anthropic_api_key=None):
+    def __init__(
+        self, model="claude-3-5-sonnet-20240620", openai_api_key=None, anthropic_api_key=None
+    ):
         if not anthropic_api_key:
             anthropic_api_key = os.getenv("ANTHROPIC_API_KEY", None)
         if not openai_api_key:
@@ -100,10 +102,13 @@ class InfomationExtractor(object):
         messages = [
             {
                 "role": "user",
-                "content": [{"type": "text", "text": text}] + self.format_images(screen_image.images),
+                "content": [{"type": "text", "text": text}]
+                + self.format_images(screen_image.images),
             }
         ]
-        response = self.generate_response(messages=messages, model=self.model, client=self.client, json_format=False, **kwargs)
+        response = self.generate_response(
+            messages=messages, model=self.model, client=self.client, json_format=False, **kwargs
+        )
         return response
 
     def extract_information(self, screen_image: ScreenImage, **kwargs) -> ImageInfomation:
@@ -117,19 +122,27 @@ class InfomationExtractor(object):
         messages = [
             {
                 "role": "user",
-                "content": [{"type": "text", "text": f"{FIND_IMAGES_FEATURES_PROMPT}\n{ocrs}"}] + self.format_images(screen_image.images),
+                "content": [{"type": "text", "text": f"{FIND_IMAGES_FEATURES_PROMPT}\n{ocrs}"}]
+                + self.format_images(screen_image.images),
             }
         ]
-        response = self.generate_response(messages=messages, model=self.model, client=self.client, json_format=False, **kwargs)
+        response = self.generate_response(
+            messages=messages, model=self.model, client=self.client, json_format=False, **kwargs
+        )
         if response.success:
             information.image_features = response.content
         messages = [
             {
                 "role": "user",
-                "content": [{"type": "text", "text": f"{THINK_DIFFERENTLY_PROMPT}\n\n{str(information)}"}] + self.format_images(screen_image.images),
+                "content": [
+                    {"type": "text", "text": f"{THINK_DIFFERENTLY_PROMPT}\n\n{str(information)}"}
+                ]
+                + self.format_images(screen_image.images),
             }
         ]
-        response = self.generate_response(messages=messages, model=self.model, client=self.client, json_format=False, **kwargs)
+        response = self.generate_response(
+            messages=messages, model=self.model, client=self.client, json_format=False, **kwargs
+        )
         if response.success:
             information.differnt_points = response.content
         return information

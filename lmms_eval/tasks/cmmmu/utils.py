@@ -1,5 +1,4 @@
 import json
-import os
 import random
 import re
 from collections import Counter, defaultdict
@@ -46,7 +45,9 @@ def construct_prompt(sample):
         final_input_prompt = task_instructions[2] + "\n\n" + current_example
 
     for i in range(1, 6):
-        final_input_prompt = final_input_prompt.replace(f'<img="{sample[f"image_{i}_filename"]}">', f"<图片 {i}>")
+        final_input_prompt = final_input_prompt.replace(
+            f'<img="{sample[f"image_{i}_filename"]}">', f"<图片 {i}>"
+        )
 
     return final_input_prompt
 
@@ -59,7 +60,10 @@ def cmmmu_doc_to_visual(doc):
     prompt = construct_prompt(doc)
     image_tokens = re.findall(r"<图片 \d+>", prompt)
     # Remove <> and  swap space as _
-    image_tokens = [image_token.strip("<>").replace(" ", "_").replace("图片", "image") for image_token in image_tokens]
+    image_tokens = [
+        image_token.strip("<>").replace(" ", "_").replace("图片", "image")
+        for image_token in image_tokens
+    ]
     visual = [doc[image_token].convert("RGB") for image_token in image_tokens]
     return visual
 
@@ -73,7 +77,15 @@ def cmmmu_process_results(doc, results):
         parsed_pred = get_TF_prediction(pred)
     else:
         parsed_pred = get_fill_blank_prediction(pred, doc["answer"])
-    return {"cmmmu_acc": {"id": doc["id"], "subdomain": doc["subcategory"], "question_type": doc["type"], "answer": doc["answer"], "parsed_pred": parsed_pred}}
+    return {
+        "cmmmu_acc": {
+            "id": doc["id"],
+            "subdomain": doc["subcategory"],
+            "question_type": doc["type"],
+            "answer": doc["answer"],
+            "parsed_pred": parsed_pred,
+        }
+    }
 
 
 def cmmmu_aggregate_results(results):
@@ -94,7 +106,9 @@ def cmmmu_aggregate_results(results):
             else:
                 pass
         in_domain_ins_acc = calculate_ins_level_acc(in_domain_cat_results)
-        in_domain_data_num = sum([cat_results["entries_num"] for cat_results in in_domain_cat_results.values()])
+        in_domain_data_num = sum(
+            [cat_results["entries_num"] for cat_results in in_domain_cat_results.values()]
+        )
         printable_results["Overall-" + domain] = {
             "num": int(in_domain_data_num),
             "acc": round(in_domain_ins_acc, 3),
@@ -175,7 +189,16 @@ def eval_cmmmu(entries):
 
         else:
             positive_keywords = ["正确", "对", "准确", "肯定", "对的"]
-            negative_keywords = ["不对", "错误", "不正确", "不准确", "不合适", "否定", "错的", "错"]
+            negative_keywords = [
+                "不对",
+                "错误",
+                "不正确",
+                "不准确",
+                "不合适",
+                "否定",
+                "错的",
+                "错",
+            ]
             ambiguous_keywords = ["对错", "是否正确", "否正确", "或者", "是否", "正确性", "对不"]
 
             def judge_similarity(pred_list, positive_keywords, negative_keywords):
@@ -196,7 +219,11 @@ def eval_cmmmu(entries):
                     return random.choice(["对", "错"])
 
             answer = entry["answer"]
-            parsed_pred = [word for word in parsed_pred if not any(ambiguous in word for ambiguous in ambiguous_keywords)]
+            parsed_pred = [
+                word
+                for word in parsed_pred
+                if not any(ambiguous in word for ambiguous in ambiguous_keywords)
+            ]
             result = judge_similarity(parsed_pred, positive_keywords, negative_keywords)
             if result == answer:
                 correct_cnt += 1
@@ -210,7 +237,11 @@ def eval_cmmmu(entries):
         print("entries_num == 0, please check your file")
         results_count = {"correct_num": 0, "entries_num": 0, "acc": 0}
     else:
-        results_count = {"correct_num": correct_cnt, "entries_num": len(entries), "acc": correct_cnt / len(entries)}
+        results_count = {
+            "correct_num": correct_cnt,
+            "entries_num": len(entries),
+            "acc": correct_cnt / len(entries),
+        }
 
     return results_count
 
@@ -252,7 +283,9 @@ def get_multi_choice_prediction(response, all_choices, index2ans):
 
         # Select the most frequent candidates
         max_count = max(candidate_counts.values())
-        most_frequent_candidates = [c for c in all_choices if candidate_counts.get(c, 0) == max_count]
+        most_frequent_candidates = [
+            c for c in all_choices if candidate_counts.get(c, 0) == max_count
+        ]
 
         # Combine the most frequent candidates in ABCD order
         return "".join(most_frequent_candidates)
@@ -321,7 +354,19 @@ def get_fill_blank_prediction(response, answer):
         key_responses = []
         response = response.strip("。").strip()
         sub_responses = re.split(r"。|\n", response)
-        indicators_of_keys = ["是", "为", "所以", "等于", "方案", "选择", "正确答案", "因此", "最后", "答案", "结果"]
+        indicators_of_keys = [
+            "是",
+            "为",
+            "所以",
+            "等于",
+            "方案",
+            "选择",
+            "正确答案",
+            "因此",
+            "最后",
+            "答案",
+            "结果",
+        ]
         key_responses = []
         for index, resp in enumerate(sub_responses):
             # if last one, accept it's an equation (the entire response can be just one sentence with equation)

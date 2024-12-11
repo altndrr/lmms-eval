@@ -6,7 +6,7 @@ import os
 
 from capture_metric.capture import CAPTURE
 from PIL import Image
-from pycocoevalcap.eval import Bleu, Cider, COCOEvalCap, Meteor, Rouge, Spice
+from pycocoevalcap.eval import Bleu, Cider, COCOEvalCap, Meteor, Rouge
 from pycocoevalcap.tokenizer.ptbtokenizer import PTBTokenizer
 from pycocotools.coco import COCO
 
@@ -16,7 +16,16 @@ eval_logger = logging.getLogger("lmms-eval")
 
 dir_name = os.path.dirname(os.path.abspath(__file__))
 
-detailcaps_METRICS = ["CAPTURE", "Bleu_4", "Bleu_3", "Bleu_2", "Bleu_1", "METEOR", "ROUGE_L", "CIDEr"]  # , "SPICE"]
+detailcaps_METRICS = [
+    "CAPTURE",
+    "Bleu_4",
+    "Bleu_3",
+    "Bleu_2",
+    "Bleu_1",
+    "METEOR",
+    "ROUGE_L",
+    "CIDEr",
+]  # , "SPICE"]
 
 
 def detailcaps_doc_to_visual(doc):
@@ -66,7 +75,16 @@ def check_if_context_is_set(expected_context="spawn"):
 
 
 def detailcaps_aggregation_result(results, metric, args=None):
-    scorers = [(Bleu(4), "Bleu_1"), (Bleu(4), "Bleu_2"), (Bleu(4), "Bleu_3"), (Bleu(4), "Bleu_4"), (Meteor(), "METEOR"), (Rouge(), "ROUGE_L"), (Cider(), "CIDEr"), (CAPTURE(), "CAPTURE")]
+    scorers = [
+        (Bleu(4), "Bleu_1"),
+        (Bleu(4), "Bleu_2"),
+        (Bleu(4), "Bleu_3"),
+        (Bleu(4), "Bleu_4"),
+        (Meteor(), "METEOR"),
+        (Rouge(), "ROUGE_L"),
+        (Cider(), "CIDEr"),
+        (CAPTURE(), "CAPTURE"),
+    ]
     scorers_dict = {s[1]: s for s in scorers}
 
     stored_results = []
@@ -81,7 +99,9 @@ def detailcaps_aggregation_result(results, metric, args=None):
     for result in results:
         stored_results.append({"image_id": result["image_id"], "caption": result["pred"]})
         for a in result["answer"]:
-            dataset["annotations"].append({"image_id": result["image_id"], "caption": a, "id": idx})
+            dataset["annotations"].append(
+                {"image_id": result["image_id"], "caption": a, "id": idx}
+            )
             idx += 1
         dataset["images"].append({"id": result["image_id"]})
 
@@ -195,4 +215,6 @@ def detailcaps_test_aggregation_result(results, args=None):
     with open(path, "w") as f:
         json.dump(stored_results, f, indent=4)
 
-    eval_logger.info(f"Your test result has been stored in {path}. Make sure you also have the val result stored to submit to the server on https://codalab.lisn.upsaclay.fr/competitions/7404#participate.")
+    eval_logger.info(
+        f"Your test result has been stored in {path}. Make sure you also have the val result stored to submit to the server on https://codalab.lisn.upsaclay.fr/competitions/7404#participate."
+    )

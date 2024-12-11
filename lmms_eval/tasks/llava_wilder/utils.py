@@ -1,8 +1,6 @@
 import base64
 import os
 import time
-from copy import deepcopy
-from http import HTTPStatus
 from io import BytesIO
 from pathlib import Path
 
@@ -40,7 +38,9 @@ if API_TYPE == "openai":
     }
 
 elif API_TYPE == "azure":
-    API_URL = os.getenv("AZURE_ENDPOINT", "https://api.cognitive.microsoft.com/sts/v1.0/issueToken")
+    API_URL = os.getenv(
+        "AZURE_ENDPOINT", "https://api.cognitive.microsoft.com/sts/v1.0/issueToken"
+    )
     API_KEY = os.getenv("AZURE_API_KEY", "YOUR_API_KEY")
     headers = {
         "api-key": API_KEY,
@@ -122,7 +122,12 @@ def llava_process_results(doc, result):
         question = doc.get("Question", "")
         ans1 = doc.get("Answer", "")
         ans2 = result[0] if result else ""
-        content = f"[Question]\n{question}\n\n" + f"[Assistant 1]\n{ans1}\n\n[End of Assistant 1]\n\n" + f"[Assistant 2]\n{ans2}\n\n[End of Assistant 2]\n\n" f"[System]\n{judge_rules}\n\n"
+        content = (
+            f"[Question]\n{question}\n\n"
+            + f"[Assistant 1]\n{ans1}\n\n[End of Assistant 1]\n\n"
+            + f"[Assistant 2]\n{ans2}\n\n[End of Assistant 2]\n\n"
+            f"[System]\n{judge_rules}\n\n"
+        )
         visuals = llava_doc_to_visual(doc)
         image_path = doc["image"]
         base64_image = image_to_base64(image_path)
@@ -134,7 +139,15 @@ def llava_process_results(doc, result):
         model_name = "Failed Request"
         scores = [-1, -1]
 
-    data_dict = {"question": question, "ans1": ans1, "ans2": ans2, "review": review, "scores": scores, "eval_model": model_name, "content": content}
+    data_dict = {
+        "question": question,
+        "ans1": ans1,
+        "ans2": ans2,
+        "review": review,
+        "scores": scores,
+        "eval_model": model_name,
+        "content": content,
+    }
     # return {"gpt_eval_llava_all": review_dict}
     return {"gpt_eval_llava_all": data_dict}
 

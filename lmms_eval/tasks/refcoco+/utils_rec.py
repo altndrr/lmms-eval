@@ -11,13 +11,24 @@ COCO_REC_METRICS = ["IoU", "ACC@0.1", "ACC@0.3", "ACC@0.5", "ACC@0.7", "ACC@0.9"
 def refcoco_bbox_rec_preprocess_dataset(dataset: Dataset):
     # PIL image stored in dataset['image']
     # add `image_width` and `image_height` to the dataset
-    dataset = dataset.map(lambda x: {"image_width": x["image"].width, "image_height": x["image"].height})
+    dataset = dataset.map(
+        lambda x: {"image_width": x["image"].width, "image_height": x["image"].height}
+    )
 
     # Original bbox format (top x, top y, width, height)
     # Convert to (top-left x, top-left y, bottom-right x, bottom-right y)
     # Normalize the bounding box coordinates to be between 0 and 1
     # using the image width and height
-    dataset = dataset.map(lambda x: {"bbox": [x["bbox"][0] / x["image_width"], x["bbox"][1] / x["image_height"], (x["bbox"][0] + x["bbox"][2]) / x["image_width"], (x["bbox"][1] + x["bbox"][3]) / x["image_height"]]})
+    dataset = dataset.map(
+        lambda x: {
+            "bbox": [
+                x["bbox"][0] / x["image_width"],
+                x["bbox"][1] / x["image_height"],
+                (x["bbox"][0] + x["bbox"][2]) / x["image_width"],
+                (x["bbox"][1] + x["bbox"][3]) / x["image_height"],
+            ]
+        }
+    )
 
     # currently, the dataset has `answer` as a list of strings
     # each answer should be its own row

@@ -1,7 +1,5 @@
 import ast
 import json
-import os
-import re
 
 from loguru import logger as eval_logger
 
@@ -18,14 +16,27 @@ def multidocvqa_doc_to_text(doc, lmms_eval_specific_kwargs):
 
 
 def multidocvqa_doc_to_visual(doc):
-    return [doc[f"image_{i}"].convert("RGB") for i in range(1, 21) if doc[f"image_{i}"] is not None]
+    return [
+        doc[f"image_{i}"].convert("RGB") for i in range(1, 21) if doc[f"image_{i}"] is not None
+    ]
 
 
 def multidocvqa_process_results(doc, results):
     pred_answer = results[0]
     answer = ast.literal_eval(doc["answers"])
 
-    return {"anls": {"questionId": int(doc["questionId"]), "answer": answer, "pred_answer": pred_answer}, "accuracy": {"questionId": int(doc["questionId"]), "answer": answer, "pred_answer": pred_answer}}
+    return {
+        "anls": {
+            "questionId": int(doc["questionId"]),
+            "answer": answer,
+            "pred_answer": pred_answer,
+        },
+        "accuracy": {
+            "questionId": int(doc["questionId"]),
+            "answer": answer,
+            "pred_answer": pred_answer,
+        },
+    }
 
 
 def multidocvqa_aggregate_results_anls(results):
@@ -48,7 +59,9 @@ def multidocvqa_aggregate_results_accuracy(results):
 
 def multidocvqa_process_test_results_for_submission(doc, results):
     answer = results[0]
-    return {"submission": {"questionId": int(doc["questionId"]), "answer": answer, "answer_page": None}}
+    return {
+        "submission": {"questionId": int(doc["questionId"]), "answer": answer, "answer_page": None}
+    }
 
 
 def multidocvqa_test_aggregate_results_for_submission(results, args):
@@ -104,7 +117,9 @@ class Evaluator:
         if pred == "none":
             return 0
 
-        answers_similarity = [1 - self.get_edit_distance(gt_elm, pred) / max(len(gt_elm), len(pred)) for gt_elm in gt]
+        answers_similarity = [
+            1 - self.get_edit_distance(gt_elm, pred) / max(len(gt_elm), len(pred)) for gt_elm in gt
+        ]
         max_similarity = max(answers_similarity)
 
         anls = max_similarity if max_similarity >= self.anls_threshold else 0
@@ -113,4 +128,9 @@ class Evaluator:
 
 if __name__ == "__main__":
     print("-----------------")
-    multidocvqa_aggregate_results_anls([{"questionId": 1, "answer": ["answer"], "pred_answer": "pred_answer"}, {"questionId": 2, "answer": ["nswer"], "pred_answer": "nswer"}])
+    multidocvqa_aggregate_results_anls(
+        [
+            {"questionId": 1, "answer": ["answer"], "pred_answer": "pred_answer"},
+            {"questionId": 2, "answer": ["nswer"], "pred_answer": "nswer"},
+        ]
+    )

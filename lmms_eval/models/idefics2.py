@@ -4,7 +4,6 @@ from typing import List, Optional, Tuple, Union
 import torch
 from accelerate import Accelerator, DistributedType
 from accelerate.state import AcceleratorState
-from torchvision.transforms.functional import to_pil_image
 from tqdm import tqdm
 from transformers import AutoProcessor, Idefics2ForConditionalGeneration
 
@@ -70,8 +69,20 @@ class Idefics2(lmms):
             self.device_map = device_map
         if isinstance(dtype, str) and dtype != "auto":
             dtype = getattr(torch, dtype)
-        self._model = Idefics2ForConditionalGeneration.from_pretrained(pretrained, revision=revision, torch_dtype=dtype, device_map=self.device_map, trust_remote_code=trust_remote_code, attn_implementation=attn_implementation)
-        self._processor = AutoProcessor.from_pretrained(pretrained, do_image_splitting=do_image_splitting, revision=revision, trust_remote_code=trust_remote_code)
+        self._model = Idefics2ForConditionalGeneration.from_pretrained(
+            pretrained,
+            revision=revision,
+            torch_dtype=dtype,
+            device_map=self.device_map,
+            trust_remote_code=trust_remote_code,
+            attn_implementation=attn_implementation,
+        )
+        self._processor = AutoProcessor.from_pretrained(
+            pretrained,
+            do_image_splitting=do_image_splitting,
+            revision=revision,
+            trust_remote_code=trust_remote_code,
+        )
         self.max_frames_num = max_frames_num
 
         self._tokenizer = self._processor.tokenizer
@@ -79,7 +90,11 @@ class Idefics2(lmms):
         self.batch_size_per_gpu = int(batch_size)
         self.use_cache = use_cache
         if accelerator.num_processes > 1 and device_map == "":
-            assert accelerator.distributed_type in [DistributedType.FSDP, DistributedType.MULTI_GPU, DistributedType.DEEPSPEED], "Unsupported distributed type provided. Only DDP and FSDP are supported."
+            assert accelerator.distributed_type in [
+                DistributedType.FSDP,
+                DistributedType.MULTI_GPU,
+                DistributedType.DEEPSPEED,
+            ], "Unsupported distributed type provided. Only DDP and FSDP are supported."
             # If you want to use DistributedType.DEEPSPEED, you have to run accelerate config before using the model
             # Also, you have to select zero stage 0 (equivalent to DDP) in order to make the prepare model works
             # I tried to set different parameters in the kwargs to let default zero 2 stage works, but it didn't work.
@@ -88,19 +103,30 @@ class Idefics2(lmms):
                     "train_micro_batch_size_per_gpu": self.batch_size_per_gpu,
                     "train_batch_size": self.batch_size_per_gpu * accelerator.num_processes,
                 }
-                AcceleratorState().deepspeed_plugin.deepspeed_config_process(must_match=True, **kwargs)
-                eval_logger.info("Detected that you are using DistributedType.DEEPSPEED. Make sure you run `accelerate config` and set zero stage to 0")
-            if accelerator.distributed_type == DistributedType.FSDP or accelerator.distributed_type == DistributedType.DEEPSPEED:
+                AcceleratorState().deepspeed_plugin.deepspeed_config_process(
+                    must_match=True, **kwargs
+                )
+                eval_logger.info(
+                    "Detected that you are using DistributedType.DEEPSPEED. Make sure you run `accelerate config` and set zero stage to 0"
+                )
+            if (
+                accelerator.distributed_type == DistributedType.FSDP
+                or accelerator.distributed_type == DistributedType.DEEPSPEED
+            ):
                 self._model = accelerator.prepare(self.model)
             else:
                 self._model = accelerator.prepare_model(self.model, evaluation_mode=True)
             self.accelerator = accelerator
             if self.accelerator.is_local_main_process:
-                eval_logger.info(f"Using {accelerator.num_processes} devices with data parallelism")
+                eval_logger.info(
+                    f"Using {accelerator.num_processes} devices with data parallelism"
+                )
             self._rank = self.accelerator.local_process_index
             self._world_size = self.accelerator.num_processes
         elif accelerator.num_processes == 1 and device_map == "auto":
-            eval_logger.info(f"Using {accelerator.num_processes} devices with pipeline parallelism")
+            eval_logger.info(
+                f"Using {accelerator.num_processes} devices with pipeline parallelism"
+            )
             self._rank = 0
             self._word_size = 1
         else:
@@ -151,7 +177,9 @@ class Idefics2(lmms):
     def world_size(self):
         return self._world_size
 
-    def tok_encode(self, string: str, left_truncate_len=None, add_special_tokens=None) -> List[int]:
+    def tok_encode(
+        self, string: str, left_truncate_len=None, add_special_tokens=None
+    ) -> List[int]:
         """ """
         add_special_tokens = False if add_special_tokens is None else add_special_tokens
         encoding = self.tokenizer.encode(string, add_special_tokens=add_special_tokens)
@@ -191,11 +219,18 @@ class Idefics2(lmms):
         # in the same batch.
         re_ords = utils.Collator([reg.args for reg in requests], _collate, grouping=True)
         chunks = re_ords.get_batched(n=self.batch_size, batch_fn=None)
-        num_iters = len(requests) // self.batch_size if len(requests) % self.batch_size == 0 else len(requests) // self.batch_size + 1
+        num_iters = (
+            len(requests) // self.batch_size
+            if len(requests) % self.batch_size == 0
+            else len(requests) // self.batch_size + 1
+        )
         pbar = tqdm(total=num_iters, disable=(self.rank != 0), desc="Model Responding")
         for chunk in chunks:
             contexts, all_gen_kwargs, doc_to_visuals, doc_id, tasks, splits = zip(*chunk)
-            visuals = [doc_to_visual(self.task_dict[task][split][ids]) for ids, task, split, doc_to_visual in zip(doc_id, tasks, splits, doc_to_visuals)]
+            visuals = [
+                doc_to_visual(self.task_dict[task][split][ids])
+                for ids, task, split, doc_to_visual in zip(doc_id, tasks, splits, doc_to_visuals)
+            ]
             # we assume all gen kwargs in the batch are the same
             # this is safe to assume because the `grouper` object ensures it.
             gen_kwargs = all_gen_kwargs[0]
@@ -217,7 +252,9 @@ class Idefics2(lmms):
                 message = [{"role": "user", "content": content}]
                 prompt = self._processor.apply_chat_template(message, add_generation_prompt=True)
                 prompts.append(prompt)
-            inputs = self._processor(text=prompts, images=visuals, padding=True, return_tensors="pt")
+            inputs = self._processor(
+                text=prompts, images=visuals, padding=True, return_tensors="pt"
+            )
             inputs = {k: v.to(self.device) for k, v in inputs.items()}
             output_ids = self.model.generate(**inputs, **gen_kwargs)
             # only retain the generated text

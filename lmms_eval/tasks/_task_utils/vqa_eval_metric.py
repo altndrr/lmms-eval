@@ -183,7 +183,9 @@ class EvalAIAnswerProcessor:
     def process_punctuation(self, in_text):
         out_text = in_text
         for p in self.PUNCTUATIONS:
-            if (p + " " in in_text or " " + p in in_text) or (re.search(self.COMMA_STRIP, in_text) is not None):
+            if (p + " " in in_text or " " + p in in_text) or (
+                re.search(self.COMMA_STRIP, in_text) is not None
+            ):
                 out_text = out_text.replace(p, "")
             else:
                 out_text = out_text.replace(p, " ")

@@ -1,6 +1,4 @@
 import ast
-import json
-import os
 import random
 import re
 from collections import defaultdict
@@ -8,9 +6,6 @@ from pathlib import Path
 
 import numpy as np
 import yaml
-from loguru import logger as eval_logger
-
-from lmms_eval.tasks._task_utils.file_utils import generate_submission_file
 
 with open(Path(__file__).parent / "_default_template_yaml", "r") as f:
     raw_data = f.readlines()
@@ -34,11 +29,15 @@ def replace_images_tokens(input_string):
 
 def parse_options(options):
     option_letters = [chr(ord("A") + i) for i in range(len(options))]
-    choices_str = "\n".join([f"{option_letter}. {option}" for option_letter, option in zip(option_letters, options)])
+    choices_str = "\n".join(
+        [f"{option_letter}. {option}" for option_letter, option in zip(option_letters, options)]
+    )
     return choices_str
 
 
-def construct_prompt(doc, post_prompt="Answer with the option letter from the given choices directly."):
+def construct_prompt(
+    doc, post_prompt="Answer with the option letter from the given choices directly."
+):
     question = doc["question"]
     # Weirdly, data["options"] is a string in MMMU Huggingface dataset
     parsed_options = parse_options(ast.literal_eval(doc["options"]))
@@ -61,7 +60,9 @@ def mmmu_pro_doc_to_visual(doc):
         prompt = construct_prompt(doc)
         image_tokens = re.findall(r"<image \d+>", prompt)
         # Remove <> and  swap space as _
-        image_tokens = sorted(list(set([image_token.strip("<>").replace(" ", "_") for image_token in image_tokens])))
+        image_tokens = sorted(
+            list(set([image_token.strip("<>").replace(" ", "_") for image_token in image_tokens]))
+        )
         visual = [doc[image_token].convert("RGB") for image_token in image_tokens]
     else:  # vision-only operation
         visual = [doc["image"].convert("RGB")]
@@ -77,7 +78,12 @@ def mmmu_pro_process_results(doc, results):
     else:
         parsed_pred = pred
 
-    mmmu_acc = {"id": doc["id"], "subject": doc["subject"], "answer": doc["answer"], "parsed_pred": parsed_pred}
+    mmmu_acc = {
+        "id": doc["id"],
+        "subject": doc["subject"],
+        "answer": doc["answer"],
+        "parsed_pred": parsed_pred,
+    }
     return {"mmmu_acc": mmmu_acc}
 
 
@@ -93,9 +99,16 @@ def mmmu_pro_composite_process_results(doc, results):
     while len(cutout_letters) < len(gt_list):
         cutout_letters.append("")
 
-    assert len(cutout_letters) == len(gt_list), f"Mismatch in lengths: cutout_letters ({len(cutout_letters)}) != gt_list ({len(gt_list)})"
+    assert len(cutout_letters) == len(
+        gt_list
+    ), f"Mismatch in lengths: cutout_letters ({len(cutout_letters)}) != gt_list ({len(gt_list)})"
 
-    mmmu_acc = {"id": doc["id"], "subject": doc["subject"], "answer": gt_list, "parsed_pred": cutout_letters}
+    mmmu_acc = {
+        "id": doc["id"],
+        "subject": doc["subject"],
+        "answer": gt_list,
+        "parsed_pred": cutout_letters,
+    }
     return {"mmmu_acc": mmmu_acc}
 
 
@@ -119,7 +132,9 @@ def mmmu_pro_aggregate_results(results):
             else:
                 pass
         in_domain_ins_acc = calculate_ins_level_acc(in_domain_cat_results)
-        in_domain_data_num = sum([cat_results["num_example"] for cat_results in in_domain_cat_results.values()])
+        in_domain_data_num = sum(
+            [cat_results["num_example"] for cat_results in in_domain_cat_results.values()]
+        )
         printable_results["Overall-" + domain] = {
             "num": int(in_domain_data_num),
             "acc": round(in_domain_ins_acc, 5),

@@ -1,9 +1,6 @@
-import ast
 import base64
 import io
 import json
-import os
-import random
 import re
 from collections import defaultdict
 
@@ -90,7 +87,12 @@ def websrc_aggregate_results(results):
             "num": int(evaluation_result[domain]["num_example"]),
             "f1": round(evaluation_result[domain]["f1"], 3),
         }
-    all_ins_f1 = np.sum([cat_results["f1"] * cat_results["num_example"] for cat_results in evaluation_result.values()]) / sum([cat_results["num_example"] for cat_results in evaluation_result.values()])
+    all_ins_f1 = np.sum(
+        [
+            cat_results["f1"] * cat_results["num_example"]
+            for cat_results in evaluation_result.values()
+        ]
+    ) / sum([cat_results["num_example"] for cat_results in evaluation_result.values()])
     printable_results["Overall"] = {
         "num": sum([cat_results["num_example"] for cat_results in evaluation_result.values()]),
         "f1": round(all_ins_f1, 3),

@@ -21,7 +21,6 @@ from typing import (
     Literal,
     Optional,
     Tuple,
-    Type,
     Union,
 )
 
@@ -188,7 +187,7 @@ class MultiChoice:
     def __contains__(self, values) -> bool:
         for value in values.split(","):
             if len(fnmatch.filter(self.choices, value)) == 0:
-                eval_logger.info(f"Available tasks to choose:")
+                eval_logger.info("Available tasks to choose:")
                 for choice in self.choices:
                     eval_logger.info(f"  - {choice}")
                 raise ValueError("'{}' is not in task list".format(value))
@@ -247,7 +246,9 @@ def sanitize_model_name(model_name: str, full_path: bool = False) -> str:
         return re.sub(r"[\"<>:/\|\\?\*\[\]]+", "__", model_name)
     else:
         parts = model_name.split("/")
-        last_two = "/".join(parts[-2:]) if len(parts) > 1 else parts[-1]  # accommondate for models that are in Hugging Face Hub format like lmms-lab/llava-onevision-qwen2-0.5b
+        last_two = (
+            "/".join(parts[-2:]) if len(parts) > 1 else parts[-1]
+        )  # accommondate for models that are in Hugging Face Hub format like lmms-lab/llava-onevision-qwen2-0.5b
         return re.sub(r"[\"<>:/\|\\?\*\[\]]+", "__", last_two)
 
 
@@ -529,7 +530,11 @@ def positional_deprecated(fn):
     @functools.wraps(fn)
     def _wrapper(*args, **kwargs):
         if len(args) != 1 if inspect.ismethod(fn) else 0:
-            print(f"WARNING: using {fn.__name__} with positional arguments is " "deprecated and will be disallowed in a future version of " "lmms-evaluation-harness!")
+            print(
+                f"WARNING: using {fn.__name__} with positional arguments is "
+                "deprecated and will be disallowed in a future version of "
+                "lmms-evaluation-harness!"
+            )
         return fn(*args, **kwargs)
 
     return _wrapper
@@ -548,7 +553,9 @@ def find_test_root(start_path: pathlib.Path) -> pathlib.Path:
             return cur_path
         else:
             cur_path = cur_path.parent.resolve()
-    raise FileNotFoundError(f"Unable to find package root within {max_layers} upwards" + f"of {start_path}")
+    raise FileNotFoundError(
+        f"Unable to find package root within {max_layers} upwards" + f"of {start_path}"
+    )
 
 
 @positional_deprecated
@@ -569,7 +576,9 @@ def run_task_tests(task_list: List[str]):
     sys.path.append(str(package_root))
     pytest_return_val = pytest.main(args)
     if pytest_return_val:
-        raise ValueError(f"Not all tests for the specified tasks ({task_list}) ran successfully! Error code: {pytest_return_val}")
+        raise ValueError(
+            f"Not all tests for the specified tasks ({task_list}) ran successfully! Error code: {pytest_return_val}"
+        )
 
 
 def get_git_commit_hash():
@@ -705,7 +714,9 @@ def pad_and_concat(
     length in the batch. Used for batching inputs and continuations in
     seq2seq models.
     """
-    assert padding_side == "left" or padding_side == "right", f"Unrecognized padding type: '{padding_side}' not 'left' or 'right'"
+    assert (
+        padding_side == "left" or padding_side == "right"
+    ), f"Unrecognized padding type: '{padding_side}' not 'left' or 'right'"
 
     for i, tensor in enumerate(tensors):
         if len(tensor.shape) == 2:
@@ -786,7 +797,9 @@ class MultiTokenEOSCriteria(transformers.StoppingCriteria):
 
     def __call__(self, input_ids, scores, **kwargs) -> bool:
         # For efficiency, we compare the last n tokens where n is the number of tokens in the stop_sequence
-        lookback_ids_batch = input_ids[:, self.initial_decoder_input_length :][:, -self.sequence_id_len :]
+        lookback_ids_batch = input_ids[:, self.initial_decoder_input_length :][
+            :, -self.sequence_id_len :
+        ]
 
         lookback_tokens_batch = self.tokenizer.batch_decode(lookback_ids_batch)
         for i, done in enumerate(self.done_tracker):
@@ -803,7 +816,12 @@ def stop_sequences_criteria(
 ) -> transformers.StoppingCriteriaList:
     return transformers.StoppingCriteriaList(
         [
-            *[MultiTokenEOSCriteria(sequence, tokenizer, initial_decoder_input_length, batch_size) for sequence in stop_sequences],
+            *[
+                MultiTokenEOSCriteria(
+                    sequence, tokenizer, initial_decoder_input_length, batch_size
+                )
+                for sequence in stop_sequences
+            ],
         ]
     )
 

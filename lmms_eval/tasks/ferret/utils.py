@@ -5,17 +5,21 @@ from copy import deepcopy
 from pathlib import Path
 
 import numpy as np
-import openai
 import requests
 import yaml
 from loguru import logger as eval_logger
-from openai import OpenAI
 
 NUM_SECONDS_TO_SLEEP = 0.5
 
-FERRET_W_METRICS = ["gpt_eval_ferret_refer_desc", "gpt_eval_ferret_refer_reason", "gpt_eval_ferret_ground_conv"]
+FERRET_W_METRICS = [
+    "gpt_eval_ferret_refer_desc",
+    "gpt_eval_ferret_refer_reason",
+    "gpt_eval_ferret_ground_conv",
+]
 
-rule_dict = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "rule.json"), "r"))
+rule_dict = json.load(
+    open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "rule.json"), "r")
+)
 
 with open(Path(__file__).parent / "ferret.yaml", "r") as f:
     raw_data = f.readlines()
@@ -39,7 +43,9 @@ if API_TYPE == "openai":
         "Content-Type": "application/json",
     }
 elif API_TYPE == "azure":
-    API_URL = os.getenv("AZURE_ENDPOINT", "https://api.cognitive.microsoft.com/sts/v1.0/issueToken")
+    API_URL = os.getenv(
+        "AZURE_ENDPOINT", "https://api.cognitive.microsoft.com/sts/v1.0/issueToken"
+    )
     API_KEY = os.getenv("AZURE_API_KEY", "YOUR_API_KEY")
     headers = {
         "api-key": API_KEY,
@@ -78,7 +84,9 @@ def get_eval(content: str, max_tokens: int, retries: int = 3):
 
         except Exception as e:
             eval_logger.info(f"Attempt {attempt + 1} failed with error: {e}")
-            if attempt < retries - 1:  # If we have retries left, sleep and then continue to next attempt
+            if (
+                attempt < retries - 1
+            ):  # If we have retries left, sleep and then continue to next attempt
                 time.sleep(NUM_SECONDS_TO_SLEEP)
             else:  # If this was the last attempt, log and return empty
                 eval_logger.error(f"All {retries} attempts failed. Last error message: {e}")
@@ -132,7 +140,13 @@ def ferret_process_results(doc, result):
         rule = rule_dict.get(category, {})
         prompt = rule.get("prompt", "")
         role = rule.get("role", "user")
-        content = f"[Context]\n{context}\n\n" f"[Question]\n{question}\n\n" f"[{role} 1]\n{ans1}\n\n[End of {role} 1]\n\n" f"[{role} 2]\n{ans2}\n\n[End of {role} 2]\n\n" f"[System]\n{prompt}\n\n"
+        content = (
+            f"[Context]\n{context}\n\n"
+            f"[Question]\n{question}\n\n"
+            f"[{role} 1]\n{ans1}\n\n[End of {role} 1]\n\n"
+            f"[{role} 2]\n{ans2}\n\n[End of {role} 2]\n\n"
+            f"[System]\n{prompt}\n\n"
+        )
         review, model_name = get_eval(content, 1024)
         scores = parse_score(review)
     except Exception as e:

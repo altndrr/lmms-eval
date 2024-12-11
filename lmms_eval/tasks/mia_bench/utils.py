@@ -1,16 +1,10 @@
-import json
 import os
-import random
 import time
-from collections import defaultdict
 from pathlib import Path
 
-import numpy as np
 import requests
 import yaml
 from loguru import logger as eval_logger
-
-from lmms_eval.tasks._task_utils.file_utils import generate_submission_file
 
 
 def mia_bench_doc_to_visual(doc):
@@ -20,9 +14,13 @@ def mia_bench_doc_to_visual(doc):
 def mia_bench_doc_to_text(doc, lmms_eval_specific_kwargs=None):
     question_text = doc["instruction"]
 
-    pre_prompt = lmms_eval_specific_kwargs.get("pre_prompt", "") if lmms_eval_specific_kwargs else ""
+    pre_prompt = (
+        lmms_eval_specific_kwargs.get("pre_prompt", "") if lmms_eval_specific_kwargs else ""
+    )
 
-    post_prompt = lmms_eval_specific_kwargs.get("post_prompt", "") if lmms_eval_specific_kwargs else ""
+    post_prompt = (
+        lmms_eval_specific_kwargs.get("post_prompt", "") if lmms_eval_specific_kwargs else ""
+    )
     formatted_question = f"{pre_prompt}{question_text}{post_prompt}"
 
     return formatted_question
@@ -54,9 +52,15 @@ if API_TYPE == "openai":
         "Content-Type": "application/json",
     }
 elif API_TYPE == "azure":
-    API_URL = os.getenv("AZURE_ENDPOINT", "https://api.cognitive.microsoft.com/sts/v1.0/issueToken")
+    API_URL = os.getenv(
+        "AZURE_ENDPOINT", "https://api.cognitive.microsoft.com/sts/v1.0/issueToken"
+    )
     API_KEY = os.getenv("AZURE_API_KEY", "YOUR_API_KEY")
-    headers = {"api-key": API_KEY, "Content-Type": "application/json", "api-version": "2023-07-01-preview"}
+    headers = {
+        "api-key": API_KEY,
+        "Content-Type": "application/json",
+        "api-version": "2023-07-01-preview",
+    }
 
 
 def get_eval(content: str, max_tokens: int, retries: int = 5):
@@ -86,7 +90,9 @@ def get_eval(content: str, max_tokens: int, retries: int = 5):
 
         except Exception as e:
             eval_logger.info(f"Attempt {attempt + 1} failed with error: {e}")
-            if attempt < retries:  # If we have retries left, sleep and then continue to next attempt
+            if (
+                attempt < retries
+            ):  # If we have retries left, sleep and then continue to next attempt
                 time.sleep(NUM_SECONDS_TO_SLEEP)
             else:  # If this was the last attempt, log and return empty
                 eval_logger.error(f"All {retries} attempts failed. Last error message: {e}")
@@ -104,11 +110,39 @@ def generate_prompt(d, response):
         components = """The first component is:' """ + d["components"][0] + "'"
         score = """The first component is worth """ + weight[0] + " scores."
     elif d["num_of_component"] == 2:
-        components = """The first component is:' """ + d["components"][0] + """', and the second component is:' """ + d["components"][1] + "'"
-        score = """The first and second component is each worth """ + weight[0] + " and " + weight[1] + " scores."
+        components = (
+            """The first component is:' """
+            + d["components"][0]
+            + """', and the second component is:' """
+            + d["components"][1]
+            + "'"
+        )
+        score = (
+            """The first and second component is each worth """
+            + weight[0]
+            + " and "
+            + weight[1]
+            + " scores."
+        )
     elif d["num_of_component"] == 3:
-        components = """The first component is:' """ + d["components"][0] + """', and the second component is:' """ + d["components"][1] + """', and the third component is:' """ + d["components"][2] + "'"
-        score = """The first second, and third component is each worth """ + weight[0] + ", " + weight[1] + " and " + weight[2] + " scores."
+        components = (
+            """The first component is:' """
+            + d["components"][0]
+            + """', and the second component is:' """
+            + d["components"][1]
+            + """', and the third component is:' """
+            + d["components"][2]
+            + "'"
+        )
+        score = (
+            """The first second, and third component is each worth """
+            + weight[0]
+            + ", "
+            + weight[1]
+            + " and "
+            + weight[2]
+            + " scores."
+        )
     elif d["num_of_component"] == 4:
         components = (
             """The first component is:' """
@@ -121,7 +155,17 @@ def generate_prompt(d, response):
             + d["components"][3]
             + "'"
         )
-        score = """The first second, third, and fourth component is each worth """ + weight[0] + ", " + weight[1] + ", " + weight[2] + " and " + weight[3] + " scores."
+        score = (
+            """The first second, third, and fourth component is each worth """
+            + weight[0]
+            + ", "
+            + weight[1]
+            + ", "
+            + weight[2]
+            + " and "
+            + weight[3]
+            + " scores."
+        )
     elif d["num_of_component"] == 5:
         components = (
             """The first component is:' """
@@ -136,7 +180,19 @@ def generate_prompt(d, response):
             + d["components"][4]
             + "'"
         )
-        score = """The first second, third, fourth and fifth component is each worth """ + weight[0] + ", " + weight[1] + ", " + weight[2] + ", " + weight[3] + " and " + weight[4] + " scores."
+        score = (
+            """The first second, third, fourth and fifth component is each worth """
+            + weight[0]
+            + ", "
+            + weight[1]
+            + ", "
+            + weight[2]
+            + ", "
+            + weight[3]
+            + " and "
+            + weight[4]
+            + " scores."
+        )
     return (
         """Here is an instruction for a multimodal LLM: ' """
         + instruction

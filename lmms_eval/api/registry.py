@@ -1,4 +1,4 @@
-from typing import Callable, Dict
+from typing import Callable
 
 import evaluate as hf_evaluate
 from loguru import logger as eval_logger
@@ -16,7 +16,9 @@ def register_model(*names):
         for name in names:
             assert issubclass(cls, lmms), f"Model '{name}' ({cls.__name__}) must extend lmms class"
 
-            assert name not in MODEL_REGISTRY, f"Model named '{name}' conflicts with existing model! Please register with a non-conflicting alias instead."
+            assert (
+                name not in MODEL_REGISTRY
+            ), f"Model named '{name}' conflicts with existing model! Please register with a non-conflicting alias instead."
 
             MODEL_REGISTRY[name] = cls
         return cls
@@ -28,7 +30,9 @@ def get_model(model_name):
     try:
         return MODEL_REGISTRY[model_name]
     except KeyError:
-        raise ValueError(f"Attempted to load model '{model_name}', but no model for this name found! Supported model names: {', '.join(MODEL_REGISTRY.keys())}")
+        raise ValueError(
+            f"Attempted to load model '{model_name}', but no model for this name found! Supported model names: {', '.join(MODEL_REGISTRY.keys())}"
+        )
 
 
 TASK_REGISTRY = {}  # Key: task name, Value: task ConfigurableTask class
@@ -40,7 +44,9 @@ func2task_index = {}  # Key: task ConfigurableTask class, Value: task name
 
 def register_task(name):
     def decorate(fn):
-        assert name not in TASK_REGISTRY, f"task named '{name}' conflicts with existing registered task!"
+        assert (
+            name not in TASK_REGISTRY
+        ), f"task named '{name}' conflicts with existing registered task!"
 
         TASK_REGISTRY[name] = fn
         ALL_TASKS.add(name)
@@ -93,7 +99,9 @@ def register_metric(**args):
         ]:
             if key in args:
                 value = args[key]
-                assert value not in registry, f"{key} named '{value}' conflicts with existing registered {key}!"
+                assert (
+                    value not in registry
+                ), f"{key} named '{value}' conflicts with existing registered {key}!"
 
                 if key == "metric":
                     registry[name] = fn
@@ -112,7 +120,9 @@ def get_metric(name: str, hf_evaluate_metric=False) -> Callable:
         if name in METRIC_REGISTRY:
             return METRIC_REGISTRY[name]
         else:
-            eval_logger.warning(f"Could not find registered metric '{name}' in lm-eval, searching in HF Evaluate library...")
+            eval_logger.warning(
+                f"Could not find registered metric '{name}' in lm-eval, searching in HF Evaluate library..."
+            )
 
     try:
         metric_object = hf_evaluate.load(name)
@@ -125,7 +135,9 @@ def get_metric(name: str, hf_evaluate_metric=False) -> Callable:
 
 def register_aggregation(name):
     def decorate(fn):
-        assert name not in AGGREGATION_REGISTRY, f"aggregation named '{name}' conflicts with existing registered aggregation!"
+        assert (
+            name not in AGGREGATION_REGISTRY
+        ), f"aggregation named '{name}' conflicts with existing registered aggregation!"
 
         AGGREGATION_REGISTRY[name] = fn
         return fn

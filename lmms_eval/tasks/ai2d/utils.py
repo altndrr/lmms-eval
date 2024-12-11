@@ -1,7 +1,6 @@
 import re
 
 from lmms_eval.filters.extraction import ExtendedRegexFilter
-from lmms_eval.filters.transformation import MapFilter
 
 
 def ai2d_doc_to_text(doc, lmms_eval_specific_kwargs=None):
@@ -11,7 +10,9 @@ def ai2d_doc_to_text(doc, lmms_eval_specific_kwargs=None):
     pre_prompt = lmms_eval_specific_kwargs["pre_prompt"]
     if lmms_eval_specific_kwargs["prompt_format"] == "mcq":
         options = [chr(ord("A") + i) for i in range(len_choices)]
-        choices_str = "\n".join([f"{option}. {choice}" for option, choice in zip(options, choices)])
+        choices_str = "\n".join(
+            [f"{option}. {choice}" for option, choice in zip(options, choices)]
+        )
         return f"{pre_prompt}{question}\n{choices_str}{post_prompt}"
     elif lmms_eval_specific_kwargs["prompt_format"] == "qa":
         options = "\n".join(choices)

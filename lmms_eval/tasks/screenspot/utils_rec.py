@@ -1,8 +1,5 @@
 import re
 
-from datasets import Dataset
-from loguru import logger as eval_logger
-
 REC_METRICS = ["IoU", "ACC@0.1", "ACC@0.3", "ACC@0.5", "ACC@0.7", "ACC@0.9", "Center_ACC"]
 
 
@@ -54,7 +51,14 @@ def screenspot_rec_process_result(doc, result):
     pred = result[0] if len(result) > 0 else ""
     pred = parse_float_sequence_within(pred)
     ann_id = doc["file_name"]
-    data_dict = {"instruction": doc["instruction"], "pred": pred, "ann_id": ann_id, "bbox": doc["bbox"], "data_type": doc["data_type"], "data_source": doc["data_source"]}
+    data_dict = {
+        "instruction": doc["instruction"],
+        "pred": pred,
+        "ann_id": ann_id,
+        "bbox": doc["bbox"],
+        "data_type": doc["data_type"],
+        "data_source": doc["data_source"],
+    }
     return {f"screenspot_{metric}": data_dict for metric in REC_METRICS}
 
 

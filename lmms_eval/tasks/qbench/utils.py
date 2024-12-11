@@ -1,8 +1,4 @@
-import json
-import re
-from collections import Counter, defaultdict
-
-from lmms_eval.tasks._task_utils.file_utils import generate_submission_file
+from collections import defaultdict
 
 
 def q_bench_doc_to_text(doc, lmms_eval_specific_kwargs):
@@ -12,7 +8,13 @@ def q_bench_doc_to_text(doc, lmms_eval_specific_kwargs):
         if candidate != "N/A":
             candidates.append(candidate)
 
-    question = doc["question"] + "\n" + "\n".join([". ".join([chr(ord("A") + i), candidate]) for i, candidate in enumerate(candidates)])
+    question = (
+        doc["question"]
+        + "\n"
+        + "\n".join(
+            [". ".join([chr(ord("A") + i), candidate]) for i, candidate in enumerate(candidates)]
+        )
+    )
     pre_prompt = lmms_eval_specific_kwargs["pre_prompt"]
     post_prompt = lmms_eval_specific_kwargs["post_prompt"]
     return f"{pre_prompt}{question}\n{post_prompt}"
@@ -163,7 +165,13 @@ def q_bench_process_results(doc, results):
 
     parsed_pred = parse_multi_choice_response(pred, all_choices, index2ans)
     id = doc["id"]
-    qbench_acc = {"id": id, "question_concern": doc["question_concern"], "question_type": doc["question_type"], "answer": doc["correct_choice"], "parsed_pred": parsed_pred}
+    qbench_acc = {
+        "id": id,
+        "question_concern": doc["question_concern"],
+        "question_type": doc["question_type"],
+        "answer": doc["correct_choice"],
+        "parsed_pred": parsed_pred,
+    }
     return {
         "qbench_acc": qbench_acc,
         "submission": {
@@ -215,7 +223,12 @@ def a_bench_process_results(doc, results):
 
     parsed_pred = parse_multi_choice_response(pred, all_choices, index2ans)
     id = doc["id"]
-    abench_acc = {"id": id, "category": doc["category"], "answer": doc["correct_choice"], "parsed_pred": parsed_pred}
+    abench_acc = {
+        "id": id,
+        "category": doc["category"],
+        "answer": doc["correct_choice"],
+        "parsed_pred": parsed_pred,
+    }
     return {
         "abench_acc": abench_acc,
         "submission": {

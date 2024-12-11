@@ -1,15 +1,11 @@
-import json
 import os
-from copy import deepcopy
 from datetime import timedelta
-from typing import Dict, List, Optional, Sequence, Union
+from typing import List, Union
 
 import numpy as np
 import torch
-from accelerate import Accelerator, DistributedType, InitProcessGroupKwargs
-from accelerate.state import AcceleratorState
+from accelerate import Accelerator, InitProcessGroupKwargs
 from accelerate.utils import gather_object
-from PIL import Image
 from sentence_transformers import SentenceTransformer
 from tqdm import tqdm
 from transformers import CLIPModel, CLIPProcessor
@@ -44,9 +40,13 @@ class ClipBgeEmbedder(BaseEmbedder):
         self.text_model.to(self.device)
 
     def embed_task(self, task: str, ignored_ids: Union[set, List] = None):
-        DATASET_PATH, DATASET_NAME, split, requests, task_obj, self.docs = BaseEmbedder.init_task(task, ignored_ids)
+        DATASET_PATH, DATASET_NAME, split, requests, task_obj, self.docs = BaseEmbedder.init_task(
+            task, ignored_ids
+        )
         self.accelerator.wait_for_everyone()
-        with self.accelerator.split_between_processes(requests, apply_padding=False) as requests_split:
+        with self.accelerator.split_between_processes(
+            requests, apply_padding=False
+        ) as requests_split:
             results = {"outputs": []}
             for req in tqdm(requests_split, disable=not self.accelerator.is_main_process):
                 contexts, all_gen_kwargs, doc_to_visual, doc_id, task, split = req.args
@@ -61,7 +61,9 @@ class ClipBgeEmbedder(BaseEmbedder):
                     img_inputs = {k: v.to(self.device) for k, v in img_inputs.items()}
 
                     # For multiple images, we take the mean of it
-                    image_embedding = self.model.get_image_features(**img_inputs).mean(dim=0).detach().cpu()
+                    image_embedding = (
+                        self.model.get_image_features(**img_inputs).mean(dim=0).detach().cpu()
+                    )
                 else:
                     image_embedding = torch.zeros(self.model.config.projection_dim)
 
@@ -77,7 +79,9 @@ class ClipBgeEmbedder(BaseEmbedder):
             for r in results_gathered:
                 outputs += r["outputs"]
             results_gathered = torch.stack(outputs)
-            np.save(open(os.path.join(self.output_path, f"{task}_embed.npy"), "wb"), results_gathered)
+            np.save(
+                open(os.path.join(self.output_path, f"{task}_embed.npy"), "wb"), results_gathered
+            )
             return results_gathered
 
 

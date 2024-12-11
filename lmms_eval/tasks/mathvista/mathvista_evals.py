@@ -156,7 +156,9 @@ class MathVistaEvaluator:
             "Content-Type": "application/json",
         }
     elif API_TYPE == "azure":
-        API_URL = os.getenv("AZURE_ENDPOINT", "https://api.cognitive.microsoft.com/sts/v1.0/issueToken")
+        API_URL = os.getenv(
+            "AZURE_ENDPOINT", "https://api.cognitive.microsoft.com/sts/v1.0/issueToken"
+        )
         API_KEY = os.getenv("AZURE_API_KEY", "YOUR_API_KEY")
         headers = {
             "api-key": API_KEY,
@@ -177,11 +179,19 @@ class MathVistaEvaluator:
         response.raise_for_status()
         return response.json()
 
-    def get_chat_response(self, prompt, temperature=0, max_tokens=256, n=1, patience=5, sleep_time=0):
+    def get_chat_response(
+        self, prompt, temperature=0, max_tokens=256, n=1, patience=5, sleep_time=0
+    ):
         messages = [
             {"role": "user", "content": prompt},
         ]
-        payload = {"model": self.gpt_model, "messages": messages, "temperature": temperature, "max_tokens": max_tokens, "n": n}
+        payload = {
+            "model": self.gpt_model,
+            "messages": messages,
+            "temperature": temperature,
+            "max_tokens": max_tokens,
+            "n": n,
+        }
 
         if self.API_TYPE == "azure":
             payload.pop("model")
@@ -195,7 +205,9 @@ class MathVistaEvaluator:
                     if prediction and prediction != "":
                         return prediction
                 else:
-                    prediction = [choice["message"]["content"].strip() for choice in response["choices"]]
+                    prediction = [
+                        choice["message"]["content"].strip() for choice in response["choices"]
+                    ]
                     if prediction and prediction[0] != "":
                         return prediction
 
@@ -274,7 +286,7 @@ class MathVistaEvaluator:
             return extraction
         except Exception as e:
             eval_logger.error(e)
-            eval_logger.error(f"Error in extracting answer for problem")
+            eval_logger.error("Error in extracting answer for problem")
 
         return ""
 
@@ -286,7 +298,9 @@ class MathVistaEvaluator:
         ind = distances.index(min(distances))
         return choices[ind]
 
-    def normalize_extracted_answer(self, extraction, choices, question_type, answer_type, precision):
+    def normalize_extracted_answer(
+        self, extraction, choices, question_type, answer_type, precision
+    ):
         """
         Normalize the extracted answer to match the answer type
         """
@@ -358,10 +372,20 @@ class MathVistaEvaluator:
             total_pd = res_pd[res_pd[key] == value]
 
         correct_pd = total_pd[total_pd["true_false"] == True]
-        acc = "{:.2f}".format(len(correct_pd) / len(total_pd) * 100) if len(total_pd) > 0 else "0.00"
+        acc = (
+            "{:.2f}".format(len(correct_pd) / len(total_pd) * 100) if len(total_pd) > 0 else "0.00"
+        )
         return len(correct_pd), len(total_pd), acc
 
-    def create_one_query(self, problem, shot_type, examples=shot_examples, shot_num=0, use_caption=False, use_ocr=False):
+    def create_one_query(
+        self,
+        problem,
+        shot_type,
+        examples=shot_examples,
+        shot_num=0,
+        use_caption=False,
+        use_ocr=False,
+    ):
         ### [1] Demo prompt
         if shot_num == 0:
             demo_prompt = ""
@@ -437,75 +461,73 @@ class MathVistaEvaluator:
         if shot_type == "solution":
             if question_type == "multi_choice":
                 assert answer_type == "text"
-                hint_text = f"Hint: Please answer the question and provide the correct option letter, e.g., A, B, C, D, at the end."
+                hint_text = "Hint: Please answer the question and provide the correct option letter, e.g., A, B, C, D, at the end."
             else:
                 assert answer_type in ["integer", "float", "list"]
                 if answer_type == "integer":
-                    hint_text = f"Hint: Please answer the question requiring an integer answer and provide the final value, e.g., 1, 2, 3, at the end."
+                    hint_text = "Hint: Please answer the question requiring an integer answer and provide the final value, e.g., 1, 2, 3, at the end."
 
                 elif answer_type == "float" and precision == 1:
-                    hint_text = f"Hint: Please answer the question requiring a floating-point number with one decimal place and provide the final value, e.g., 1.2, 1.3, 1.4, at the end."
+                    hint_text = "Hint: Please answer the question requiring a floating-point number with one decimal place and provide the final value, e.g., 1.2, 1.3, 1.4, at the end."
 
                 elif answer_type == "float" and precision == 2:
-                    hint_text = f"Hint: Please answer the question requiring a floating-point number with two decimal places and provide the final value, e.g., 1.23, 1.34, 1.45, at the end."
+                    hint_text = "Hint: Please answer the question requiring a floating-point number with two decimal places and provide the final value, e.g., 1.23, 1.34, 1.45, at the end."
 
                 elif answer_type == "list":
-                    hint_text = f"Hint: Please answer the question requiring a Python list as an answer and provide the final list, e.g., [1, 2, 3], [1.2, 1.3, 1.4], at the end."
+                    hint_text = "Hint: Please answer the question requiring a Python list as an answer and provide the final list, e.g., [1, 2, 3], [1.2, 1.3, 1.4], at the end."
         # step-by-step
         elif shot_type == "format-prompt":
             if question_type == "multi_choice":
                 assert answer_type == "text"
-                hint_text = f"Answer with the option's letter from the given choices directly."
+                hint_text = "Answer with the option's letter from the given choices directly."
             else:
                 if answer_type == "integer":
-                    hint_text = f"Answer the question using a single integer number."
+                    hint_text = "Answer the question using a single integer number."
 
                 elif answer_type == "float" and precision == 1:
-                    hint_text = f"Answer the question using a single floating-point number with one decimal place."
+                    hint_text = "Answer the question using a single floating-point number with one decimal place."
 
                 elif answer_type == "float" and precision == 2:
-                    hint_text = f"Answer the question using a single floating-point number with two decimal places."
+                    hint_text = "Answer the question using a single floating-point number with two decimal places."
 
                 elif answer_type == "list":
-                    hint_text = f"Answer the question using a Python list."
+                    hint_text = "Answer the question using a Python list."
         # step-by-step
         elif shot_type == "step-by-step":
             if question_type == "multi_choice":
                 assert answer_type == "text"
-                hint_text = f"Hint: Please answer the question and provide the correct option letter, e.g., A, B, C, D, at the end."
+                hint_text = "Hint: Please answer the question and provide the correct option letter, e.g., A, B, C, D, at the end."
             else:
                 assert answer_type in ["integer", "float", "list"]
                 if answer_type == "integer":
-                    hint_text = f"Hint: Please answer the question requiring an integer answer and provide the final value, e.g., 1, 2, 3, at the end."
+                    hint_text = "Hint: Please answer the question requiring an integer answer and provide the final value, e.g., 1, 2, 3, at the end."
 
                 elif answer_type == "float" and precision == 1:
-                    hint_text = f"Hint: Please answer the question requiring a floating-point number with one decimal place and provide the final value, e.g., 1.2, 1.3, 1.4, at the end."
+                    hint_text = "Hint: Please answer the question requiring a floating-point number with one decimal place and provide the final value, e.g., 1.2, 1.3, 1.4, at the end."
 
                 elif answer_type == "float" and precision == 2:
-                    hint_text = f"Hint: Please answer the question requiring a floating-point number with two decimal places and provide the final value, e.g., 1.23, 1.34, 1.45, at the end."
+                    hint_text = "Hint: Please answer the question requiring a floating-point number with two decimal places and provide the final value, e.g., 1.23, 1.34, 1.45, at the end."
 
                 elif answer_type == "list":
-                    hint_text = f"Hint: Please answer the question requiring a Python list as an answer and provide the final list, e.g., [1, 2, 3], [1.2, 1.3, 1.4], at the end."
+                    hint_text = "Hint: Please answer the question requiring a Python list as an answer and provide the final list, e.g., [1, 2, 3], [1.2, 1.3, 1.4], at the end."
         # step-by-step
         elif shot_type == "reason-first":
             if question_type == "multi_choice":
                 assert answer_type == "text"
-                hint_text = f"First perform reasoning, then finally select the question from the choices in the following format: Answer: xxx."
+                hint_text = "First perform reasoning, then finally select the question from the choices in the following format: Answer: xxx."
             else:
                 assert answer_type in ["integer", "float", "list"]
                 if answer_type == "integer":
-                    hint_text = f"First perform reasoning, then finally answer the question requiring an integer answer and provide the final value, e.g., 1, 2, 3, at the end in the following format: Answer: xxx."
+                    hint_text = "First perform reasoning, then finally answer the question requiring an integer answer and provide the final value, e.g., 1, 2, 3, at the end in the following format: Answer: xxx."
 
                 elif answer_type == "float" and precision == 1:
-                    hint_text = (
-                        f"First perform reasoning, then finally answer the question requiring a floating-point number with one decimal place and provide the final value, e.g., 1.2, 1.3, 1.4, at the end in the following format: Answer: xxx."
-                    )
+                    hint_text = "First perform reasoning, then finally answer the question requiring a floating-point number with one decimal place and provide the final value, e.g., 1.2, 1.3, 1.4, at the end in the following format: Answer: xxx."
 
                 elif answer_type == "float" and precision == 2:
-                    hint_text = f"First perform reasoning, then finally answer the question requiring a floating-point number with two decimal places and provide the final value, e.g., 1.23, 1.34, 1.45, at the end in the following format: Answer: xxx."
+                    hint_text = "First perform reasoning, then finally answer the question requiring a floating-point number with two decimal places and provide the final value, e.g., 1.23, 1.34, 1.45, at the end in the following format: Answer: xxx."
 
                 elif answer_type == "list":
-                    hint_text = f"First perform reasoning, then finally answer the question requiring a Python list as an answer and provide the final list, e.g., [1, 2, 3], [1.2, 1.3, 1.4], at the end in the following format: Answer: xxx."
+                    hint_text = "First perform reasoning, then finally answer the question requiring a Python list as an answer and provide the final list, e.g., [1, 2, 3], [1.2, 1.3, 1.4], at the end in the following format: Answer: xxx."
         elif shot_type == "direct":
             hint_text = ""
         else:

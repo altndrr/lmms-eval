@@ -5,8 +5,8 @@ from typing import List
 
 import anthropic
 import google.generativeai as genai
-import openai
-from live_bench.data_generator.qa_generator import QAData
+from PIL import Image
+
 from live_bench.data_generator.utils.claude import (
     claude_generate_response,
     format_claude_images,
@@ -17,7 +17,6 @@ from live_bench.data_generator.utils.gpt4v import (
     get_openai_client,
     gpt4v_generate_response,
 )
-from PIL import Image
 
 REJECT_TO_ANSWER = "Reject to answer"
 
@@ -34,7 +33,12 @@ class GPT4VAnswerGetter(AnswerGetter):
         self.client = get_openai_client()
 
     def get_answer(self, question: str, images: List[Image.Image]):
-        messages = [{"role": "user", "content": format_gpt4v_images(images) + [{"type": "text", "text": question}]}]
+        messages = [
+            {
+                "role": "user",
+                "content": format_gpt4v_images(images) + [{"type": "text", "text": question}],
+            }
+        ]
         response = gpt4v_generate_response(messages=messages, client=self.client, model=self.model)
         if response.success:
             return response.content
@@ -52,7 +56,12 @@ class ClaudeAnswerGetter(AnswerGetter):
         self.client = anthropic.Anthropic(api_key=self.api_key)
 
     def get_answer(self, question: str, images: List[Image.Image]):
-        messages = [{"role": "user", "content": format_claude_images(images) + [{"type": "text", "text": question}]}]
+        messages = [
+            {
+                "role": "user",
+                "content": format_claude_images(images) + [{"type": "text", "text": question}],
+            }
+        ]
         response = claude_generate_response(self.client, self.model, messages)
         if response.success:
             return response.content
@@ -104,14 +113,26 @@ Please provide the final question, answer, and scoring criteria in the following
 
 
 class QuestionFinalizer(object):
-    def __init__(self, gpt4v_model: str = "gpt-4o", claude_model: str = "claude-3-5-sonnet-20240620", gemini_model: str = "gemini-1.5-pro"):
-        self.models = {"GPT4V": GPT4VAnswerGetter(gpt4v_model), "Claude": ClaudeAnswerGetter(claude_model)}
+    def __init__(
+        self,
+        gpt4v_model: str = "gpt-4o",
+        claude_model: str = "claude-3-5-sonnet-20240620",
+        gemini_model: str = "gemini-1.5-pro",
+    ):
+        self.models = {
+            "GPT4V": GPT4VAnswerGetter(gpt4v_model),
+            "Claude": ClaudeAnswerGetter(claude_model),
+        }
         self.client = get_openai_client()
         # self.client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY", None))
         # self.client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY", None))
 
     def finalize_question(self, question, answer, criteria, images: List[Image.Image]):
-        information = [f"[Original Question]\n{question}", f"[Original Answer]\n{answer}", f"[Original Criteria]\n{criteria}"]
+        information = [
+            f"[Original Question]\n{question}",
+            f"[Original Answer]\n{answer}",
+            f"[Original Criteria]\n{criteria}",
+        ]
         # information.append(
         #     "Below are answers from three candidates for reference. These answers may not be correct but are reasonably credible (but mostly correct). If any candidate rejects to answer, consider whether there is an issue with the question (such as containing violent or graphic content, or having a clear political bias). If so, please make necessary modifications. For open-ended questions, also consider the reasonableness of these answers. If they are reasonable, you may need to adjust the scoring criteria or the answer itself."
         # )
@@ -119,9 +140,19 @@ class QuestionFinalizer(object):
         #     information.append(f"[{model_name} Answer]\n{model.get_answer(question, images)}")
         information.append(FINALIZER_OUTPUT_FORMAT_PROMPT)
         prompt = "\n\n".join(information)
-        messages = [{"role": "user", "content": format_gpt4v_images(images) + [{"type": "text", "text": prompt}]}]
+        messages = [
+            {
+                "role": "user",
+                "content": format_gpt4v_images(images) + [{"type": "text", "text": prompt}],
+            }
+        ]
         try:
-            response = gpt4v_generate_response(client=self.client, model="gpt-4o", messages=messages, system=QUESTION_FINALIZER_PROMPT)
+            response = gpt4v_generate_response(
+                client=self.client,
+                model="gpt-4o",
+                messages=messages,
+                system=QUESTION_FINALIZER_PROMPT,
+            )
             # response = claude_generate_response(self.client, "claude-3-5-sonnet-20240620", messages)
             if response.success:
                 data = json.loads(response.content)

@@ -1,6 +1,5 @@
 import datetime
 import json
-import os
 from difflib import SequenceMatcher as SM
 from functools import partial
 from pathlib import Path
@@ -38,7 +37,9 @@ if config["metadata"]["load_package"]:
         nlp_en = spacy.load("en_core_web_sm")
         download("zh_core_web_sm")
         nlp_zh = spacy.load("zh_core_web_sm")
-        eval_logger.debug("Spacy models not loaded due to load_package is False. Please set load_package to True in the config file to load them.")
+        eval_logger.debug(
+            "Spacy models not loaded due to load_package is False. Please set load_package to True in the config file to load them."
+        )
 else:
     nlp = {"en": None, "zh": None}
     rouge = None
@@ -129,7 +130,9 @@ def vcr_process_results_single(crossed_text, result, language):
     max_sim_string = ""
     max_sim_ngram = []
     tokens_crossed_text_set = set(tokens_crossed_text)
-    ngrams_hasjoint = [ngram for ngram in ngrams_ if not set(ngram).isdisjoint(tokens_crossed_text_set)]
+    ngrams_hasjoint = [
+        ngram for ngram in ngrams_ if not set(ngram).isdisjoint(tokens_crossed_text_set)
+    ]
 
     for ngram in ngrams_hasjoint:
         result_ngram = splitter.join(ngram)
