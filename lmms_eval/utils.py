@@ -363,7 +363,7 @@ class Reorderer:
         res = [None] * self.size
         cov = [False] * self.size
 
-        for (inds, _), v in zip(self.arr, newarr):
+        for (inds, _), v in zip(self.arr, newarr, strict=False):
             for ind in inds:
                 res[ind] = v
                 cov[ind] = True
@@ -419,7 +419,7 @@ class Grouper:
         assert grouped_dict.keys() == self.arr.keys()
 
         for key in grouped_dict.keys():
-            for (ind, _), v in zip(self.arr[key], grouped_dict[key]):
+            for (ind, _), v in zip(self.arr[key], grouped_dict[key], strict=False):
                 res[ind] = v
                 cov[ind] = True
                 # orig[ind] = _
@@ -936,7 +936,7 @@ class Collator:
         res = [None] * self.size
         cov = [False] * self.size
 
-        for ind, v in zip(self.reorder_indices, newarr):
+        for ind, v in zip(self.reorder_indices, newarr, strict=False):
             res[ind] = v
             cov[ind] = True
 

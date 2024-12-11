@@ -116,7 +116,7 @@ class JSONParseEvaluator:
     def cal_f1(self, preds: List[dict], answers: List[dict]):
         """Calculate global F1 accuracy score (field-level, micro-averaged) by counting all true positives, false negatives and false positives"""
         total_tp, total_fn_or_fp = 0, 0
-        for pred, answer in zip(preds, answers):
+        for pred, answer in zip(preds, answers, strict=False):
             pred, answer = (
                 self.flatten(self.normalize_dict(pred)),
                 self.flatten(self.normalize_dict(answer)),

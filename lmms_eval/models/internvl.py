@@ -524,7 +524,9 @@ class InternVLChat(lmms):
         )
         pbar = tqdm(total=num_iters, disable=(self.rank != 0), desc="Model Responding")
         for chunk in chunks:
-            contexts, all_gen_kwargs, doc_to_visual, doc_id, task, split = zip(*chunk)
+            contexts, all_gen_kwargs, doc_to_visual, doc_id, task, split = zip(
+                *chunk, strict=False
+            )
             task = task[0]
             split = split[0]
             batched_visuals = [

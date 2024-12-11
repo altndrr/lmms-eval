@@ -30,7 +30,10 @@ def replace_images_tokens(input_string):
 def parse_options(options):
     option_letters = [chr(ord("A") + i) for i in range(len(options))]
     choices_str = "\n".join(
-        [f"{option_letter}. {option}" for option_letter, option in zip(option_letters, options)]
+        [
+            f"{option_letter}. {option}"
+            for option_letter, option in zip(option_letters, options, strict=False)
+        ]
     )
     return choices_str
 
@@ -273,7 +276,7 @@ def evaluate_mmmu(samples):
             else:
                 judge_dict[sample["id"]] = "Wrong"
         elif isinstance(sample["answer"], list) and isinstance(sample["parsed_pred"], list):
-            for gold, pred in zip(sample["answer"], sample["parsed_pred"]):
+            for gold, pred in zip(sample["answer"], sample["parsed_pred"], strict=False):
                 correct = eval_multi_choice(gold, pred)
                 total_count += 1
                 if correct:

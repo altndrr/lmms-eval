@@ -361,7 +361,7 @@ def cli_evaluate(args: Union[argparse.Namespace, None] = None) -> None:
                 )
                 results_list.append(None)
 
-    for args, results in zip(args_list, results_list):
+    for args, results in zip(args_list, results_list, strict=False):
         # cli_evaluate will return none if the process is not the main process (rank 0)
         if results is not None:
             print(

@@ -669,8 +669,8 @@ class Task(abc.ABC):
         if not isinstance(self, ConfigurableTask):
             self.process_results = lambda x, y: {metric_name: get_metric(metric_name)}
             self.aggregation = lambda: {metric_name: get_metric_aggregation(metric_name)}
-        setattr(self._config, "metric_list", [{"metric": metric_name}])
-        setattr(self._config, "process_results", None)
+        self._config.metric_list = [{"metric": metric_name}]
+        self._config.process_results = None
 
     def set_fewshot_seed(self, seed: Optional[int] = None) -> None:
         self.fewshot_rnd = random.Random(seed)
@@ -1434,7 +1434,7 @@ class ConfigurableTask(Task):
                 **({"acc": int(is_greedy)} if "acc" in use_metric else {}),
             }
         elif self.OUTPUT_TYPE == "multiple_choice":
-            lls, is_greedy = zip(*results)
+            lls, is_greedy = zip(*results, strict=False)
 
             # retrieve choices in List[str] form, to compute choice lengths, etc.
             choices = self.doc_to_choice(doc)
@@ -1499,7 +1499,9 @@ class ConfigurableTask(Task):
             }
 
             if "acc_mutual_info" in use_metric:
-                lls_mutual_info = [ll_c - ll_u for ll_c, ll_u in zip(lls, lls_unconditional)]
+                lls_mutual_info = [
+                    ll_c - ll_u for ll_c, ll_u in zip(lls, lls_unconditional, strict=False)
+                ]
                 acc_mutual_info = 1.0 if np.argmax(lls_mutual_info) == gold else 0.0
                 result_dict["acc_mutual_info"] = acc_mutual_info
 

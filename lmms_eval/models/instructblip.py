@@ -179,7 +179,9 @@ class InstructBLIP(lmms):
         )
         pbar = tqdm(total=num_iters, disable=(self.rank != 0), desc="Model Responding")
         for chunk in chunks:
-            contexts, all_gen_kwargs, doc_to_visual, doc_id, task, split = zip(*chunk)
+            contexts, all_gen_kwargs, doc_to_visual, doc_id, task, split = zip(
+                *chunk, strict=False
+            )
             task = task[0]
             split = split[0]
             visuals = [doc_to_visual[0](self.task_dict[task][split][ids]) for ids in doc_id]

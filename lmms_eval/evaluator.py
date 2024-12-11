@@ -423,7 +423,7 @@ def evaluate(
             system_instruction=system_instruction,
             apply_chat_template=apply_chat_template,
             fewshot_as_multiturn=fewshot_as_multiturn,
-            chat_template=getattr(lm, "apply_chat_template") if apply_chat_template else None,
+            chat_template=lm.apply_chat_template if apply_chat_template else None,
             tokenizer_name=getattr(lm, "tokenizer_name", "") if apply_chat_template else "",
         )
         eval_logger.debug(
@@ -465,7 +465,7 @@ def evaluate(
         resps = getattr(lm, reqtype)(cloned_reqs)  # Choiszt run generate until
 
         # put responses from model into a list of length K for each request.
-        for x, req in zip(resps, cloned_reqs):
+        for x, req in zip(resps, cloned_reqs, strict=False):
             req.resps.append(x)
 
         if lm.world_size > 1:

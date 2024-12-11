@@ -171,7 +171,9 @@ class Qwen2_VL(lmms):
         re_ords = utils.Collator([reg.args for reg in requests], _collate, grouping=True)
         chunks = re_ords.get_batched(n=self.batch_size, batch_fn=None)
         for chunk in chunks:
-            contexts, all_gen_kwargs, doc_to_visual, doc_id, task, split = zip(*chunk)
+            contexts, all_gen_kwargs, doc_to_visual, doc_id, task, split = zip(
+                *chunk, strict=False
+            )
             task = task[0]
             split = split[0]
             visuals = [doc_to_visual[0](self.task_dict[task][split][ids]) for ids in doc_id]
@@ -309,7 +311,8 @@ class Qwen2_VL(lmms):
             )
 
             generated_ids_trimmed = [
-                out_ids[len(in_ids) :] for in_ids, out_ids in zip(inputs.input_ids, cont)
+                out_ids[len(in_ids) :]
+                for in_ids, out_ids in zip(inputs.input_ids, cont, strict=False)
             ]
             answers = self.processor.batch_decode(
                 generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False
@@ -320,7 +323,7 @@ class Qwen2_VL(lmms):
                         ans = ans.split(term)[0]
                 answers[i] = ans
 
-            for ans, context in zip(answers, contexts):
+            for ans, context in zip(answers, contexts, strict=False):
                 res.append(ans)
                 self.cache_hook.add_partial("generate_until", (context, gen_kwargs), ans)
                 pbar.update(1)

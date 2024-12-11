@@ -304,7 +304,9 @@ class Cambrian(lmms):
         chunks = re_ords.get_batched(n=self.batch_size, batch_fn=None)
 
         for chunk in chunks:
-            contexts, all_gen_kwargs, doc_to_visual, doc_id, task, split = zip(*chunk)
+            contexts, all_gen_kwargs, doc_to_visual, doc_id, task, split = zip(
+                *chunk, strict=False
+            )
             task = task[0]
             split = split[0]
             visuals = self.flatten(

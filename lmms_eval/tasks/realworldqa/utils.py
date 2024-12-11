@@ -89,7 +89,7 @@ class MultiChoiceRegexFilter(ExtendedRegexFilter):
 
         filtered_resps = []
 
-        for r, doc in zip(resps, docs):
+        for r, doc in zip(resps, docs, strict=False):
             fallback_regexes = []
             choice_to_alpha = {}
             next_alpha = "A"

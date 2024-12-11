@@ -212,7 +212,7 @@ class CachingLMM:
 
             # stick the new ones back into the list and also cache any of the new ones
             resptr = 0
-            for req, r in zip(remaining_reqs, rem_res):
+            for req, r in zip(remaining_reqs, rem_res, strict=False):
                 while res[resptr] is not None:
                     resptr += 1
 

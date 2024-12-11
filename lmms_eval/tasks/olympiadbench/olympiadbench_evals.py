@@ -272,7 +272,7 @@ class OlympiadBenchEvaluator:
             items_1 = inter1.split(",")
             items_2 = inter2.split(",")
 
-            for item_1, item_2 in zip(items_1, items_2):
+            for item_1, item_2 in zip(items_1, items_2, strict=False):
                 if not self.expression_equal(item_1, item_2):
                     return False
             return True
@@ -288,7 +288,7 @@ class OlympiadBenchEvaluator:
             if len(inter_list1) != len(inter_list2):
                 return False
             else:
-                for inter1, inter2 in zip(inter_list1, inter_list2):
+                for inter1, inter2 in zip(inter_list1, inter_list2, strict=False):
                     if not compare_two_interval(inter1, inter2):
                         return False
                 return True

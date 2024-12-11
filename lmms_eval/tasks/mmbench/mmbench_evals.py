@@ -35,7 +35,7 @@ class MMBench_Evaluator:
     def build_option_str(self, option_list):
         chars = string.ascii_uppercase
         s = "There are several options: \n"
-        for c, opt in zip(chars, option_list):
+        for c, opt in zip(chars, option_list, strict=False):
             if not pd.isna(opt):
                 s += f"{c}. {opt}\n"
             else:
@@ -286,10 +286,10 @@ class MMBench_Evaluator:
         data_main = data[data["index"] < int(1e6)]
 
         data_main["hit"] = 0
-        cate_map = {i: c for i, c in zip(data["index"], data["category"])}
-        answer_map = {i: c for i, c in zip(data["index"], data["answer"])}
+        cate_map = {i: c for i, c in zip(data["index"], data["category"], strict=False)}
+        answer_map = {i: c for i, c in zip(data["index"], data["answer"], strict=False)}
         if "l2-category" in data.columns:
-            l2_cate_map = {i: c for i, c in zip(data["index"], data["l2-category"])}
+            l2_cate_map = {i: c for i, c in zip(data["index"], data["l2-category"], strict=False)}
 
         lt = len(data_main)
         hit, tot = 0, 0

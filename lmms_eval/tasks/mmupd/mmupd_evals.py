@@ -126,7 +126,7 @@ class MMUPD_Evaluator:
     def build_option_str(self, option_list):
         chars = string.ascii_uppercase
         s = "There are several options: \n"
-        for c, opt in zip(chars, option_list):
+        for c, opt in zip(chars, option_list, strict=False):
             if not pd.isna(opt):
                 s += f"{c}. {opt}\n"
             else:
@@ -159,7 +159,7 @@ class MMUPD_Evaluator:
         valid_option = []
         answer_option = []
 
-        for c, opt in zip(chars, option_list):
+        for c, opt in zip(chars, option_list, strict=False):
             if self.is_none(opt) is False:
                 s += f"{c}. {opt}\n"
                 valid_option.append(c)
@@ -592,10 +592,10 @@ class MMUPD_Evaluator:
         data_main = data[data["index"] < int(1e6)]
 
         data_main["hit"] = 0
-        cate_map = {i: c for i, c in zip(data["index"], data["category"])}
-        answer_map = {i: c for i, c in zip(data["index"], data["answer"])}
+        cate_map = {i: c for i, c in zip(data["index"], data["category"], strict=False)}
+        answer_map = {i: c for i, c in zip(data["index"], data["answer"], strict=False)}
 
-        gt_text_map = {i: c for i, c in zip(data["index"], data["masked_answer"])}
+        gt_text_map = {i: c for i, c in zip(data["index"], data["masked_answer"], strict=False)}
 
         lt = len(data_main)
         hit, tot = 0, 0

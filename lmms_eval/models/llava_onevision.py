@@ -428,7 +428,7 @@ class Llava_OneVision(lmms):
                 batched_doc_id,
                 batched_task,
                 batched_split,
-            ) = zip(*chunk)
+            ) = zip(*chunk, strict=False)
             task = batched_task[0]
             split = batched_split[0]
             batched_visuals = [
@@ -445,7 +445,7 @@ class Llava_OneVision(lmms):
 
             question_input = []
             # import ipdb; ipdb.set_trace()
-            for visual, context in zip(batched_visuals, batched_contexts):
+            for visual, context in zip(batched_visuals, batched_contexts, strict=False):
                 if (
                     origin_image_aspect_ratio is not None
                     and self._config.image_aspect_ratio != origin_image_aspect_ratio
@@ -616,7 +616,7 @@ class Llava_OneVision(lmms):
                 batched_doc_id,
                 batched_task,
                 batched_split,
-            ) = zip(*chunk)
+            ) = zip(*chunk, strict=False)
             task = batched_task[0]
             split = batched_split[0]
             batched_visuals = [
@@ -661,17 +661,18 @@ class Llava_OneVision(lmms):
                                     else None,
                                 )
                                 for ids_idx, ids in enumerate(batched_doc_id)
-                            ]
+                            ],
+                            strict=False,
                         )
                     )
                     # import ipdb; ipdb.set_trace()
                     batched_round_res = list(
-                        zip(*batched_round_res)
+                        zip(*batched_round_res, strict=False)
                     )  # [(r1_1, r1_2), (r2_1, r2_2), ...]
                     if batched_terminal_singal[0]:  # terminal signal from doc_to_text function
                         break
 
-                for visual, context in zip(batched_visuals, batched_contexts):
+                for visual, context in zip(batched_visuals, batched_contexts, strict=False):
                     if (
                         origin_image_aspect_ratio is not None
                         and self._config.image_aspect_ratio != origin_image_aspect_ratio
@@ -800,7 +801,7 @@ class Llava_OneVision(lmms):
 
                 round_idx += 1
 
-            res.extend(list(zip(*batched_round_res)))
+            res.extend(list(zip(*batched_round_res, strict=False)))
             self.cache_hook.add_partial(
                 "generate_until_multi_round", (context, gen_kwargs), batched_round_res
             )

@@ -9,7 +9,9 @@ def muir_doc_to_text(doc, lmms_eval_specific_kwargs=None):
     post_prompt = lmms_eval_specific_kwargs["post_prompt"]
     pre_prompt = lmms_eval_specific_kwargs["pre_prompt"]
     options = [chr(ord("A") + i) for i in range(len_choices)]
-    choices_str = "\n".join([f"{option}. {choice}" for option, choice in zip(options, choices)])
+    choices_str = "\n".join(
+        [f"{option}. {choice}" for option, choice in zip(options, choices, strict=False)]
+    )
     return f"{pre_prompt}{question}\n{choices_str}{post_prompt}"
 
 
@@ -88,7 +90,7 @@ class MultiChoiceRegexFilter(ExtendedRegexFilter):
 
         filtered_resps = []
 
-        for r, doc in zip(resps, docs):
+        for r, doc in zip(resps, docs, strict=False):
             # Regex to directly extract the option letter from the model response
             option_letter_regex = re.compile(r"^\s*([A-Z])\.")
 

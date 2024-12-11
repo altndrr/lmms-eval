@@ -225,10 +225,14 @@ class Idefics2(lmms):
         )
         pbar = tqdm(total=num_iters, disable=(self.rank != 0), desc="Model Responding")
         for chunk in chunks:
-            contexts, all_gen_kwargs, doc_to_visuals, doc_id, tasks, splits = zip(*chunk)
+            contexts, all_gen_kwargs, doc_to_visuals, doc_id, tasks, splits = zip(
+                *chunk, strict=False
+            )
             visuals = [
                 doc_to_visual(self.task_dict[task][split][ids])
-                for ids, task, split, doc_to_visual in zip(doc_id, tasks, splits, doc_to_visuals)
+                for ids, task, split, doc_to_visual in zip(
+                    doc_id, tasks, splits, doc_to_visuals, strict=False
+                )
             ]
             # we assume all gen kwargs in the batch are the same
             # this is safe to assume because the `grouper` object ensures it.
@@ -242,7 +246,7 @@ class Idefics2(lmms):
                 gen_kwargs["temperature"] = 0
 
             prompts = []
-            for context, visual in zip(contexts, visuals):
+            for context, visual in zip(contexts, visuals, strict=False):
                 content = []
                 if DEFAULT_IMAGE_TOKEN not in context:
                     for image in visual:
@@ -257,7 +261,7 @@ class Idefics2(lmms):
             inputs = {k: v.to(self.device) for k, v in inputs.items()}
             output_ids = self.model.generate(**inputs, **gen_kwargs)
             # only retain the generated text
-            for output_id, input_id in zip(output_ids, inputs["input_ids"]):
+            for output_id, input_id in zip(output_ids, inputs["input_ids"], strict=False):
                 generated_id = output_id[len(input_id) :]
                 generated_text = self.tokenizer.decode(generated_id, skip_special_tokens=True)
 

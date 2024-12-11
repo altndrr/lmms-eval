@@ -222,7 +222,9 @@ class Qwen_VL(lmms):
         re_ords = utils.Collator([reg.args for reg in requests], _collate, grouping=True)
         chunks = re_ords.get_batched(n=self.batch_size, batch_fn=None)
         for chunk in chunks:
-            contexts, all_gen_kwargs, doc_to_visual, doc_id, task, split = zip(*chunk)
+            contexts, all_gen_kwargs, doc_to_visual, doc_id, task, split = zip(
+                *chunk, strict=False
+            )
             task = task[0]
             split = split[0]
             visuals = [doc_to_visual[0](self.task_dict[task][split][ids]) for ids in doc_id]
@@ -266,7 +268,7 @@ class Qwen_VL(lmms):
                 for context in contexts:
                     query.append({"text": context})
             else:
-                for visual_path, context in zip(visual_paths, contexts):
+                for visual_path, context in zip(visual_paths, contexts, strict=False):
                     query.append({"image": visual_path})
                     query.append({"text": context})
 
@@ -309,7 +311,7 @@ class Qwen_VL(lmms):
             )
 
             cont_toks_list = cont.tolist()
-            for cont_toks, context in zip(cont_toks_list, contexts):
+            for cont_toks, context in zip(cont_toks_list, contexts, strict=False):
                 # discard context + left-padding toks if using causal decoder-only LMM
                 cont_toks = cont_toks[input_ids.input_ids.shape[1] :]
                 text_outputs = self.tokenizer.decode(cont_toks, skip_special_tokens=True).strip()

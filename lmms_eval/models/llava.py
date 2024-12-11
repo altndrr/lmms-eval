@@ -367,7 +367,9 @@ class Llava(lmms):
         )
         pbar = tqdm(total=num_iters, disable=(self.rank != 0), desc="Model Responding")
         for chunk in chunks:
-            contexts, all_gen_kwargs, doc_to_visual, doc_id, task, split = zip(*chunk)
+            contexts, all_gen_kwargs, doc_to_visual, doc_id, task, split = zip(
+                *chunk, strict=False
+            )
             task = task[0]
             split = split[0]
             batched_visuals = [
@@ -417,7 +419,7 @@ class Llava(lmms):
 
             question_input = []
 
-            for visual, context in zip(batched_visuals, contexts):
+            for visual, context in zip(batched_visuals, contexts, strict=False):
                 if (
                     image_tensor is not None
                     and len(image_tensor) != 0

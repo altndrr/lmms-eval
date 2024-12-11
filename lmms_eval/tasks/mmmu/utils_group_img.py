@@ -57,7 +57,7 @@ def resize_image_height(image, fixed_size):
 
 def concatenate_images_horizontal(image_list):
     # Concatenate images horizontally
-    widths, heights = zip(*(i.size for i in image_list))
+    widths, heights = zip(*(i.size for i in image_list), strict=False)
     total_width = sum(widths)
     max_height = max(heights)
     assert all(height == max_height for height in heights)
@@ -78,7 +78,7 @@ def resize_image_width(image, fixed_size):
 
 def concatenate_images_vertical(image_list):
     # Concatenate images horizontally
-    widths, heights = zip(*(i.size for i in image_list))
+    widths, heights = zip(*(i.size for i in image_list), strict=False)
     total_height = sum(heights)
     max_width = max(widths)
     assert all(width == max_width for width in widths)
@@ -156,7 +156,10 @@ def replace_images_tokens(input_string):
 def parse_options(options):
     option_letters = [chr(ord("A") + i) for i in range(len(options))]
     choices_str = "\n".join(
-        [f"({option_letter}) {option}" for option_letter, option in zip(option_letters, options)]
+        [
+            f"({option_letter}) {option}"
+            for option_letter, option in zip(option_letters, options, strict=False)
+        ]
     )
     return choices_str
 

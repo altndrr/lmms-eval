@@ -55,5 +55,5 @@ if os.environ.get("LMMS_EVAL_PLUGINS", None):
     # Allow specifying other packages to import models from
     for plugin in os.environ["LMMS_EVAL_PLUGINS"].split(","):
         m = importlib.import_module(f"{plugin}.models")
-        for model_name, model_class in getattr(m, "AVAILABLE_MODELS").items():
+        for model_name, model_class in m.AVAILABLE_MODELS.items():
             AVAILABLE_MODELS[model_name] = f"{plugin}.models.{model_name}.{model_class}"

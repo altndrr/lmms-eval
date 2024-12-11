@@ -11,7 +11,7 @@ def ai2d_doc_to_text(doc, lmms_eval_specific_kwargs=None):
     if lmms_eval_specific_kwargs["prompt_format"] == "mcq":
         options = [chr(ord("A") + i) for i in range(len_choices)]
         choices_str = "\n".join(
-            [f"{option}. {choice}" for option, choice in zip(options, choices)]
+            [f"{option}. {choice}" for option, choice in zip(options, choices, strict=False)]
         )
         return f"{pre_prompt}{question}\n{choices_str}{post_prompt}"
     elif lmms_eval_specific_kwargs["prompt_format"] == "qa":
@@ -19,7 +19,9 @@ def ai2d_doc_to_text(doc, lmms_eval_specific_kwargs=None):
         return f"{pre_prompt}{question}{options}{post_prompt}"
     elif lmms_eval_specific_kwargs["prompt_format"] == "mcq_xcomposer":
         options = [chr(ord("A") + i) for i in range(len_choices)]
-        choices_str = " ".join([f"{option}. {choice}" for option, choice in zip(options, choices)])
+        choices_str = " ".join(
+            [f"{option}. {choice}" for option, choice in zip(options, choices, strict=False)]
+        )
         return f"{pre_prompt}{question}\nContext: N/A\n{choices_str}{post_prompt}"
     else:
         raise ValueError(f"Unknown prompt format: {lmms_eval_specific_kwargs['prompt_format']}")
@@ -58,7 +60,7 @@ class MultiChoiceRegexFilter(ExtendedRegexFilter):
 
         filtered_resps = []
 
-        for r, doc in zip(resps, docs):
+        for r, doc in zip(resps, docs, strict=False):
             # Regex to directly extract the option letter from the model response
             option_letter_regex = re.compile(r"^\s*([A-Z])\.")
 
